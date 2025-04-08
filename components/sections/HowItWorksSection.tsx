@@ -35,13 +35,13 @@ export function HowItWorksSection() {
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-black to-gray-900">
       <div className="max-w-7xl mx-auto">
-        <h2 className="text-3xl md:text-4xl font-bold mb-4 text-center">
+        <h2 className="text-3xl text-white font-bold mb-4 text-center">
           How It Works
         </h2>
         <p className="text-xl text-gray-400 mb-12 text-center max-w-3xl mx-auto">
           A simple, intuitive process from brief to finished user flow.
         </p>
-
+      
         <div className="max-w-2xl mx-auto space-y-16">
           {howItWorks.map((step, index) => (
             <div key={index} className="relative">

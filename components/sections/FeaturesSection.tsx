@@ -48,12 +48,21 @@ export function FeaturesSection() {
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {features.map((feature, index) => (
-            <Card key={index} className="bg-gray-900 border-gray-800">
+            <Card key={index} className=" border-gray-800 bg-b ">
               <CardHeader>
                 <div className="mb-4 text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500">
-                  {React.cloneElement(feature.icon, { className: "h-8 w-8 text-transparent fill-transparent stroke-[url('#icon-gradient')]" })}
+                  {React.cloneElement(feature.icon, {
+                    className:
+                      "h-8 w-8 text-transparent fill-transparent stroke-[url('#icon-gradient')]",
+                  })}
                   <svg width="0" height="0" className="absolute">
-                    <linearGradient id="icon-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <linearGradient
+                      id="icon-gradient"
+                      x1="0%"
+                      y1="0%"
+                      x2="100%"
+                      y2="0%"
+                    >
                       <stop offset="0%" stopColor="#C084FC" />
                       <stop offset="50%" stopColor="#EC4899" />
                       <stop offset="100%" stopColor="#818CF8" />
@@ -71,4 +80,4 @@ export function FeaturesSection() {
       </div>
     </section>
   );
-} 
+}

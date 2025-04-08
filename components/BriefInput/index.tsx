@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
@@ -6,13 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
-import {
-  Mic,
-  MicOff,
-  Loader2,
-  Zap,
-  AlertCircle,
-} from "lucide-react";
+import { Mic, MicOff, Loader2, Zap, AlertCircle } from "lucide-react";
 import {
   checkSpeechRecognitionSupport,
   initSpeechRecognition,
@@ -26,14 +20,18 @@ interface BriefInputProps {
   maxLength?: number;
 }
 
-export function BriefInput({ onBriefChange, maxLength = 1000 }: BriefInputProps) {
+export function BriefInput({
+  onBriefChange,
+  maxLength = 1000,
+}: BriefInputProps) {
   const [brief, setBrief] = useState("");
   const [isVoiceSupported, setIsVoiceSupported] = useState(false);
-  const [recognitionState, setRecognitionState] = useState<SpeechRecognitionState>({
-    isListening: false,
-    transcript: "",
-    error: null,
-  });
+  const [recognitionState, setRecognitionState] =
+    useState<SpeechRecognitionState>({
+      isListening: false,
+      transcript: "",
+      error: null,
+    });
   const recognitionRef = useRef<RecognitionController | null>(null);
 
   useEffect(() => {
@@ -109,7 +107,7 @@ export function BriefInput({ onBriefChange, maxLength = 1000 }: BriefInputProps)
     <Card className="relative overflow-hidden border-[0.5px] border-slate-800 bg-[#0A0A0A] shadow-2xl">
       {/* Subtle gradient overlay */}
       <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-black to-slate-900/50" />
-      
+
       {/* Neon glow effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-indigo-500/5 opacity-50 animate-gradient" />
 
@@ -144,7 +142,7 @@ export function BriefInput({ onBriefChange, maxLength = 1000 }: BriefInputProps)
             ) : (
               <>
                 <Mic className="w-4 h-4 mr-2" />
-                Let's hear it! 🎤
+                Let&apos;s hear it! 🎤
               </>
             )}
             {recognitionState.isListening && (
@@ -179,23 +177,29 @@ export function BriefInput({ onBriefChange, maxLength = 1000 }: BriefInputProps)
             )}
           </div>
           <div className="flex items-center gap-2">
-            <span className={`${brief.length > maxLength * 0.9 ? "text-red-400" : "text-cyan-400"}`}>
+            <span
+              className={`${
+                brief.length > maxLength * 0.9
+                  ? "text-red-400"
+                  : "text-cyan-400"
+              }`}
+            >
               {brief.length} / {maxLength}
             </span>
           </div>
         </div>
 
-        <Progress 
-          value={progress} 
+        <Progress
+          value={progress}
           className="h-1 bg-slate-900/50 rounded-full overflow-hidden border border-slate-800"
           style={{
             backgroundImage: "linear-gradient(to right, #0e7490, #0369a1)",
             backgroundSize: `${progress}% 100%`,
             backgroundRepeat: "no-repeat",
-            boxShadow: progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none"
+            boxShadow: progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none",
           }}
         />
       </div>
     </Card>
   );
-} 
+}

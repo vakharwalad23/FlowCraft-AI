@@ -12,16 +12,19 @@ import {
   initSpeechRecognition,
   type SpeechRecognitionState,
 } from "@/lib/webspeech/speechRecognition";
+import { useFlowGeneration, type FlowStep } from "@/hooks/useFlowGeneration";
 
 type RecognitionController = ReturnType<typeof initSpeechRecognition>;
 
 interface BriefInputProps {
   onBriefChange: (brief: string) => void;
+  onGenerateFlow: (steps: FlowStep[]) => void;
   maxLength?: number;
 }
 
 export function BriefInput({
   onBriefChange,
+  onGenerateFlow,
   maxLength = 1000,
 }: BriefInputProps) {
   const [brief, setBrief] = useState("");
@@ -33,6 +36,11 @@ export function BriefInput({
       error: null,
     });
   const recognitionRef = useRef<RecognitionController | null>(null);
+  const {
+    generateFlow,
+    isGenerating,
+    error: generationError,
+  } = useFlowGeneration();
 
   useEffect(() => {
     const support = checkSpeechRecognitionSupport();
@@ -85,6 +93,23 @@ export function BriefInput({
     if (newValue.length <= maxLength) {
       setBrief(newValue);
       onBriefChange(newValue);
+    }
+  };
+
+  const handleGenerateFlow = async () => {
+    if (!brief.trim()) {
+      toast.error("Please provide a brief description first");
+      return;
+    }
+
+    try {
+      const steps = await generateFlow(brief);
+      onGenerateFlow(steps);
+      toast.success("Flow generated successfully! ✨");
+    } catch (error) {
+      toast.error("Failed to generate flow", {
+        description: error instanceof Error ? error.message : "Unknown error",
+      });
     }
   };
 
@@ -199,6 +224,31 @@ export function BriefInput({
             boxShadow: progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none",
           }}
         />
+
+        {generationError && (
+          <div className="flex items-center gap-2 text-red-400 mt-2">
+            <AlertCircle className="w-4 h-4" />
+            <span>{generationError}</span>
+          </div>
+        )}
+
+        <Button
+          onClick={handleGenerateFlow}
+          disabled={isGenerating || brief.trim().length === 0}
+          className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg hover:shadow-cyan-500/20 transition-all duration-300"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Generating Flow...
+            </>
+          ) : (
+            <>
+              <Zap className="w-4 h-4 mr-2" />
+              Generate Flow
+            </>
+          )}
+        </Button>
       </div>
     </Card>
   );

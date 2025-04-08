@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button";
 export function HeroSection() {
   return (
     <section className="relative h-screen flex flex-col items-center justify-center overflow-hidden px-4">
-      <div className="relative  text-center max-w-5xl mx-auto">
+      <div className="relative text-center max-w-5xl mx-auto">
         <h1 className="text-5xl md:text-7xl font-bold mb-6 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500">
           FlowCraft AI
         </h1>
@@ -37,12 +37,12 @@ export function HeroSection() {
           </Button>
         </div>
       </div>
-      <PenTool className="absolute top-1/4 left-1/4 h-10 w-10  text-gray-700  transition-all duration-300 hover:scale-125 hover:text-purple-400 hover:rotate-12" />
-      <Paintbrush className="absolute top-6/8 right-1/3 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-pink-400 hover:-rotate-12" />
-      <DraftingCompass className="absolute top-1/3 right-1/4 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-red-400 hover:rotate-45" />
+      <PenTool className="absolute top-1/4 left-1/4 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-purple-400 hover:rotate-12" />
+      <Paintbrush className="absolute top-3/4 right-1/3 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-pink-400 hover:-rotate-12" />
+      <DraftingCompass className="absolute top-1/3 right-1/4 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-indigo-400 hover:rotate-45" />
       <SplinePointer className="absolute bottom-1/3 left-1/3 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-blue-400 hover:-rotate-45" />
-      <Pencil className="absolute top-20 right-2/10 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-emerald-500 hover:rotate-180" />
-      <MonitorSmartphone className="absolute top-1/8 left-1/8 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-green-400 hover:rotate-60" />
+      <Pencil className="absolute top-20 right-1/3 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-violet-400 hover:rotate-180" />
+      <MonitorSmartphone className="absolute bottom-1/4 right-1/4 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-green-400 hover:rotate-60" />
       <Lightbulb className="absolute top-2/3 left-20 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-yellow-400 hover:rotate-60" />
       <PencilRuler className="absolute bottom-40 right-40 h-10 w-10 text-gray-700  transition-all duration-300 hover:scale-125 hover:text-cyan-400 hover:rotate-60" />
     </section>

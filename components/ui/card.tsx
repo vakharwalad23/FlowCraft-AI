@@ -19,7 +19,7 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
     <div
       data-slot="card"
       className={cn(
-        "relative bg-foreground text-popover flex flex-col gap-6 rounded-xl border border-muted py-6 shadow-sm overflow-hidden transition-all duration-300",
+        "relative bg-foreground text-popover flex flex-col gap-6 rounded-xl border border-muted  shadow-sm overflow-hidden transition-all duration-300",
         className
       )}
       style={{
@@ -37,14 +37,15 @@ function Card({ className, ...props }: React.ComponentProps<"div">) {
       {...props}
     >
       {/* Lighter background overlay that appears on hover */}
-      <div 
+      <div
         className="absolute inset-0 bg-white opacity-0 transition-opacity duration-300"
         style={{
           opacity: isHovering ? 0.05 : 0,
-          backgroundImage: "radial-gradient(88% 100% at top, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))"
+          backgroundImage:
+            "radial-gradient(88% 100% at top, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))",
         }}
       />
-      
+
       {/* Inner content wrapper with counter-movement */}
       <div
         className="relative w-full h-full"
@@ -135,4 +136,4 @@ export {
   CardAction,
   CardDescription,
   CardContent,
-}
+};

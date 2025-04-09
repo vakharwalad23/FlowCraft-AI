@@ -1,8 +1,8 @@
-import {FeaturesSection} from "@/components/sections/FeaturesSection";
-import { HowItWorksSection } from "@/components/sections/HowItWorksSection";
-import { CtsSection } from "@/components/sections/CtsSection";
-import { FooterSection } from "@/components/sections/FooterSection";
-import { HeroSection } from "@/components/sections/HeroSection";
+import {FeaturesSection} from "@/components/Sections/FeaturesSection";
+import { HowItWorksSection } from "@/components/Sections/HowItWorksSection";
+import { CtsSection } from "@/components/Sections/CtsSection";
+import { FooterSection } from "@/components/Sections/FooterSection";
+import { HeroSection } from "@/components/Sections/HeroSection";
 import { BackgroundEffects } from "@/components/ui/background-effects";
 
 export default function Home() {

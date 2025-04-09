@@ -349,12 +349,12 @@ export function BriefInput({
               <label className="text-sm font-medium text-slate-200">
                 Select Folder (Optional)
               </label>
-              <Select value={selectedFolderId || ""} onValueChange={setSelectedFolderId}>
+              <Select value={selectedFolderId || "none"} onValueChange={setSelectedFolderId}>
                 <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-slate-100">
                   <SelectValue placeholder="Choose a folder" />
                 </SelectTrigger>
                 <SelectContent className="bg-slate-800 border-slate-700">
-                  <SelectItem value="" className="text-slate-100">
+                  <SelectItem value="none" className="text-slate-100">
                     No Folder
                   </SelectItem>
                   {folders.map((folder) => (

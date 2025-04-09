@@ -64,6 +64,13 @@ export function FlowDiagram() {
       const elements = flowRef.current.getElementsByClassName('react-flow__node');
       const originalStyles: { [key: string]: string }[] = [];
       
+      // Hide control buttons and panel
+      const controlsPanel = flowRef.current.querySelector('.react-flow__panel-top-right');
+      const controlsOriginalDisplay = controlsPanel ? (controlsPanel as HTMLElement).style.display : '';
+      if (controlsPanel) {
+        (controlsPanel as HTMLElement).style.display = 'none';
+      }
+      
       Array.from(elements).forEach((el) => {
         const element = el as HTMLElement;
         originalStyles.push({
@@ -90,6 +97,11 @@ export function FlowDiagram() {
         element.style.transform = originalStyles[index].transform;
         element.style.transition = originalStyles[index].transition;
       });
+
+      // Restore controls visibility
+      if (controlsPanel) {
+        (controlsPanel as HTMLElement).style.display = controlsOriginalDisplay;
+      }
 
       // Create download link
       const link = document.createElement('a');
@@ -174,7 +186,7 @@ export function FlowDiagram() {
           className="bg-slate-900/90 border border-slate-800 p-2 rounded-lg shadow-xl"
           showInteractive={false}
         />
-        <Panel position="top-right" className="space-x-2">
+        <Panel position="top-right" className="flex gap-2 react-flow__panel-top-right">
           <Button
             variant="secondary"
             size="sm"

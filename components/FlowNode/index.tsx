@@ -194,7 +194,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
         position={Position.Left}
         className="w-3 h-3 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity"
       />
-      <Card className="min-h-[200px] w-[320px] bg-slate-900/90 border border-slate-800 shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 backdrop-blur-sm">
+      <Card className="min-h-[280px] w-[360px] bg-slate-900/90 border border-slate-800 shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 backdrop-blur-sm hover:scale-[1.02] group-hover:border-cyan-500/30">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <div className="p-5 space-y-4">
             {/* Header with controls */}

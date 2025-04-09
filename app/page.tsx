@@ -1,4 +1,4 @@
-import {FeaturesSection} from "@/components/Sections/FeaturesSection";
+import { FeaturesSection } from "@/components/Sections/FeaturesSection";
 import { HowItWorksSection } from "@/components/Sections/HowItWorksSection";
 import { CtsSection } from "@/components/Sections/CtsSection";
 import { FooterSection } from "@/components/Sections/FooterSection";

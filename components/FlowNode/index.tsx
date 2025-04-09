@@ -46,6 +46,7 @@ import {
   LayoutDashboard,
   ListChecks,
   Boxes,
+  Eye,
 } from "lucide-react";
 import {
   Collapsible,
@@ -58,6 +59,7 @@ import { toast } from "sonner";
 import useFlowStore, { FlowStep } from "@/store/useFlowStore";
 import { getComponentIcon } from "@/lib/componentIcons";
 import { cn } from "@/lib/utils";
+import { FlowNodePreview } from "@/components/FlowNodePreview";
 
 interface FlowNodeData {
   title: string;
@@ -127,6 +129,7 @@ const getNodeIcon = (title: string, description: string) => {
 export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [editedData, setEditedData] = useState(data);
   const [isAddingComponent, setIsAddingComponent] = useState(false);
   const { updateNode, deleteNode, addNode } = useFlowStore();
@@ -213,25 +216,23 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                     )}
                   </Button>
                 </CollapsibleTrigger>
-                <div className="flex items-center gap-2">
-                  <div className="relative">
-                    <Icon className="w-5 h-5 text-cyan-400" />
-                    <div className="absolute inset-0 bg-cyan-400/20 blur-lg rounded-full" />
-                  </div>
-                  {isEditing ? (
-                    <input
-                      type="text"
-                      value={editedData.title}
-                      onChange={(e) =>
-                        setEditedData({ ...editedData, title: e.target.value })
-                      }
-                      className="bg-slate-800 text-white px-3 py-1.5 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none w-full"
-                      placeholder="Enter step title..."
-                    />
-                  ) : (
-                    <h3 className="font-medium text-white text-lg">{data.title}</h3>
-                  )}
+                <div className="relative">
+                  <Icon className="w-5 h-5 text-cyan-400" />
+                  <div className="absolute inset-0 bg-cyan-400/20 blur-lg rounded-full" />
                 </div>
+                {isEditing ? (
+                  <input
+                    type="text"
+                    value={editedData.title}
+                    onChange={(e) =>
+                      setEditedData({ ...editedData, title: e.target.value })
+                    }
+                    className="bg-slate-800 text-white px-3 py-1.5 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none w-full"
+                    placeholder="Enter step title..."
+                  />
+                ) : (
+                  <h3 className="font-medium text-white text-lg">{data.title}</h3>
+                )}
               </div>
               <div className="flex items-center gap-1.5">
                 {isEditing ? (
@@ -255,6 +256,14 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                   </>
                 ) : (
                   <>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => setIsPreviewOpen(true)}
+                      className="text-cyan-400 hover:text-cyan-300"
+                    >
+                      <Eye className="w-4 h-4" />
+                    </Button>
                     <Button
                       variant="ghost"
                       size="sm"
@@ -397,6 +406,19 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
         position={Position.Right}
         className="w-3 h-3 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity"
       />
+
+      <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+        <DialogContent className="max-w-4xl bg-slate-900 border-slate-800">
+          <DialogHeader>
+            <DialogTitle className="text-slate-100">Component Preview</DialogTitle>
+          </DialogHeader>
+          <FlowNodePreview
+            title={data.title}
+            description={data.description}
+            components={data.components}
+          />
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }); 

@@ -12,9 +12,7 @@ import {
   initSpeechRecognition,
   type SpeechRecognitionState,
 } from "@/lib/webspeech/speechRecognition";
-import { useFlowGeneration, type FlowStep } from "@/hooks/useFlowGeneration";
-
-type RecognitionController = ReturnType<typeof initSpeechRecognition>;
+import type { FlowStep } from "@/store/useFlowStore";
 
 interface BriefInputProps {
   onBriefChange: (brief: string) => void;
@@ -29,18 +27,16 @@ export function BriefInput({
 }: BriefInputProps) {
   const [brief, setBrief] = useState("");
   const [isVoiceSupported, setIsVoiceSupported] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [recognitionState, setRecognitionState] =
     useState<SpeechRecognitionState>({
       isListening: false,
       transcript: "",
       error: null,
     });
-  const recognitionRef = useRef<RecognitionController | null>(null);
-  const {
-    generateFlow,
-    isGenerating,
-    error: generationError,
-  } = useFlowGeneration();
+  const recognitionRef = useRef<ReturnType<typeof initSpeechRecognition> | null>(
+    null
+  );
 
   useEffect(() => {
     const support = checkSpeechRecognitionSupport();
@@ -103,13 +99,55 @@ export function BriefInput({
     }
 
     try {
-      const steps = await generateFlow(brief);
-      onGenerateFlow(steps);
+      setIsGenerating(true);
+
+      const response = await fetch("/api/generate-flow", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ brief }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Server responded with ${response.status}`);
+      }
+
+      const rawText = await response.text();
+      
+      // Try to parse the JSON response
+      let parsedData;
+      try {
+        // Extract JSON array from the response if needed
+        const jsonMatch = rawText.match(/\[[\s\S]*\]/);
+        parsedData = jsonMatch ? JSON.parse(jsonMatch[0]) : JSON.parse(rawText);
+      } catch (parseError) {
+        console.error("Error parsing JSON response:", parseError, rawText);
+        throw new Error("Failed to parse the AI response. Please try again.");
+      }
+
+      // Validate the data format
+      if (!Array.isArray(parsedData)) {
+        throw new Error("Invalid response format: expected an array of steps");
+      }
+
+      // Ensure each step has the required properties
+      const validatedSteps = parsedData.map((step, index) => ({
+        id: step.id || `step${index + 1}`,
+        title: step.title || `Step ${index + 1}`,
+        description: step.description || "No description provided",
+        components: Array.isArray(step.components) ? step.components : [],
+      }));
+
+      onGenerateFlow(validatedSteps);
       toast.success("Flow generated successfully! ✨");
     } catch (error) {
+      console.error("Error generating flow:", error);
       toast.error("Failed to generate flow", {
         description: error instanceof Error ? error.message : "Unknown error",
       });
+    } finally {
+      setIsGenerating(false);
     }
   };
 
@@ -224,13 +262,6 @@ export function BriefInput({
             boxShadow: progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none",
           }}
         />
-
-        {generationError && (
-          <div className="flex items-center gap-2 text-red-400 mt-2">
-            <AlertCircle className="w-4 h-4" />
-            <span>{generationError}</span>
-          </div>
-        )}
 
         <Button
           onClick={handleGenerateFlow}

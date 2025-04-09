@@ -11,6 +11,7 @@ export interface Flow {
   steps: FlowStep[];
   createdAt: string;
   updatedAt: string;
+  previewHtml?: string;
 }
 
 export interface FlowFolder {
@@ -25,4 +26,4 @@ export interface FlowStorage {
   folders: FlowFolder[];
   unorganizedFlows: Flow[];
   lastUpdated: string;
-} 
+}

@@ -1,6 +1,6 @@
 "use client";
 
-import { memo } from "react";
+import { memo, useState, useMemo, useEffect } from "react";
 import { Handle, Position, NodeProps } from "reactflow";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -11,6 +11,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Select,
   SelectContent,
@@ -27,7 +29,6 @@ import {
   ChevronDown,
   ChevronUp,
   Component,
-  ArrowRight,
   Home,
   Search,
   UserCircle,
@@ -38,8 +39,8 @@ import {
   FileText,
   Bell,
   Mail,
-  Calendar,
-  Image,
+  Calendar as CalendarIcon,
+  Image as ImageIcon,
   Upload,
   Download,
   Users,
@@ -47,6 +48,23 @@ import {
   ListChecks,
   Boxes,
   Eye,
+  MousePointerClick,
+  LayoutGrid,
+  Table,
+  Navigation,
+  GalleryHorizontal,
+  List,
+  PanelTop,
+  SlidersHorizontal,
+  MessagesSquare,
+  CalendarDays,
+  UploadCloud,
+  CircleUserRound,
+  Map,
+  BarChart,
+  Text,
+  CheckSquare,
+  AlertTriangle,
 } from "lucide-react";
 import {
   Collapsible,
@@ -54,18 +72,12 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
-import { useState } from "react";
 import { toast } from "sonner";
 import useFlowStore, { FlowStep } from "@/store/useFlowStore";
-import { getComponentIcon } from "@/lib/componentIcons";
 import { cn } from "@/lib/utils";
 import { FlowNodePreview } from "@/components/FlowNodePreview";
 
-interface FlowNodeData {
-  title: string;
-  description: string;
-  components: string[];
-}
+type FlowNodeData = FlowStep;
 
 const AVAILABLE_COMPONENTS = [
   "Search Input",
@@ -91,8 +103,6 @@ const AVAILABLE_COMPONENTS = [
 
 const getNodeIcon = (title: string, description: string) => {
   const text = (title + " " + description).toLowerCase();
-  
-  // Define icon mappings based on keywords
   const iconMappings = [
     { keywords: ["home", "landing", "main", "welcome"], icon: Home },
     { keywords: ["search", "find", "filter", "browse"], icon: Search },
@@ -104,8 +114,8 @@ const getNodeIcon = (title: string, description: string) => {
     { keywords: ["form", "input", "details", "fill"], icon: FileText },
     { keywords: ["notification", "alert", "remind"], icon: Bell },
     { keywords: ["email", "contact", "subscribe"], icon: Mail },
-    { keywords: ["schedule", "date", "time", "book"], icon: Calendar },
-    { keywords: ["gallery", "photo", "media"], icon: Image },
+    { keywords: ["schedule", "date", "time", "book"], icon: CalendarIcon },
+    { keywords: ["gallery", "photo", "media"], icon: ImageIcon },
     { keywords: ["upload", "import", "attach"], icon: Upload },
     { keywords: ["download", "export", "save"], icon: Download },
     { keywords: ["social", "community", "group"], icon: Users },
@@ -113,31 +123,61 @@ const getNodeIcon = (title: string, description: string) => {
     { keywords: ["list", "todo", "task", "check"], icon: ListChecks },
     { keywords: ["product", "item", "catalog"], icon: Boxes },
   ];
-
-  // Find matching icon based on keywords
-  const matchedIcon = iconMappings.find(mapping => 
-    mapping.keywords.some(keyword => text.includes(keyword))
+  const matchedIcon = iconMappings.find((mapping) =>
+    mapping.keywords.some((keyword) => text.includes(keyword))
   );
-
-  // Return matched icon or default to Component icon
   return {
     icon: matchedIcon?.icon || Component,
     color: "text-cyan-400",
   };
 };
 
+const componentIconMapping: Record<string, React.ElementType> = {
+  "Search Input": Search,
+  "Action Button": MousePointerClick,
+  "Card Grid": LayoutGrid,
+  "Form Input": FileText,
+  "Data Table": Table,
+  "Navigation Menu": Navigation,
+  "Image Gallery": GalleryHorizontal,
+  "List View": List,
+  "Tab Panel": PanelTop,
+  "Filter Controls": SlidersHorizontal,
+  "Chat Interface": MessagesSquare,
+  "Date Picker": CalendarDays,
+  "File Upload": UploadCloud,
+  "User Profile": CircleUserRound,
+  "Map View": Map,
+  "Analytics Chart": BarChart,
+  "Text Editor": Text,
+  "Checkbox Group": CheckSquare,
+  "Alert Dialog": AlertTriangle,
+};
+
+const getUIComponentIcon = (componentName: string) => {
+  return componentIconMapping[componentName] || Component;
+};
+
 export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
-  const [editedData, setEditedData] = useState(data);
+  const [editedData, setEditedData] = useState<FlowNodeData>(data);
   const [isAddingComponent, setIsAddingComponent] = useState(false);
   const { updateNode, deleteNode, addNode } = useFlowStore();
 
-  const nodeIcon = getNodeIcon(data.title, data.description);
+  const nodeIcon = useMemo(
+    () => getNodeIcon(data.title, data.description),
+    [data.title, data.description]
+  );
   const Icon = nodeIcon.icon;
 
+  useEffect(() => {
+    setEditedData(data);
+  }, [data]);
+
   const handleEdit = () => {
+    setEditedData(data);
     setIsEditing(true);
   };
 
@@ -146,11 +186,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
       toast.error("Title cannot be empty!");
       return;
     }
-    const updatedStep: FlowStep = {
-      id,
-      ...editedData,
-    };
-    updateNode(id, updatedStep);
+    updateNode(id, editedData);
     setIsEditing(false);
     toast.success("Node updated successfully! ✨");
   };
@@ -170,12 +206,23 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
     toast.success("New node added! ✨");
   };
 
+  const handleInputChange = (
+    field: keyof FlowNodeData,
+    value: FlowNodeData[keyof FlowNodeData]
+  ) => {
+    setEditedData((prev) => ({
+      ...prev,
+      [field]: value,
+      previewHtml: undefined,
+    }));
+  };
+
   const handleComponentAdd = (componentName: string) => {
     if (!editedData.components.includes(componentName)) {
-      setEditedData({
-        ...editedData,
-        components: [...editedData.components, componentName],
-      });
+      handleInputChange("components", [
+        ...editedData.components,
+        componentName,
+      ]);
       setIsAddingComponent(false);
       toast.success(`Added ${componentName} component! ✨`);
     } else {
@@ -184,241 +231,250 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
   };
 
   const handleComponentDelete = (index: number) => {
-    setEditedData({
-      ...editedData,
-      components: editedData.components.filter((_, i) => i !== index),
-    });
+    handleInputChange(
+      "components",
+      editedData.components.filter((_, i) => i !== index)
+    );
   };
 
   return (
-    <div className="relative group">
+    <div className="relative group flow-node">
       <Handle
         type="target"
         position={Position.Left}
-        className="w-3 h-3 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity"
+        className="w-2.5 h-2.5 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-left-1.5"
       />
-      <Card className="min-h-[280px] w-[360px] bg-slate-900/90 border border-slate-800 shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 backdrop-blur-sm hover:scale-[1.02] group-hover:border-cyan-500/30">
+      <Card className="w-[350px] bg-slate-900 border border-slate-700 shadow-lg hover:shadow-cyan-500/15 transition-all duration-300 group-hover:border-cyan-600/50 rounded-xl">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <div className="p-5 space-y-4">
-            {/* Header with controls */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <CollapsibleTrigger asChild>
+          <div
+            className={cn(
+              "flex items-center justify-between p-4 border-b border-slate-800",
+              isOpen && "pb-3"
+            )}
+          >
+            <div className="flex items-center gap-2.5">
+              <CollapsibleTrigger asChild>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-md w-6 h-6"
+                >
+                  {isOpen ? (
+                    <ChevronUp className="w-4 h-4" />
+                  ) : (
+                    <ChevronDown className="w-4 h-4" />
+                  )}
+                </Button>
+              </CollapsibleTrigger>
+              <div className="relative w-5 h-5 flex items-center justify-center">
+                <Icon className="w-5 h-5 text-cyan-400 z-10" />
+                <div className="absolute inset-0 bg-cyan-500/10 blur-md rounded-full" />
+              </div>
+              {isEditing ? (
+                <Input
+                  type="text"
+                  value={editedData.title}
+                  onChange={(e) => handleInputChange("title", e.target.value)}
+                  className="h-8 bg-slate-800 text-white px-2 py-1 rounded border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none text-base font-medium"
+                  placeholder="Step Title"
+                />
+              ) : (
+                <h3 className="font-semibold text-white text-base leading-tight">
+                  {data.title}
+                </h3>
+              )}
+            </div>
+            <div className="flex items-center gap-1">
+              {isEditing ? (
+                <>
                   <Button
                     variant="ghost"
-                    size="sm"
-                    className="text-cyan-400 hover:text-cyan-300"
+                    size="icon"
+                    onClick={handleSave}
+                    className="text-green-400 hover:text-green-300 hover:bg-slate-800 rounded-md w-7 h-7"
                   >
-                    {isOpen ? (
-                      <ChevronUp className="w-4 h-4" />
-                    ) : (
-                      <ChevronDown className="w-4 h-4" />
-                    )}
+                    <Check className="w-4 h-4" />
                   </Button>
-                </CollapsibleTrigger>
-                <div className="relative">
-                  <Icon className="w-5 h-5 text-cyan-400" />
-                  <div className="absolute inset-0 bg-cyan-400/20 blur-lg rounded-full" />
-                </div>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editedData.title}
-                    onChange={(e) =>
-                      setEditedData({ ...editedData, title: e.target.value })
-                    }
-                    className="bg-slate-800 text-white px-3 py-1.5 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none w-full"
-                    placeholder="Enter step title..."
-                  />
-                ) : (
-                  <h3 className="font-medium text-white text-lg">{data.title}</h3>
-                )}
-              </div>
-              <div className="flex items-center gap-1.5">
-                {isEditing ? (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleSave}
-                      className="text-green-400 hover:text-green-300"
-                    >
-                      <Check className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleCancel}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      <X className="w-4 h-4" />
-                    </Button>
-                  </>
-                ) : (
-                  <>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={() => setIsPreviewOpen(true)}
-                      className="text-cyan-400 hover:text-cyan-300"
-                    >
-                      <Eye className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleEdit}
-                      className="text-cyan-400 hover:text-cyan-300"
-                    >
-                      <Pencil className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleDelete}
-                      className="text-red-400 hover:text-red-300"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleAddNode}
-                      className="text-emerald-400 hover:text-emerald-300 relative group/add"
-                    >
-                      <Plus className="w-4 h-4" />
-                      <span className="absolute -right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/add:opacity-100 group-hover/add:translate-x-4 transition-all duration-300">
-                        <ArrowRight className="w-4 h-4" />
-                      </span>
-                    </Button>
-                  </>
-                )}
-              </div>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleCancel}
+                    className="text-slate-400 hover:text-slate-300 hover:bg-slate-800 rounded-md w-7 h-7"
+                  >
+                    <X className="w-4 h-4" />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-md w-7 h-7"
+                    onClick={() => setIsPreviewOpen(true)}
+                  >
+                    <Eye className="w-4 h-4" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleEdit}
+                    className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-md w-7 h-7"
+                  >
+                    <Pencil className="w-3.5 h-3.5" />
+                  </Button>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleDelete}
+                    className="text-red-500 hover:text-red-400 hover:bg-slate-800 rounded-md w-7 h-7"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </Button>
+                </>
+              )}
             </div>
+          </div>
 
-            <CollapsibleContent>
-              {/* Description */}
-              <div className="space-y-3 pt-2">
-                {isEditing ? (
-                  <textarea
-                    value={editedData.description}
-                    onChange={(e) =>
-                      setEditedData({ ...editedData, description: e.target.value })
-                    }
-                    rows={3}
-                    className="w-full bg-slate-800 text-white px-3 py-2 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none"
-                    placeholder="Enter step description..."
-                  />
-                ) : (
-                  <p className="text-sm text-slate-300 leading-relaxed">{data.description}</p>
-                )}
-              </div>
+          <CollapsibleContent>
+            <div className="p-4 space-y-3">
+              {isEditing ? (
+                <Textarea
+                  value={editedData.description}
+                  onChange={(e) =>
+                    handleInputChange("description", e.target.value)
+                  }
+                  placeholder="Step description..."
+                  className="w-full bg-slate-800 border-slate-700 text-sm text-slate-300 rounded-md p-2 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 min-h-[60px]"
+                />
+              ) : (
+                <p className="text-sm text-slate-400 leading-relaxed">
+                  {data.description || (
+                    <span className="italic">No description</span>
+                  )}
+                </p>
+              )}
 
-              {/* Components */}
-              <div className="mt-5 pt-4 border-t border-slate-800">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <Component className="w-4 h-4 text-cyan-400" />
-                    <span className="text-xs font-medium text-slate-400">
-                      Components
-                    </span>
-                  </div>
+              <div>
+                <h4 className="text-xs font-semibold text-slate-500 uppercase mb-2">
+                  Components
+                </h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {(editedData.components || []).map((component, index) => {
+                    const CompIcon = getUIComponentIcon(component);
+                    return (
+                      <Badge
+                        key={index}
+                        variant="secondary"
+                        className="flex items-center gap-1.5 px-2 py-1 bg-slate-800 border border-slate-700 text-cyan-400 text-xs font-normal relative group/badge cursor-default"
+                      >
+                        <CompIcon className="w-3 h-3 text-cyan-500" />
+                        <span>{component}</span>
+                        {isEditing && (
+                          <button
+                            onClick={() => handleComponentDelete(index)}
+                            className="ml-1 -mr-1 text-slate-500 hover:text-red-400 opacity-0 group-hover/badge:opacity-100 transition-opacity p-0.5 leading-none focus:outline-none"
+                            aria-label="Remove component"
+                          >
+                            <X className="w-2.5 h-2.5" />
+                          </button>
+                        )}
+                      </Badge>
+                    );
+                  })}
                   {isEditing && (
-                    <Dialog open={isAddingComponent} onOpenChange={setIsAddingComponent}>
+                    <Dialog
+                      open={isAddingComponent}
+                      onOpenChange={setIsAddingComponent}
+                    >
                       <DialogTrigger asChild>
                         <Button
-                          variant="ghost"
+                          variant="outline"
                           size="sm"
-                          className="text-cyan-400 hover:text-cyan-300"
+                          className="border-dashed border-slate-600 text-slate-400 hover:text-cyan-400 hover:border-cyan-600 hover:bg-slate-800 h-6 px-2 py-0 text-xs"
                         >
-                          <Plus className="w-3 h-3" />
+                          <Plus className="w-3 h-3 mr-1" /> Add
                         </Button>
                       </DialogTrigger>
-                      <DialogContent className="bg-slate-900 border border-slate-800">
+                      <DialogContent className="bg-slate-900 border-slate-800 text-white">
                         <DialogHeader>
-                          <DialogTitle className="text-slate-100">Add Component</DialogTitle>
+                          <DialogTitle>Add Component</DialogTitle>
                         </DialogHeader>
-                        <div className="py-4">
-                          <Select onValueChange={handleComponentAdd}>
-                            <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-slate-100">
-                              <SelectValue placeholder="Select a component" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-slate-800 border-slate-700">
-                              {AVAILABLE_COMPONENTS.filter(
-                                (comp) => !editedData.components.includes(comp)
-                              ).map((component) => (
-                                <SelectItem
-                                  key={component}
-                                  value={component}
-                                  className="text-slate-100 focus:bg-slate-700 focus:text-slate-100"
-                                >
-                                  {component}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
+                        <Select onValueChange={handleComponentAdd}>
+                          <SelectTrigger className="w-full bg-slate-800 border-slate-700">
+                            <SelectValue placeholder="Select a component..." />
+                          </SelectTrigger>
+                          <SelectContent className="bg-slate-900 border-slate-700 text-white">
+                            {AVAILABLE_COMPONENTS.filter(
+                              (comp) =>
+                                !(editedData.components || []).includes(comp)
+                            ).map((component) => (
+                              <SelectItem
+                                key={component}
+                                value={component}
+                                className="hover:bg-slate-800 focus:bg-slate-700"
+                              >
+                                {component}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </DialogContent>
                     </Dialog>
                   )}
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {(isEditing ? editedData.components : data.components).map(
-                    (component, index) => {
-                      const iconConfig = getComponentIcon(component);
-                      const Icon = iconConfig.icon;
-                      return (
-                        <Badge
-                          key={index}
-                          variant="secondary"
-                          className={cn(
-                            "bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 backdrop-blur-sm",
-                            "transition-all duration-300 group/badge py-1 px-2",
-                            "hover:border-cyan-500/30 hover:shadow-[0_0_10px_rgba(34,211,238,0.1)]"
-                          )}
-                        >
-                          <div className="flex items-center gap-1.5">
-                            <Icon className={cn("w-3.5 h-3.5", iconConfig.color)} />
-                            <span className="text-slate-300 group-hover/badge:text-white transition-colors">
-                              {component}
-                            </span>
-                            {isEditing && (
-                              <button
-                                onClick={() => handleComponentDelete(index)}
-                                className="ml-1 text-red-400 hover:text-red-300"
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                            )}
-                          </div>
-                        </Badge>
-                      );
-                    }
-                  )}
-                </div>
               </div>
-            </CollapsibleContent>
-          </div>
+            </div>
+          </CollapsibleContent>
         </Collapsible>
       </Card>
+
+      <button
+        onClick={handleAddNode}
+        className={cn(
+          "absolute left-1/2 -translate-x-1/2 -bottom-4",
+          "w-7 h-7 rounded-full bg-cyan-600 hover:bg-cyan-500 border-2 border-slate-900",
+          "flex items-center justify-center text-white shadow-md",
+          "opacity-0 group-hover:opacity-100 transition-all duration-200 scale-75 group-hover:scale-100",
+          "z-10"
+        )}
+        aria-label="Add node after this"
+      >
+        <Plus className="w-4 h-4" />
+      </button>
+
       <Handle
         type="source"
         position={Position.Right}
-        className="w-3 h-3 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity"
+        className="w-2.5 h-2.5 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-right-1.5"
       />
 
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-4xl bg-slate-900 border-slate-800">
-          <DialogHeader>
-            <DialogTitle className="text-slate-100">Component Preview</DialogTitle>
+        <DialogContent className="max-w-5xl h-[80vh] flex flex-col bg-slate-950 border-slate-800 p-0">
+          <DialogHeader className="p-4 border-b border-slate-800 flex flex-row items-center justify-between">
+            <DialogTitle className="text-slate-100 text-base font-medium">
+              Component Preview: {data.title}
+            </DialogTitle>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => setIsPreviewOpen(false)}
+              className="text-slate-400 hover:text-white hover:bg-slate-800 w-7 h-7"
+            >
+              <X className="w-4 h-4" />
+            </Button>
           </DialogHeader>
-          <FlowNodePreview
-            title={data.title}
-            description={data.description}
-            components={data.components}
-          />
+          <div className="flex-grow p-6 overflow-hidden">
+            <FlowNodePreview
+              nodeId={id}
+              title={data.title}
+              description={data.description}
+              components={Array.isArray(data.components) ? data.components : []}
+            />
+          </div>
         </DialogContent>
       </Dialog>
     </div>
   );
-}); 
+});
+
+FlowNode.displayName = "FlowNode";

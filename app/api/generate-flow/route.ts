@@ -20,7 +20,7 @@ export async function POST(req: Request) {
     });
 
     // Define your system prompt for the AI
-    const systemPrompt = `You are FlowCraft AI, a specialized assistant for UX designers. Your task is to analyze a project brief and generate a logical user flow with 4-6 steps.
+    const systemPrompt = `You are FlowCraft AI, a specialized assistant for UX designers. Your task is to analyze a project brief and generate a logical user flow.
 
 For each step, you must:
 1. Generate a unique ID (e.g., "step1", "step2", etc.)
@@ -40,7 +40,7 @@ The output MUST be a valid JSON array with this exact structure:
 
 Important guidelines:
 - Each step should logically flow into the next
-- Use modern, Gen-Z friendly language and components
+- Use modern, user friendly language and components
 - Focus on creating an intuitive and engaging user experience
 - Keep descriptions concise but informative
 - Suggest trendy, modern UI components
@@ -52,17 +52,18 @@ Important guidelines:
       messages: [
         {
           role: "user",
-          content: `Generate a modern, Gen-Z focused user flow based on this brief: ${brief}`,
+          content: `Generate a modern user flow based on this brief: ${brief}`,
         },
       ],
       model: "claude-3-haiku-20240307",
       temperature: 0.7,
       system: systemPrompt,
-      max_tokens: 1024,
+      max_tokens: 2048,
     });
 
     // Extract and validate JSON from the response
-    const content = response.content[0].text;
+    const content =
+      response.content[0].type === "text" ? response.content[0].text : "";
     const jsonMatch = content.match(/\[[\s\S]*\]/);
     if (!jsonMatch) {
       throw new Error("No valid JSON array found in response");

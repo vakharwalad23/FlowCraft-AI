@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import { BriefInput } from "@/components/BriefInput";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import useFlowStore from "@/store/useFlowStore";
@@ -9,81 +9,80 @@ import type { FlowStep } from "@/store/useFlowStore";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { ReactFlowProvider } from "reactflow";
-import { getFlowById, saveFlow, createFlow } from "@/lib/flowStorage";
+import { v4 as uuidv4 } from "uuid";
 
 export default function FlowPage() {
-  const { flowId } = useParams();
-  const { setSteps, loadFlow } = useFlowStore();
+  const params = useParams();
+  const router = useRouter();
+  const {
+    loadFlowFromStorage,
+    resetFlow,
+    setSteps,
+    setCurrentFlowId,
+    currentFlowId,
+    currentFlowName,
+    setFlowName,
+  } = useFlowStore();
+
+  const flowIdParam = Array.isArray(params.flowId)
+    ? params.flowId[0]
+    : params.flowId;
+
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
-  const [flowName, setFlowName] = useState<string>("Untitled Flow");
 
   useEffect(() => {
-    const loadExistingFlow = () => {
-      if (flowId === "new") {
-        setIsLoading(false);
-        return;
+    console.log("FlowPage useEffect running, flowIdParam:", flowIdParam);
+    if (!flowIdParam) {
+      console.error("Flow ID parameter is missing!");
+      router.push("/flow/new");
+      return;
+    }
+
+    if (flowIdParam === "new") {
+      console.log("Detected 'new' flow route.");
+      const newFlowId = uuidv4();
+      resetFlow();
+      setCurrentFlowId(newFlowId);
+      setFlowName("Untitled Flow");
+      setIsLoading(false);
+      window.history.replaceState(null, "", `/flow/${newFlowId}`);
+      console.log("Initialized new flow with ID:", newFlowId);
+    } else {
+      console.log(
+        "Attempting to load existing flow from storage for ID:",
+        flowIdParam
+      );
+      if (currentFlowId !== flowIdParam) {
+        loadFlowFromStorage(flowIdParam);
       }
-
-      try {
-        // Use flowStorage utility directly instead of API calls
-        const flowData = getFlowById(flowId as string);
-
-        if (flowData) {
-          loadFlow({ steps: flowData.flow.steps });
-          setFlowName(flowData.flow.name);
-        }
-      } catch (error) {
-        console.error("Error loading flow:", error);
-      } finally {
-        setIsLoading(false);
-      }
-    };
-
-    loadExistingFlow();
-  }, [flowId, loadFlow]);
-
-  // This function is passed to BriefInput but the actual brief handling is done internally
-  const handleBriefChange = (brief: string) => {
-    // This is handled by the BriefInput component internally
-  };
+      setIsLoading(false);
+    }
+  }, [flowIdParam]);
 
   const handleGenerateFlow = (steps: FlowStep[]) => {
-    try {
-      setSteps(steps);
-
-      // Only save if it's not the 'new' route
-      if (flowId !== "new") {
-        // Get existing flow to update
-        const existingFlow = getFlowById(flowId as string);
-
-        if (existingFlow) {
-          const updatedFlow = {
-            ...existingFlow.flow,
-            steps,
-            updatedAt: new Date().toISOString(),
-          };
-
-          saveFlow(updatedFlow, existingFlow.folderId);
-        } else {
-          // If somehow the flow doesn't exist, create it
-          const newFlow = createFlow(flowName, steps);
-          saveFlow(newFlow);
-        }
-      }
-    } catch (error) {
-      console.error("Error saving flow:", error);
-    }
+    console.log("Handling generated flow steps:", steps);
+    setSteps(steps);
   };
 
   const togglePanel = () => {
     setIsPanelOpen(!isPanelOpen);
   };
 
-  if (isLoading) {
+  const isStoreLoading = !useFlowStore((state) => state.isStoreInitialized);
+
+  // Handle brief changes (if BriefInput needs external control)
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const handleBriefChange = (brief: string) => {
+    // Placeholder - This might be needed by BriefInput props,
+    // currently handled internally by BriefInput but prop might be required.
+  };
+
+  if (isLoading || isStoreLoading) {
     return (
       <div className="min-h-screen bg-[#030712] text-white flex items-center justify-center">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
+        <span className="ml-3">Loading Flow...</span>
       </div>
     );
   }
@@ -91,7 +90,12 @@ export default function FlowPage() {
   return (
     <ReactFlowProvider>
       <main className="min-h-screen bg-[#030712] text-white relative overflow-hidden">
-        {/* Toggle Button */}
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/80 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-slate-700/50 shadow-lg">
+          <span className="text-sm font-medium text-slate-200">
+            {currentFlowName}
+          </span>
+        </div>
+
         <Button
           variant="secondary"
           size="sm"
@@ -106,7 +110,6 @@ export default function FlowPage() {
         </Button>
 
         <div className="flex h-screen">
-          {/* Left side - Brief Input */}
           <div
             className={`w-[400px] min-w-[400px] p-6 border-r border-slate-800 overflow-y-auto transition-all duration-300 transform ${
               isPanelOpen ? "translate-x-0" : "-translate-x-full"
@@ -120,7 +123,6 @@ export default function FlowPage() {
             </div>
           </div>
 
-          {/* Right side - Flow Diagram */}
           <div
             className={`flex-1 relative transition-all duration-300 ${
               isPanelOpen ? "ml-[400px]" : "ml-0"

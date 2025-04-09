@@ -7,7 +7,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Search,
-  Mail,
   Bell,
   User,
   Settings,
@@ -17,9 +16,9 @@ import {
   X,
   ChevronRight,
 } from "lucide-react";
-import { cn } from "@/lib/utils";
 
 interface FlowNodePreviewProps {
+  nodeId: string;
   title: string;
   description: string;
   components: string[];
@@ -84,7 +83,10 @@ export function FlowNodePreview({
                 Get Started
                 <ChevronRight className="ml-2 h-4 w-4" />
               </Button>
-              <Button variant="outline" className="border-slate-700 text-slate-200">
+              <Button
+                variant="outline"
+                className="border-slate-700 text-slate-200"
+              >
                 Learn More
               </Button>
             </div>
@@ -133,15 +135,24 @@ export function FlowNodePreview({
             </Button>
             {isMenuOpen && (
               <div className="absolute top-full right-0 mt-2 w-48 py-2 bg-slate-800 rounded-lg shadow-xl border border-slate-700">
-                <Button variant="ghost" className="w-full justify-start px-4 text-slate-200">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start px-4 text-slate-200"
+                >
                   <Home className="mr-2 h-4 w-4" />
                   Home
                 </Button>
-                <Button variant="ghost" className="w-full justify-start px-4 text-slate-200">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start px-4 text-slate-200"
+                >
                   <User className="mr-2 h-4 w-4" />
                   Profile
                 </Button>
-                <Button variant="ghost" className="w-full justify-start px-4 text-slate-200">
+                <Button
+                  variant="ghost"
+                  className="w-full justify-start px-4 text-slate-200"
+                >
                   <Settings className="mr-2 h-4 w-4" />
                   Settings
                 </Button>
@@ -176,4 +187,4 @@ export function FlowNodePreview({
       </div>
     </Card>
   );
-} 
+}

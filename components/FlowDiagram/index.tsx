@@ -1,28 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
   Controls,
   Panel,
   BackgroundVariant,
-  Node,
-  Edge,
-  NodeChange,
-  EdgeChange,
-  Connection,
-  applyNodeChanges,
-  applyEdgeChanges,
   useReactFlow,
   ReactFlowInstance,
-} from 'reactflow';
-import 'reactflow/dist/style.css';
-import { FlowNode } from '@/components/FlowNode';
-import useFlowStore from '@/store/useFlowStore';
-import { Button } from '@/components/ui/button';
-import { Download, ZoomIn, ZoomOut, Undo } from 'lucide-react';
-import { toPng } from 'html-to-image';
-import { toast } from 'sonner';
+} from "reactflow";
+import "reactflow/dist/style.css";
+import { FlowNode } from "@/components/FlowNode";
+import useFlowStore from "@/store/useFlowStore";
+import { Button } from "@/components/ui/button";
+import { Download, Undo } from "lucide-react";
+import { toPng } from "html-to-image";
+import { toast } from "sonner";
 
 const nodeTypes = {
   flowNode: FlowNode,
@@ -31,18 +24,13 @@ const nodeTypes = {
 const defaultViewport = { x: 0, y: 0, zoom: 1 };
 
 export function FlowDiagram() {
-  const {
-    nodes,
-    edges,
-    onNodesChange,
-    onEdgesChange,
-    onConnect,
-    resetFlow,
-  } = useFlowStore();
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, resetFlow } =
+    useFlowStore();
 
   const { fitView } = useReactFlow();
   const flowRef = useRef<HTMLDivElement>(null);
-  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
+  const [reactFlowInstance, setReactFlowInstance] =
+    useState<ReactFlowInstance | null>(null);
 
   // Re-fit view when nodes change
   useEffect(() => {
@@ -61,33 +49,41 @@ export function FlowDiagram() {
 
     try {
       // Add temporary styles for better export quality
-      const elements = flowRef.current.getElementsByClassName('react-flow__node');
+      const elements =
+        flowRef.current.getElementsByClassName("react-flow__node");
       const originalStyles: { [key: string]: string }[] = [];
-      
+
       // Hide control buttons and panel
-      const controlsPanel = flowRef.current.querySelector('.react-flow__panel-top-right');
-      const controlsOriginalDisplay = controlsPanel ? (controlsPanel as HTMLElement).style.display : '';
+      const controlsPanel = flowRef.current.querySelector(
+        ".react-flow__panel-top-right"
+      );
+      const controlsOriginalDisplay = controlsPanel
+        ? (controlsPanel as HTMLElement).style.display
+        : "";
       if (controlsPanel) {
-        (controlsPanel as HTMLElement).style.display = 'none';
+        (controlsPanel as HTMLElement).style.display = "none";
       }
-      
+
       Array.from(elements).forEach((el) => {
         const element = el as HTMLElement;
         originalStyles.push({
           transform: element.style.transform,
           transition: element.style.transition,
         });
-        element.style.transform = element.style.transform.replace('translate3d', 'translate');
-        element.style.transition = 'none';
+        element.style.transform = element.style.transform.replace(
+          "translate3d",
+          "translate"
+        );
+        element.style.transition = "none";
       });
 
       const dataUrl = await toPng(flowRef.current, {
-        backgroundColor: '#030712',
+        backgroundColor: "#030712",
         quality: 1,
         pixelRatio: 2,
         style: {
-          width: '100%',
-          height: '100%',
+          width: "100%",
+          height: "100%",
         },
       });
 
@@ -104,16 +100,17 @@ export function FlowDiagram() {
       }
 
       // Create download link
-      const link = document.createElement('a');
-      link.download = 'flowcraft-diagram.png';
+      const link = document.createElement("a");
+      link.download = "flowcraft-diagram.png";
       link.href = dataUrl;
       link.click();
-      
+
       toast.success("Flow diagram exported successfully! 🎨");
     } catch (error) {
-      console.error('Error exporting image:', error);
+      console.error("Error exporting image:", error);
       toast.error("Failed to export diagram", {
-        description: "Please try again or contact support if the issue persists."
+        description:
+          "Please try again or contact support if the issue persists.",
       });
     }
   }, []);
@@ -133,18 +130,20 @@ export function FlowDiagram() {
       };
 
       const dataStr = JSON.stringify(flowData, null, 2);
-      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-      
-      const link = document.createElement('a');
-      link.download = 'flowcraft-data.json';
+      const dataUri =
+        "data:application/json;charset=utf-8," + encodeURIComponent(dataStr);
+
+      const link = document.createElement("a");
+      link.download = "flowcraft-data.json";
       link.href = dataUri;
       link.click();
-      
+
       toast.success("Flow data exported successfully! 📄");
     } catch (error) {
-      console.error('Error exporting JSON:', error);
+      console.error("Error exporting JSON:", error);
       toast.error("Failed to export flow data", {
-        description: "Please try again or contact support if the issue persists."
+        description:
+          "Please try again or contact support if the issue persists.",
       });
     }
   }, [reactFlowInstance]);
@@ -163,9 +162,9 @@ export function FlowDiagram() {
         fitView
         fitViewOptions={{ padding: 0.2, duration: 200 }}
         defaultEdgeOptions={{
-          type: 'smoothstep',
+          type: "smoothstep",
           animated: true,
-          style: { stroke: '#0e7490', strokeWidth: 2 },
+          style: { stroke: "#0e7490", strokeWidth: 2 },
         }}
         className="react-flow bg-[#030712]"
         minZoom={0.2}
@@ -186,7 +185,10 @@ export function FlowDiagram() {
           className="bg-slate-900/90 border border-slate-800 p-2 rounded-lg shadow-xl"
           showInteractive={false}
         />
-        <Panel position="top-right" className="flex gap-2 react-flow__panel-top-right">
+        <Panel
+          position="top-right"
+          className="flex gap-2 react-flow__panel-top-right"
+        >
           <Button
             variant="secondary"
             size="sm"
@@ -218,4 +220,4 @@ export function FlowDiagram() {
       </ReactFlow>
     </div>
   );
-} 
+}

@@ -224,7 +224,7 @@ export function BriefInput({
             <div className="flex items-center gap-2">
               <Zap className="w-5 h-5 text-cyan-400 animate-pulse" />
               <span className="text-sm font-medium bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-text-shimmer">
-                Share your vibe ⚡
+                Give a brief
               </span>
             </div>
             <Button
@@ -263,7 +263,7 @@ export function BriefInput({
           </div>
 
           <Textarea
-            placeholder="Drop your thoughts here... make it awesome! ⚡✨"
+            placeholder="Drop your thoughts here... make it awesome! ✨"
             className="min-h-[200px] resize-none bg-slate-900/50 border-slate-800 text-slate-100 placeholder:text-slate-600 focus:border-cyan-900/50 focus:ring-2 focus:ring-cyan-900/20 transition-all duration-300"
             value={brief}
             onChange={handleTextChange}

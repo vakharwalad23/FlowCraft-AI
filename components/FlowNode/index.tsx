@@ -5,6 +5,20 @@ import { Handle, Position, NodeProps } from "reactflow";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Pencil,
   Trash2,
   Plus,
@@ -13,8 +27,25 @@ import {
   ChevronDown,
   ChevronUp,
   Component,
-  Sparkles,
   ArrowRight,
+  Home,
+  Search,
+  UserCircle,
+  Settings,
+  ShoppingCart,
+  CreditCard,
+  MessageSquare,
+  FileText,
+  Bell,
+  Mail,
+  Calendar,
+  Image,
+  Upload,
+  Download,
+  Users,
+  LayoutDashboard,
+  ListChecks,
+  Boxes,
 } from "lucide-react";
 import {
   Collapsible,
@@ -34,11 +65,74 @@ interface FlowNodeData {
   components: string[];
 }
 
+const AVAILABLE_COMPONENTS = [
+  "Search Input",
+  "Action Button",
+  "Card Grid",
+  "Form Input",
+  "Data Table",
+  "Navigation Menu",
+  "Image Gallery",
+  "List View",
+  "Tab Panel",
+  "Filter Controls",
+  "Chat Interface",
+  "Date Picker",
+  "File Upload",
+  "User Profile",
+  "Map View",
+  "Analytics Chart",
+  "Text Editor",
+  "Checkbox Group",
+  "Alert Dialog",
+];
+
+const getNodeIcon = (title: string, description: string) => {
+  const text = (title + " " + description).toLowerCase();
+  
+  // Define icon mappings based on keywords
+  const iconMappings = [
+    { keywords: ["home", "landing", "main", "welcome"], icon: Home },
+    { keywords: ["search", "find", "filter", "browse"], icon: Search },
+    { keywords: ["profile", "user", "account", "personal"], icon: UserCircle },
+    { keywords: ["settings", "configure", "preferences"], icon: Settings },
+    { keywords: ["cart", "shop", "purchase", "buy"], icon: ShoppingCart },
+    { keywords: ["payment", "checkout", "billing"], icon: CreditCard },
+    { keywords: ["chat", "message", "communication"], icon: MessageSquare },
+    { keywords: ["form", "input", "details", "fill"], icon: FileText },
+    { keywords: ["notification", "alert", "remind"], icon: Bell },
+    { keywords: ["email", "contact", "subscribe"], icon: Mail },
+    { keywords: ["schedule", "date", "time", "book"], icon: Calendar },
+    { keywords: ["gallery", "photo", "media"], icon: Image },
+    { keywords: ["upload", "import", "attach"], icon: Upload },
+    { keywords: ["download", "export", "save"], icon: Download },
+    { keywords: ["social", "community", "group"], icon: Users },
+    { keywords: ["dashboard", "overview", "analytics"], icon: LayoutDashboard },
+    { keywords: ["list", "todo", "task", "check"], icon: ListChecks },
+    { keywords: ["product", "item", "catalog"], icon: Boxes },
+  ];
+
+  // Find matching icon based on keywords
+  const matchedIcon = iconMappings.find(mapping => 
+    mapping.keywords.some(keyword => text.includes(keyword))
+  );
+
+  // Return matched icon or default to Component icon
+  return {
+    icon: matchedIcon?.icon || Component,
+    color: "text-cyan-400",
+  };
+};
+
 export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
   const [isEditing, setIsEditing] = useState(false);
   const [isOpen, setIsOpen] = useState(true);
   const [editedData, setEditedData] = useState(data);
+  const [isAddingComponent, setIsAddingComponent] = useState(false);
   const { updateNode, deleteNode, addNode } = useFlowStore();
+
+  const nodeIcon = getNodeIcon(data.title, data.description);
+  const Icon = nodeIcon.icon;
 
   const handleEdit = () => {
     setIsEditing(true);
@@ -73,13 +167,16 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
     toast.success("New node added! ✨");
   };
 
-  const handleComponentAdd = () => {
-    const newComponent = prompt("Enter new component name:");
-    if (newComponent?.trim()) {
+  const handleComponentAdd = (componentName: string) => {
+    if (!editedData.components.includes(componentName)) {
       setEditedData({
         ...editedData,
-        components: [...editedData.components, newComponent.trim()],
+        components: [...editedData.components, componentName],
       });
+      setIsAddingComponent(false);
+      toast.success(`Added ${componentName} component! ✨`);
+    } else {
+      toast.error("This component is already added!");
     }
   };
 
@@ -118,7 +215,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                 </CollapsibleTrigger>
                 <div className="flex items-center gap-2">
                   <div className="relative">
-                    <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
+                    <Icon className="w-5 h-5 text-cyan-400" />
                     <div className="absolute inset-0 bg-cyan-400/20 blur-lg rounded-full" />
                   </div>
                   {isEditing ? (
@@ -218,14 +315,42 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                     </span>
                   </div>
                   {isEditing && (
-                    <Button
-                      variant="ghost"
-                      size="sm"
-                      onClick={handleComponentAdd}
-                      className="text-cyan-400 hover:text-cyan-300"
-                    >
-                      <Plus className="w-3 h-3" />
-                    </Button>
+                    <Dialog open={isAddingComponent} onOpenChange={setIsAddingComponent}>
+                      <DialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="text-cyan-400 hover:text-cyan-300"
+                        >
+                          <Plus className="w-3 h-3" />
+                        </Button>
+                      </DialogTrigger>
+                      <DialogContent className="bg-slate-900 border border-slate-800">
+                        <DialogHeader>
+                          <DialogTitle className="text-slate-100">Add Component</DialogTitle>
+                        </DialogHeader>
+                        <div className="py-4">
+                          <Select onValueChange={handleComponentAdd}>
+                            <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-slate-100">
+                              <SelectValue placeholder="Select a component" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-slate-800 border-slate-700">
+                              {AVAILABLE_COMPONENTS.filter(
+                                (comp) => !editedData.components.includes(comp)
+                              ).map((component) => (
+                                <SelectItem
+                                  key={component}
+                                  value={component}
+                                  className="text-slate-100 focus:bg-slate-700 focus:text-slate-100"
+                                >
+                                  {component}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </DialogContent>
+                    </Dialog>
                   )}
                 </div>
                 <div className="flex flex-wrap gap-2">

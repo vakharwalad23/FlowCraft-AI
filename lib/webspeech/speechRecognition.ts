@@ -1,5 +1,4 @@
 // Web Speech API utility for speech recognition
-// This file handles browser compatibility, initialization, and core functionality
 
 // Type definition for browser support detection result
 export type SpeechRecognitionSupport = {

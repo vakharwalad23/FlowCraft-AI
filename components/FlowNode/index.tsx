@@ -12,6 +12,9 @@ import {
   Check,
   ChevronDown,
   ChevronUp,
+  Component,
+  Sparkles,
+  ArrowRight,
 } from "lucide-react";
 import {
   Collapsible,
@@ -22,6 +25,8 @@ import { Badge } from "@/components/ui/badge";
 import { useState } from "react";
 import { toast } from "sonner";
 import useFlowStore, { FlowStep } from "@/store/useFlowStore";
+import { getComponentIcon } from "@/lib/componentIcons";
+import { cn } from "@/lib/utils";
 
 interface FlowNodeData {
   title: string;
@@ -46,7 +51,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
     }
     const updatedStep: FlowStep = {
       id,
-      ...editedData
+      ...editedData,
     };
     updateNode(id, updatedStep);
     setIsEditing(false);
@@ -92,9 +97,9 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
         position={Position.Left}
         className="w-3 h-3 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity"
       />
-      <Card className="w-[300px] bg-slate-900/90 border border-slate-800 shadow-xl hover:shadow-cyan-500/10 transition-all duration-300">
+      <Card className="min-h-[200px] w-[320px] bg-slate-900/90 border border-slate-800 shadow-xl hover:shadow-cyan-500/10 transition-all duration-300 backdrop-blur-sm">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-          <div className="p-4 space-y-4">
+          <div className="p-5 space-y-4">
             {/* Header with controls */}
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -111,20 +116,27 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                     )}
                   </Button>
                 </CollapsibleTrigger>
-                {isEditing ? (
-                  <input
-                    type="text"
-                    value={editedData.title}
-                    onChange={(e) =>
-                      setEditedData({ ...editedData, title: e.target.value })
-                    }
-                    className="bg-slate-800 text-white px-2 py-1 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none"
-                  />
-                ) : (
-                  <h3 className="font-medium text-white">{data.title}</h3>
-                )}
+                <div className="flex items-center gap-2">
+                  <div className="relative">
+                    <Sparkles className="w-5 h-5 text-cyan-400 animate-pulse" />
+                    <div className="absolute inset-0 bg-cyan-400/20 blur-lg rounded-full" />
+                  </div>
+                  {isEditing ? (
+                    <input
+                      type="text"
+                      value={editedData.title}
+                      onChange={(e) =>
+                        setEditedData({ ...editedData, title: e.target.value })
+                      }
+                      className="bg-slate-800 text-white px-3 py-1.5 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none w-full"
+                      placeholder="Enter step title..."
+                    />
+                  ) : (
+                    <h3 className="font-medium text-white text-lg">{data.title}</h3>
+                  )}
+                </div>
               </div>
-              <div className="flex items-center gap-1">
+              <div className="flex items-center gap-1.5">
                 {isEditing ? (
                   <>
                     <Button
@@ -166,9 +178,12 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                       variant="ghost"
                       size="sm"
                       onClick={handleAddNode}
-                      className="text-emerald-400 hover:text-emerald-300"
+                      className="text-emerald-400 hover:text-emerald-300 relative group/add"
                     >
                       <Plus className="w-4 h-4" />
+                      <span className="absolute -right-1 top-1/2 -translate-y-1/2 opacity-0 group-hover/add:opacity-100 group-hover/add:translate-x-4 transition-all duration-300">
+                        <ArrowRight className="w-4 h-4" />
+                      </span>
                     </Button>
                   </>
                 )}
@@ -177,7 +192,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
 
             <CollapsibleContent>
               {/* Description */}
-              <div className="space-y-2">
+              <div className="space-y-3 pt-2">
                 {isEditing ? (
                   <textarea
                     value={editedData.description}
@@ -185,19 +200,23 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                       setEditedData({ ...editedData, description: e.target.value })
                     }
                     rows={3}
-                    className="w-full bg-slate-800 text-white px-2 py-1 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none"
+                    className="w-full bg-slate-800 text-white px-3 py-2 rounded-md border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none resize-none"
+                    placeholder="Enter step description..."
                   />
                 ) : (
-                  <p className="text-sm text-slate-300">{data.description}</p>
+                  <p className="text-sm text-slate-300 leading-relaxed">{data.description}</p>
                 )}
               </div>
 
               {/* Components */}
-              <div className="mt-4">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-xs font-medium text-slate-400">
-                    Components
-                  </span>
+              <div className="mt-5 pt-4 border-t border-slate-800">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <Component className="w-4 h-4 text-cyan-400" />
+                    <span className="text-xs font-medium text-slate-400">
+                      Components
+                    </span>
+                  </div>
                   {isEditing && (
                     <Button
                       variant="ghost"
@@ -211,23 +230,36 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {(isEditing ? editedData.components : data.components).map(
-                    (component, index) => (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="bg-slate-800 hover:bg-slate-700 text-cyan-400 border border-slate-700"
-                      >
-                        {component}
-                        {isEditing && (
-                          <button
-                            onClick={() => handleComponentDelete(index)}
-                            className="ml-1 text-red-400 hover:text-red-300"
-                          >
-                            <X className="w-3 h-3" />
-                          </button>
-                        )}
-                      </Badge>
-                    )
+                    (component, index) => {
+                      const iconConfig = getComponentIcon(component);
+                      const Icon = iconConfig.icon;
+                      return (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className={cn(
+                            "bg-slate-800/80 hover:bg-slate-700/80 border border-slate-700/50 backdrop-blur-sm",
+                            "transition-all duration-300 group/badge py-1 px-2",
+                            "hover:border-cyan-500/30 hover:shadow-[0_0_10px_rgba(34,211,238,0.1)]"
+                          )}
+                        >
+                          <div className="flex items-center gap-1.5">
+                            <Icon className={cn("w-3.5 h-3.5", iconConfig.color)} />
+                            <span className="text-slate-300 group-hover/badge:text-white transition-colors">
+                              {component}
+                            </span>
+                            {isEditing && (
+                              <button
+                                onClick={() => handleComponentDelete(index)}
+                                className="ml-1 text-red-400 hover:text-red-300"
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                            )}
+                          </div>
+                        </Badge>
+                      );
+                    }
                   )}
                 </div>
               </div>

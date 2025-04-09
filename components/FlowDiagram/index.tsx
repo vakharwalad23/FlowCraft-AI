@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import ReactFlow, {
   Background,
   Controls,
@@ -14,13 +14,15 @@ import ReactFlow, {
   applyNodeChanges,
   applyEdgeChanges,
   useReactFlow,
+  ReactFlowInstance,
 } from 'reactflow';
 import 'reactflow/dist/style.css';
 import { FlowNode } from '@/components/FlowNode';
 import useFlowStore from '@/store/useFlowStore';
 import { Button } from '@/components/ui/button';
 import { Download, ZoomIn, ZoomOut, Undo } from 'lucide-react';
-import html2canvas from 'html2canvas';
+import { toPng } from 'html-to-image';
+import { toast } from 'sonner';
 
 const nodeTypes = {
   flowNode: FlowNode,
@@ -39,6 +41,8 @@ export function FlowDiagram() {
   } = useFlowStore();
 
   const { fitView } = useReactFlow();
+  const flowRef = useRef<HTMLDivElement>(null);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance | null>(null);
 
   // Re-fit view when nodes change
   useEffect(() => {
@@ -50,35 +54,91 @@ export function FlowDiagram() {
   }, [nodes.length, fitView]);
 
   const handleExportImage = useCallback(async () => {
-    const element = document.querySelector('.react-flow') as HTMLElement;
-    if (element) {
-      const canvas = await html2canvas(element, {
-        backgroundColor: '#030712',
-      });
+    if (!flowRef.current) {
+      toast.error("Could not export flow diagram");
+      return;
+    }
+
+    try {
+      // Add temporary styles for better export quality
+      const elements = flowRef.current.getElementsByClassName('react-flow__node');
+      const originalStyles: { [key: string]: string }[] = [];
       
-      const dataUrl = canvas.toDataURL('image/png');
+      Array.from(elements).forEach((el) => {
+        const element = el as HTMLElement;
+        originalStyles.push({
+          transform: element.style.transform,
+          transition: element.style.transition,
+        });
+        element.style.transform = element.style.transform.replace('translate3d', 'translate');
+        element.style.transition = 'none';
+      });
+
+      const dataUrl = await toPng(flowRef.current, {
+        backgroundColor: '#030712',
+        quality: 1,
+        pixelRatio: 2,
+        style: {
+          width: '100%',
+          height: '100%',
+        },
+      });
+
+      // Restore original styles
+      Array.from(elements).forEach((el, index) => {
+        const element = el as HTMLElement;
+        element.style.transform = originalStyles[index].transform;
+        element.style.transition = originalStyles[index].transition;
+      });
+
+      // Create download link
       const link = document.createElement('a');
-      link.download = 'flow-diagram.png';
+      link.download = 'flowcraft-diagram.png';
       link.href = dataUrl;
       link.click();
+      
+      toast.success("Flow diagram exported successfully! 🎨");
+    } catch (error) {
+      console.error('Error exporting image:', error);
+      toast.error("Failed to export diagram", {
+        description: "Please try again or contact support if the issue persists."
+      });
     }
   }, []);
 
   const handleExportJSON = useCallback(() => {
-    const data = {
-      nodes,
-      edges,
-    };
-    const dataStr = JSON.stringify(data, null, 2);
-    const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
-    const link = document.createElement('a');
-    link.download = 'flow-data.json';
-    link.href = dataUri;
-    link.click();
-  }, [nodes, edges]);
+    try {
+      if (!reactFlowInstance) {
+        toast.error("Flow data not ready");
+        return;
+      }
+
+      const flow = reactFlowInstance.toObject();
+      const flowData = {
+        nodes: flow.nodes,
+        edges: flow.edges,
+        viewport: flow.viewport,
+      };
+
+      const dataStr = JSON.stringify(flowData, null, 2);
+      const dataUri = 'data:application/json;charset=utf-8,' + encodeURIComponent(dataStr);
+      
+      const link = document.createElement('a');
+      link.download = 'flowcraft-data.json';
+      link.href = dataUri;
+      link.click();
+      
+      toast.success("Flow data exported successfully! 📄");
+    } catch (error) {
+      console.error('Error exporting JSON:', error);
+      toast.error("Failed to export flow data", {
+        description: "Please try again or contact support if the issue persists."
+      });
+    }
+  }, [reactFlowInstance]);
 
   return (
-    <div className="absolute inset-0">
+    <div className="absolute inset-0" ref={flowRef}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -87,6 +147,7 @@ export function FlowDiagram() {
         onConnect={onConnect}
         nodeTypes={nodeTypes}
         defaultViewport={defaultViewport}
+        onInit={setReactFlowInstance}
         fitView
         fitViewOptions={{ padding: 0.2, duration: 200 }}
         defaultEdgeOptions={{
@@ -117,7 +178,7 @@ export function FlowDiagram() {
           <Button
             variant="secondary"
             size="sm"
-            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
             onClick={handleExportImage}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -126,7 +187,7 @@ export function FlowDiagram() {
           <Button
             variant="secondary"
             size="sm"
-            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
             onClick={handleExportJSON}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -135,7 +196,7 @@ export function FlowDiagram() {
           <Button
             variant="secondary"
             size="sm"
-            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
             onClick={resetFlow}
           >
             <Undo className="w-4 h-4 mr-2" />

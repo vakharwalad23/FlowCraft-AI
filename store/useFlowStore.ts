@@ -34,6 +34,11 @@ interface FlowState {
   addNode: (sourceId: string) => void;
 }
 
+// Constants for node positioning
+const NODE_SPACING_X = 400; // Horizontal spacing between nodes
+const NODE_INITIAL_X = 50; // Initial X position
+const NODE_INITIAL_Y = 50; // Initial Y position
+
 const useFlowStore = create<FlowState>((set, get) => ({
   nodes: [],
   edges: [],
@@ -49,14 +54,25 @@ const useFlowStore = create<FlowState>((set, get) => ({
   },
   onConnect: (connection: Connection) => {
     set({
-      edges: addEdge(connection, get().edges),
+      edges: addEdge({
+        ...connection,
+        type: 'smoothstep',
+        animated: true,
+        style: { 
+          strokeWidth: 2,
+          stroke: '#0e7490',
+        },
+      }, get().edges),
     });
   },
   setSteps: (steps: FlowStep[]) => {
     const nodes: Node[] = steps.map((step, index) => ({
       id: step.id,
       type: 'flowNode',
-      position: { x: 250 * index, y: 0 },
+      position: { 
+        x: NODE_INITIAL_X + (NODE_SPACING_X * index), 
+        y: NODE_INITIAL_Y + (Math.sin(index * 0.5) * 50) // Slight vertical variation
+      },
       data: {
         title: step.title,
         description: step.description,
@@ -70,6 +86,10 @@ const useFlowStore = create<FlowState>((set, get) => ({
       target: step.id,
       type: 'smoothstep',
       animated: true,
+      style: { 
+        strokeWidth: 2,
+        stroke: '#0e7490',
+      },
     }));
 
     set({ nodes, edges });
@@ -102,7 +122,17 @@ const useFlowStore = create<FlowState>((set, get) => ({
     const updatedEdges = edges.filter(
       (edge) => edge.source !== id && edge.target !== id
     );
-    set({ nodes: updatedNodes, edges: updatedEdges });
+    
+    // Reposition remaining nodes
+    const repositionedNodes = updatedNodes.map((node, index) => ({
+      ...node,
+      position: {
+        x: NODE_INITIAL_X + (NODE_SPACING_X * index),
+        y: NODE_INITIAL_Y + (Math.sin(index * 0.5) * 50),
+      },
+    }));
+    
+    set({ nodes: repositionedNodes, edges: updatedEdges });
   },
   addNode: (sourceId: string) => {
     const { nodes, edges } = get();
@@ -111,14 +141,14 @@ const useFlowStore = create<FlowState>((set, get) => ({
     if (!sourceNode) return;
 
     const newNodeId = `step${nodes.length + 1}`;
-    const position = sourceNode.position;
+    const newNodeIndex = nodes.length;
     
     const newNode: Node = {
       id: newNodeId,
       type: 'flowNode',
       position: {
-        x: position.x + 300,
-        y: position.y,
+        x: sourceNode.position.x + NODE_SPACING_X,
+        y: NODE_INITIAL_Y + (Math.sin(newNodeIndex * 0.5) * 50),
       },
       data: {
         title: 'New Step',
@@ -133,6 +163,10 @@ const useFlowStore = create<FlowState>((set, get) => ({
       target: newNodeId,
       type: 'smoothstep',
       animated: true,
+      style: { 
+        strokeWidth: 2,
+        stroke: '#0e7490',
+      },
     };
 
     set({

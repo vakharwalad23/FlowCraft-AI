@@ -8,29 +8,33 @@ import useFlowStore from "@/store/useFlowStore";
 import type { FlowStep } from "@/store/useFlowStore";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
-import { ReactFlowProvider } from 'reactflow';
+import { ReactFlowProvider } from "reactflow";
+import { getFlowById, saveFlow, createFlow } from "@/lib/flowStorage";
 
 export default function FlowPage() {
   const { flowId } = useParams();
   const { setSteps, loadFlow } = useFlowStore();
   const [isPanelOpen, setIsPanelOpen] = useState(true);
   const [isLoading, setIsLoading] = useState(true);
+  const [flowName, setFlowName] = useState<string>("Untitled Flow");
 
   useEffect(() => {
-    const loadExistingFlow = async () => {
-      if (flowId === 'new') {
+    const loadExistingFlow = () => {
+      if (flowId === "new") {
         setIsLoading(false);
         return;
       }
 
       try {
-        const response = await fetch(`/api/flows/${flowId}`);
-        if (response.ok) {
-          const flowData = await response.json();
-          loadFlow(flowData);
+        // Use flowStorage utility directly instead of API calls
+        const flowData = getFlowById(flowId as string);
+
+        if (flowData) {
+          loadFlow({ steps: flowData.flow.steps });
+          setFlowName(flowData.flow.name);
         }
       } catch (error) {
-        console.error('Error loading flow:', error);
+        console.error("Error loading flow:", error);
       } finally {
         setIsLoading(false);
       }
@@ -39,26 +43,36 @@ export default function FlowPage() {
     loadExistingFlow();
   }, [flowId, loadFlow]);
 
+  // This function is passed to BriefInput but the actual brief handling is done internally
   const handleBriefChange = (brief: string) => {
     // This is handled by the BriefInput component internally
   };
 
-  const handleGenerateFlow = async (steps: FlowStep[]) => {
+  const handleGenerateFlow = (steps: FlowStep[]) => {
     try {
       setSteps(steps);
-      
+
       // Only save if it's not the 'new' route
-      if (flowId !== 'new') {
-        await fetch(`/api/flows/${flowId}`, {
-          method: 'PUT',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ steps }),
-        });
+      if (flowId !== "new") {
+        // Get existing flow to update
+        const existingFlow = getFlowById(flowId as string);
+
+        if (existingFlow) {
+          const updatedFlow = {
+            ...existingFlow.flow,
+            steps,
+            updatedAt: new Date().toISOString(),
+          };
+
+          saveFlow(updatedFlow, existingFlow.folderId);
+        } else {
+          // If somehow the flow doesn't exist, create it
+          const newFlow = createFlow(flowName, steps);
+          saveFlow(newFlow);
+        }
       }
     } catch (error) {
-      console.error('Error saving flow:', error);
+      console.error("Error saving flow:", error);
     }
   };
 
@@ -118,4 +132,4 @@ export default function FlowPage() {
       </main>
     </ReactFlowProvider>
   );
-} 
+}

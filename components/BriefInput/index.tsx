@@ -13,7 +13,6 @@ import {
   DialogHeader,
   DialogTitle,
   DialogFooter,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   Select,
@@ -55,9 +54,9 @@ export function BriefInput({
       transcript: "",
       error: null,
     });
-  const recognitionRef = useRef<ReturnType<typeof initSpeechRecognition> | null>(
-    null
-  );
+  const recognitionRef = useRef<ReturnType<
+    typeof initSpeechRecognition
+  > | null>(null);
 
   useEffect(() => {
     const support = checkSpeechRecognitionSupport();
@@ -135,7 +134,7 @@ export function BriefInput({
       }
 
       const rawText = await response.text();
-      
+
       // Try to parse the JSON response
       let parsedData;
       try {
@@ -228,7 +227,9 @@ export function BriefInput({
               </span>
             </div>
             <Button
-              variant={recognitionState.isListening ? "destructive" : "secondary"}
+              variant={
+                recognitionState.isListening ? "destructive" : "secondary"
+              }
               size="sm"
               className={`relative transition-all duration-300 hover:scale-105 ${
                 recognitionState.isListening
@@ -304,7 +305,8 @@ export function BriefInput({
               backgroundImage: "linear-gradient(to right, #0e7490, #0369a1)",
               backgroundSize: `${progress}% 100%`,
               backgroundRepeat: "no-repeat",
-              boxShadow: progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none",
+              boxShadow:
+                progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none",
             }}
           />
 
@@ -341,7 +343,9 @@ export function BriefInput({
               <Input
                 placeholder="Enter a name for your flow..."
                 value={flowName}
-                onChange={(e: React.ChangeEvent<HTMLInputElement>) => setFlowName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setFlowName(e.target.value)
+                }
                 className="bg-slate-800 border-slate-700 text-slate-100"
               />
             </div>
@@ -349,7 +353,10 @@ export function BriefInput({
               <label className="text-sm font-medium text-slate-200">
                 Select Folder (Optional)
               </label>
-              <Select value={selectedFolderId || "none"} onValueChange={setSelectedFolderId}>
+              <Select
+                value={selectedFolderId || "none"}
+                onValueChange={setSelectedFolderId}
+              >
                 <SelectTrigger className="w-full bg-slate-800 border-slate-700 text-slate-100">
                   <SelectValue placeholder="Choose a folder" />
                 </SelectTrigger>

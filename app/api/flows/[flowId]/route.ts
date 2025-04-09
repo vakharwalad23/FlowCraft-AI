@@ -1,14 +1,16 @@
-import { NextResponse } from 'next/server';
-import { z } from 'zod';
+import { NextResponse } from "next/server";
+import { z } from "zod";
 
 // Validate flow data schema
 const flowSchema = z.object({
-  steps: z.array(z.object({
-    id: z.string(),
-    title: z.string(),
-    description: z.string(),
-    components: z.array(z.string())
-  }))
+  steps: z.array(
+    z.object({
+      id: z.string(),
+      title: z.string(),
+      description: z.string(),
+      components: z.array(z.string()),
+    })
+  ),
 });
 
 // GET /api/flows/[flowId]
@@ -25,9 +27,9 @@ export async function GET(
           id: "step1",
           title: "Welcome Screen",
           description: "Initial landing page for users",
-          components: ["Hero Section", "CTA Button"]
-        }
-      ]
+          components: ["Hero Section", "CTA Button"],
+        },
+      ],
     };
 
     return NextResponse.json(mockFlow);
@@ -57,4 +59,4 @@ export async function PUT(
       { status: 500 }
     );
   }
-} 
+}

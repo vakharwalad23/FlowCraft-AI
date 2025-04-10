@@ -3,6 +3,9 @@ export interface FlowStep {
   title: string;
   description: string;
   components: string[];
+  previewHtml?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface Flow {

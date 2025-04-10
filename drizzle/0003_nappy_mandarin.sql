@@ -1,0 +1,2 @@
+CREATE INDEX "flow_name_search_idx" ON "flow" USING gin (to_tsvector('english', coalesce("name", '')));--> statement-breakpoint
+CREATE INDEX "flow_folder_name_search_idx" ON "flow_folder" USING gin (to_tsvector('english', coalesce("name", '')));

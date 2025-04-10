@@ -12,18 +12,7 @@ import {
   applyNodeChanges,
   applyEdgeChanges,
 } from "reactflow";
-import { saveFlow, getFlowById } from "@/lib/flowStorage";
-import type { Flow as StorageFlow } from "@/types/flow";
-
-export interface FlowStep {
-  id: string;
-  title: string;
-  description: string;
-  components: string[];
-  previewHtml?: string;
-  createdAt?: string;
-  updatedAt?: string;
-}
+import type { Flow as StorageFlow, FlowStep } from "@/types/flow";
 
 interface FlowState {
   nodes: Node<FlowStep>[];
@@ -32,6 +21,7 @@ interface FlowState {
   currentFlowName: string;
   currentFolderId?: string;
   isStoreInitialized: boolean;
+  isLoading: boolean;
   onNodesChange: OnNodesChange;
   onEdgesChange: OnEdgesChange;
   onConnect: OnConnect;
@@ -41,8 +31,10 @@ interface FlowState {
   deleteNode: (id: string) => void;
   addNode: (sourceId: string) => void;
   setNodePreview: (id: string, html: string) => void;
-  persistCurrentFlow: () => void;
-  loadFlowFromStorage: (flowId: string) => void;
+  persistCurrentFlow: () => Promise<void>;
+  loadFlowFromApi: (flowId: string) => Promise<void>;
+  createNewFlow: (name: string) => Promise<string>;
+  deleteCurrentFlow: () => Promise<void>;
   setCurrentFlowId: (flowId: string | null) => void;
   setFlowName: (name: string) => void;
 }
@@ -52,18 +44,21 @@ const NODE_SPACING_X = 400; // Horizontal spacing between nodes
 const NODE_INITIAL_X = 50; // Initial X position
 const NODE_INITIAL_Y = 50; // Initial Y position
 
-// --- Helper to convert store state to storage format ---
-const convertStateToStorageFlows = (nodes: Node<FlowStep>[]): StorageFlow[] => {
-  return nodes.map((node) => ({
-    id: node.id,
-    name: node.data.title, // Use node title as flow name for simplicity here
-    steps: [node.data], // In this model, each node represents a step
-    createdAt: node.data.createdAt || new Date().toISOString(), // Need createdAt/updatedAt if storing individually
+// --- Helper to convert store state to flow format ---
+const convertStateToStorageFlow = (
+  nodes: Node<FlowStep>[],
+  name: string,
+  flowId: string
+): StorageFlow => {
+  const steps = nodes.map((node) => node.data);
+
+  return {
+    id: flowId,
+    name,
+    steps,
+    createdAt: steps[0]?.createdAt || new Date().toISOString(),
     updatedAt: new Date().toISOString(),
-    previewHtml: node.data.previewHtml, // Persist previewHtml
-    // Note: This conversion assumes a flat list of flows, not folders for now
-    // and that each node IS a flow step. Adjust if your model differs.
-  }));
+  };
 };
 // --------------------------------------------------------
 
@@ -74,6 +69,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
   currentFlowName: "Untitled Flow",
   currentFolderId: undefined,
   isStoreInitialized: false,
+  isLoading: false,
   onNodesChange: (changes: NodeChange[]) => {
     set((state) => ({ nodes: applyNodeChanges(changes, state.nodes) }));
     if (get().isStoreInitialized) get().persistCurrentFlow();
@@ -196,15 +192,6 @@ const useFlowStore = create<FlowState>((set, get) => ({
       data: newNodeData,
     };
 
-    const newEdge: Edge = {
-      id: `e${sourceNode.id}-${newNodeId}`,
-      source: sourceNode.id,
-      target: newNodeId,
-      type: "smoothstep",
-      animated: true,
-      style: { strokeWidth: 2, stroke: "#0e7490" },
-    };
-
     set((state) => {
       const newNodes = [...state.nodes];
       newNodes.splice(newNodeIndex, 0, newNode);
@@ -241,51 +228,69 @@ const useFlowStore = create<FlowState>((set, get) => ({
     }));
     if (get().isStoreInitialized) get().persistCurrentFlow();
   },
-  persistCurrentFlow: () => {
-    const { currentFlowId, nodes, currentFlowName, currentFolderId } = get();
-    if (!currentFlowId || typeof window === "undefined") return;
-
-    const steps = nodes.map((node) => node.data);
-
-    const existingFlowData = getFlowById(currentFlowId);
-    const createdAt =
-      existingFlowData?.flow.createdAt || new Date().toISOString();
-
-    const flowToSave: StorageFlow = {
-      id: currentFlowId,
-      name: currentFlowName,
-      steps: steps,
-      createdAt: createdAt,
-      updatedAt: new Date().toISOString(),
-    };
+  persistCurrentFlow: async () => {
+    const {
+      currentFlowId,
+      nodes,
+      currentFlowName,
+      currentFolderId,
+      isStoreInitialized,
+    } = get();
+    if (!currentFlowId || !isStoreInitialized || typeof window === "undefined")
+      return;
 
     try {
-      console.log("Persisting Flow:", flowToSave);
-      saveFlow(flowToSave, currentFolderId);
+      const flowToSave = convertStateToStorageFlow(
+        nodes,
+        currentFlowName,
+        currentFlowId
+      );
+
+      // Use the API to save the flow
+      const response = await fetch(`/api/flows/${currentFlowId}`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: flowToSave.name,
+          steps: flowToSave.steps,
+          folderId: currentFolderId,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to save flow: ${response.statusText}`);
+      }
+
+      console.log("Flow saved successfully");
     } catch (error) {
-      console.error(`Failed to save flow ${currentFlowId} to storage:`, error);
+      console.error(`Failed to save flow ${currentFlowId}:`, error);
     }
   },
-  loadFlowFromStorage: (flowId: string) => {
-    if (typeof window === "undefined") {
-      set({ isStoreInitialized: true });
-      return;
-    }
+  loadFlowFromApi: async (flowId: string) => {
+    set({ isLoading: true, isStoreInitialized: false });
 
-    console.log("Attempting to load flow from storage:", flowId);
-    set({ isStoreInitialized: false });
-    const storedData = getFlowById(flowId);
+    try {
+      console.log("Fetching flow from API:", flowId);
+      const response = await fetch(`/api/flows/${flowId}`);
 
-    if (storedData) {
-      console.log("Found stored flow:", storedData);
+      if (!response.ok) {
+        throw new Error(`Failed to load flow: ${response.statusText}`);
+      }
+
+      const data = await response.json();
+      console.log("Flow data loaded:", data);
+
       set({
-        currentFlowId: storedData.flow.id,
-        currentFlowName: storedData.flow.name,
-        currentFolderId: storedData.folderId,
+        currentFlowId: data.flow.id,
+        currentFlowName: data.flow.name,
+        currentFolderId: data.folderId,
       });
-      get().setSteps(storedData.flow.steps);
-    } else {
-      console.log("No stored flow found for ID:", flowId, "Resetting flow.");
+
+      get().setSteps(data.flow.steps);
+    } catch (error) {
+      console.error(`Failed to load flow ${flowId}:`, error);
       set({
         nodes: [],
         edges: [],
@@ -293,8 +298,74 @@ const useFlowStore = create<FlowState>((set, get) => ({
         currentFlowName: "Untitled Flow",
         currentFolderId: undefined,
       });
+    } finally {
+      set({ isLoading: false, isStoreInitialized: true });
     }
-    set({ isStoreInitialized: true });
+  },
+  createNewFlow: async (name: string) => {
+    set({ isLoading: true });
+
+    try {
+      const response = await fetch("/api/flows", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name,
+          steps: [],
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to create flow: ${response.statusText}`);
+      }
+
+      const newFlow = await response.json();
+      set({
+        currentFlowId: newFlow.id,
+        currentFlowName: newFlow.name,
+        nodes: [],
+        edges: [],
+        isStoreInitialized: true,
+      });
+
+      return newFlow.id;
+    } catch (error) {
+      console.error("Failed to create flow:", error);
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
+  },
+  deleteCurrentFlow: async () => {
+    const { currentFlowId } = get();
+    if (!currentFlowId) return;
+
+    set({ isLoading: true });
+
+    try {
+      const response = await fetch(`/api/flows/${currentFlowId}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to delete flow: ${response.statusText}`);
+      }
+
+      set({
+        nodes: [],
+        edges: [],
+        currentFlowId: null,
+        currentFlowName: "Untitled Flow",
+        currentFolderId: undefined,
+      });
+    } catch (error) {
+      console.error(`Failed to delete flow ${currentFlowId}:`, error);
+      throw error;
+    } finally {
+      set({ isLoading: false });
+    }
   },
   setCurrentFlowId: (flowId: string | null) => {
     set({ currentFlowId: flowId, isStoreInitialized: true });

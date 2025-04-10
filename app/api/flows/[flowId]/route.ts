@@ -1,39 +1,34 @@
-import { NextResponse } from "next/server";
-import { z } from "zod";
+import { NextRequest, NextResponse } from "next/server";
+import { getFlowById, saveFlow, deleteFlow } from "@/lib/db-flow";
+import { revalidatePath } from "next/cache";
+import { auth } from "@/lib/auth";
+import { headers } from "next/headers";
 
-// Validate flow data schema
-const flowSchema = z.object({
-  steps: z.array(
-    z.object({
-      id: z.string(),
-      title: z.string(),
-      description: z.string(),
-      components: z.array(z.string()),
-    })
-  ),
-});
-
-// GET /api/flows/[flowId]
+// GET handler for retrieving a specific flow
 export async function GET(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { flowId: string } }
 ) {
-  try {
-    // Here you would typically fetch the flow data from your database
-    // For now, we'll return a mock response
-    const mockFlow = {
-      steps: [
-        {
-          id: "step1",
-          title: "Welcome Screen",
-          description: "Initial landing page for users",
-          components: ["Hero Section", "CTA Button"],
-        },
-      ],
-    };
+  // Get authenticated user
+  const currentUser = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    return NextResponse.json(mockFlow);
+  if (!currentUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const flowData = await getFlowById(currentUser.user.id, params.flowId);
+
+    if (!flowData) {
+      return NextResponse.json({ error: "Flow not found" }, { status: 404 });
+    }
+
+    // Return the flow
+    return NextResponse.json(flowData);
   } catch (error) {
+    console.error(`Failed to fetch flow ${params.flowId}:`, error);
     return NextResponse.json(
       { error: "Failed to fetch flow" },
       { status: 500 }
@@ -41,21 +36,90 @@ export async function GET(
   }
 }
 
-// PUT /api/flows/[flowId]
+// PUT handler for updating a flow
 export async function PUT(
-  request: Request,
+  request: NextRequest,
   { params }: { params: { flowId: string } }
 ) {
-  try {
-    const body = await request.json();
-    const validatedData = flowSchema.parse(body);
+  // Get authenticated user
+  const currentUser = await auth.api.getSession({
+    headers: await headers(),
+  });
 
-    // Here you would typically update the flow in your database
-    // For now, we'll just return the validated data
-    return NextResponse.json(validatedData);
+  if (!currentUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { name, steps, folderId } = await request.json();
+
+    // Check if the flow exists first
+    const existingFlow = await getFlowById(currentUser.user.id, params.flowId);
+
+    if (!existingFlow) {
+      return NextResponse.json({ error: "Flow not found" }, { status: 404 });
+    }
+
+    // Update the flow
+    const flowToUpdate = {
+      id: params.flowId,
+      name: name || existingFlow.flow.name,
+      steps: steps || existingFlow.flow.steps,
+      createdAt: existingFlow.flow.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await saveFlow(currentUser.user.id, flowToUpdate, folderId);
+
+    // Revalidate the flows route to refresh caches
+    revalidatePath("/dashboard");
+    revalidatePath(`/flow/${params.flowId}`);
+    revalidatePath("/api/flows");
+
+    return NextResponse.json({ success: true, flow: flowToUpdate });
   } catch (error) {
+    console.error(`Failed to update flow ${params.flowId}:`, error);
     return NextResponse.json(
       { error: "Failed to update flow" },
+      { status: 500 }
+    );
+  }
+}
+
+// DELETE handler for deleting a flow
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: { flowId: string } }
+) {
+  // Get authenticated user
+  const currentUser = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!currentUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    // Check if the flow exists first
+    const existingFlow = await getFlowById(currentUser.user.id, params.flowId);
+
+    if (!existingFlow) {
+      return NextResponse.json({ error: "Flow not found" }, { status: 404 });
+    }
+
+    // Delete the flow
+    await deleteFlow(currentUser.user.id, params.flowId);
+
+    // Revalidate the flows route to refresh caches
+    revalidatePath("/dashboard");
+    revalidatePath("/api/flows");
+
+    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error(`Failed to delete flow ${params.flowId}:`, error);
+    return NextResponse.json(
+      { error: "Failed to delete flow" },
       { status: 500 }
     );
   }

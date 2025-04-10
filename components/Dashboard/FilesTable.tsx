@@ -20,6 +20,7 @@ import { motion } from "framer-motion";
 import type { File } from "@/app/dashboard/page";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
 import {
   Dialog,
   DialogContent,
@@ -31,17 +32,18 @@ import {
 type FileRowProps = {
   file: File;
   index: number;
-  onRename: (id: number, newName: string) => void;
-  onDelete: (id: number) => void;
+  onRename: (id: string, newName: string) => void;
+  onDelete: (id: string) => void;
+  onOpen: (id: string) => void;
 };
 
 type FilesTableProps = {
   files: File[];
-  onRename?: (id: number, newName: string) => void;
-  onDelete?: (id: number) => void;
+  onRename?: (id: string, newName: string) => void;
+  onDelete?: (id: string) => void;
 };
 
-function FileRow({ file, index, onRename, onDelete }: FileRowProps) {
+function FileRow({ file, index, onRename, onDelete, onOpen }: FileRowProps) {
   return (
     <motion.tr
       key={file.id}
@@ -60,7 +62,7 @@ function FileRow({ file, index, onRename, onDelete }: FileRowProps) {
         {file.edited}
       </TableCell>
       <TableCell className="border-b border-zinc-800/50 group-hover:bg-zinc-800/20">
-        <FileActions file={file} onRename={onRename} onDelete={onDelete} />
+        <FileActions file={file} onRename={onRename} onDelete={onDelete} onOpen={onOpen} />
       </TableCell>
     </motion.tr>
   );
@@ -68,11 +70,12 @@ function FileRow({ file, index, onRename, onDelete }: FileRowProps) {
 
 type FileActionsProps = {
   file: File;
-  onRename: (id: number, newName: string) => void;
-  onDelete: (id: number) => void;
+  onRename: (id: string, newName: string) => void;
+  onDelete: (id: string) => void;
+  onOpen: (id: string) => void;
 };
 
-function FileActions({ file, onRename, onDelete }: FileActionsProps) {
+function FileActions({ file, onRename, onDelete, onOpen }: FileActionsProps) {
   const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
   const [newFileName, setNewFileName] = useState(file.name);
   const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
@@ -104,7 +107,10 @@ function FileActions({ file, onRename, onDelete }: FileActionsProps) {
           align="end"
           className="bg-zinc-900 text-white border-zinc-700 backdrop-blur-md"
         >
-          <DropdownMenuItem className="hover:bg-zinc-800/30 cursor-pointer">
+          <DropdownMenuItem 
+            className="hover:bg-zinc-800/30 cursor-pointer"
+            onClick={() => onOpen(file.id)}
+          >
             Open
           </DropdownMenuItem>
           <DropdownMenuItem
@@ -129,7 +135,7 @@ function FileActions({ file, onRename, onDelete }: FileActionsProps) {
       <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
         <DialogContent className="bg-zinc-900 text-white border-zinc-700">
           <DialogHeader>
-            <DialogTitle>Rename File</DialogTitle>
+            <DialogTitle>Rename Flow</DialogTitle>
           </DialogHeader>
           <Input
             value={newFileName}
@@ -159,7 +165,7 @@ function FileActions({ file, onRename, onDelete }: FileActionsProps) {
       <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
         <DialogContent className="bg-zinc-900 text-white border-zinc-700">
           <DialogHeader>
-            <DialogTitle>Delete File</DialogTitle>
+            <DialogTitle>Delete Flow</DialogTitle>
           </DialogHeader>
           <p className="py-4">
             Are you sure you want to delete{" "}
@@ -188,22 +194,28 @@ function FileActions({ file, onRename, onDelete }: FileActionsProps) {
 }
 
 export function FilesTable({ files, onRename, onDelete }: FilesTableProps) {
-  const handleRename = (id: number, newName: string) => {
+  const router = useRouter();
+
+  const handleRename = (id: string, newName: string) => {
     if (onRename) {
       onRename(id, newName);
     } else {
-      console.log(`Rename file ${id} to ${newName}`);
+      console.log(`Rename flow ${id} to ${newName}`);
       // Default implementation if no handler is provided
     }
   };
 
-  const handleDelete = (id: number) => {
+  const handleDelete = (id: string) => {
     if (onDelete) {
       onDelete(id);
     } else {
-      console.log(`Delete file ${id}`);
+      console.log(`Delete flow ${id}`);
       // Default implementation if no handler is provided
     }
+  };
+
+  const handleOpen = (id: string) => {
+    router.push(`/flow/${id}`);
   };
 
   return (
@@ -231,15 +243,16 @@ export function FilesTable({ files, onRename, onDelete }: FilesTableProps) {
                 index={index}
                 onRename={handleRename}
                 onDelete={handleDelete}
+                onOpen={handleOpen}
               />
             ))
           ) : (
             <TableRow>
               <TableCell
-                colSpan={7}
-                className="text-center py-6 border-b border-zinc-800/50"
+                colSpan={4}
+                className="h-32 text-center text-gray-500 border-b border-zinc-800/50"
               >
-                No files found matching your search.
+                No flows found. Create a flow to get started!
               </TableCell>
             </TableRow>
           )}

@@ -10,27 +10,64 @@ export const createFlow = async (
   name: string,
   steps: FlowStep[]
 ): Promise<Flow> => {
-  const now = new Date();
-  const id = uuidv4();
+  try {
+    // Validate arguments
+    if (!userId || typeof userId !== 'string') {
+      throw new Error("Invalid user ID");
+    }
+    
+    if (!name || typeof name !== 'string') {
+      name = "Untitled Flow";
+    }
 
-  const newFlow = {
-    id,
-    name,
-    steps,
-    userId,
-    createdAt: now,
-    updatedAt: now,
-  };
+    const now = new Date();
+    const id = uuidv4();
 
-  await db.insert(flow).values(newFlow);
+    // Validate and normalize steps
+    const validatedSteps = (steps || []).map(step => {
+      if (!step || typeof step !== 'object') {
+        return {
+          id: `step-${uuidv4()}`,
+          title: "Untitled Step",
+          description: "Step Description",
+          components: [],
+          createdAt: now.toISOString(),
+          updatedAt: now.toISOString(),
+        };
+      }
+      
+      return {
+        id: step.id || `step-${uuidv4()}`,
+        title: step.title || "Untitled Step", 
+        description: step.description || "",
+        components: Array.isArray(step.components) ? step.components : [],
+        createdAt: step.createdAt || now.toISOString(),
+        updatedAt: step.updatedAt || now.toISOString(),
+      };
+    });
 
-  return {
-    id,
-    name,
-    steps,
-    createdAt: now.toISOString(),
-    updatedAt: now.toISOString(),
-  };
+    const newFlow = {
+      id,
+      name,
+      steps: validatedSteps,
+      userId,
+      createdAt: now,
+      updatedAt: now,
+    };
+
+    await db.insert(flow).values(newFlow);
+
+    return {
+      id,
+      name,
+      steps: validatedSteps,
+      createdAt: now.toISOString(),
+      updatedAt: now.toISOString(),
+    };
+  } catch (error) {
+    console.error("Error creating flow:", error);
+    throw new Error(`Failed to create flow: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
 };
 
 // Save (update) a flow

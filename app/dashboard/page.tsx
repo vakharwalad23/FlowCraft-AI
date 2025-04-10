@@ -7,50 +7,71 @@ import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
 import { toast } from "sonner";
+import { Flow } from "@/types/flow";
+import { useRouter } from "next/navigation";
 
 export type File = {
-  id: number;
+  id: string;
   name: string;
   created: string;
   edited: string;
 };
 
-// TODO: Remove this and use the actual files from the local storage
-// atleast add id , name , created and edited at the time of storing in local storage
-// these three are required for the files table and the search functionality
-const SAMPLE_FILES: File[] = [
-  {
-    id: 1,
-    name: "Demo File ",
-    created: "2 months ago",
-    edited: "2 months ago",
-  },
-  {
-    id: 2,
-    name: "Marketing Plan",
-    created: "1 week ago",
-    edited: "3 days ago",
-  },
-  {
-    id: 3,
-    name: "Budget 2024",
-    created: "1 month ago",
-    edited: "2 weeks ago",
-  },
-  {
-    id: 4,
-    name: "Product Roadmap",
-    created: "3 months ago",
-    edited: "1 month ago",
-  },
-];
-
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const [files, setFiles] = useState<File[]>(SAMPLE_FILES);
+  const [files, setFiles] = useState<File[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const router = useRouter();
 
   useEffect(() => {
+    const fetchFlows = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch("/api/flows");
+        
+        if (!response.ok) {
+          throw new Error("Failed to fetch flows");
+        }
+        
+        const data = await response.json();
+        
+        // Convert flow data to file format for the table
+        const flowFiles: File[] = [];
+        
+        // Add flows from folders
+        data.folders.forEach((folder: any) => {
+          folder.flows.forEach((flow: Flow) => {
+            flowFiles.push({
+              id: flow.id,
+              name: flow.name,
+              created: formatDate(flow.createdAt),
+              edited: formatDate(flow.updatedAt),
+            });
+          });
+        });
+        
+        // Add unorganized flows
+        data.unorganizedFlows.forEach((flow: Flow) => {
+          flowFiles.push({
+            id: flow.id,
+            name: flow.name,
+            created: formatDate(flow.createdAt),
+            edited: formatDate(flow.updatedAt),
+          });
+        });
+        
+        setFiles(flowFiles);
+      } catch (error) {
+        console.error("Error fetching flows:", error);
+        toast.error("Failed to load flows");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    fetchFlows();
+    
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "k") {
         event.preventDefault();
@@ -64,29 +85,83 @@ export default function Dashboard() {
     };
   }, []);
 
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffMs = now.getTime() - date.getTime();
+    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return "Today";
+    } else if (diffDays === 1) {
+      return "Yesterday";
+    } else if (diffDays < 7) {
+      return `${diffDays} days ago`;
+    } else if (diffDays < 30) {
+      const weeks = Math.floor(diffDays / 7);
+      return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+    } else if (diffDays < 365) {
+      const months = Math.floor(diffDays / 30);
+      return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+    } else {
+      const years = Math.floor(diffDays / 365);
+      return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+    }
+  };
+
   const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleRenameFile = (id: number, newName: string) => {
-    setFiles((prevFiles) =>
-      prevFiles.map((file) => {
-        if (file.id === id) {
-          return {
-            ...file,
-            name: newName,
-            edited: "Just now", // Update the edited timestamp
-          };
-        }
-        return file;
-      })
-    );
-    toast.success(`File renamed to "${newName}"`);
+  const handleRenameFile = async (id: string, newName: string) => {
+    try {
+      const response = await fetch(`/api/flows/${id}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name: newName }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to rename flow");
+      }
+
+      setFiles((prevFiles) =>
+        prevFiles.map((file) => {
+          if (file.id === id) {
+            return {
+              ...file,
+              name: newName,
+              edited: "Just now",
+            };
+          }
+          return file;
+        })
+      );
+      toast.success(`Flow renamed to "${newName}"`);
+    } catch (error) {
+      console.error("Error renaming flow:", error);
+      toast.error("Failed to rename flow");
+    }
   };
 
-  const handleDeleteFile = (id: number) => {
-    setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
-    toast.success("File deleted successfully");
+  const handleDeleteFile = async (id: string) => {
+    try {
+      const response = await fetch(`/api/flows/${id}`, {
+        method: "DELETE",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete flow");
+      }
+
+      setFiles((prevFiles) => prevFiles.filter((file) => file.id !== id));
+      toast.success("Flow deleted successfully");
+    } catch (error) {
+      console.error("Error deleting flow:", error);
+      toast.error("Failed to delete flow");
+    }
   };
 
   return (
@@ -114,11 +189,19 @@ export default function Dashboard() {
         </div>
 
         <ActionCards />
-        <FilesTable 
-          files={filteredFiles} 
-          onRename={handleRenameFile}
-          onDelete={handleDeleteFile}
-        />
+        
+        {isLoading ? (
+          <div className="flex items-center justify-center py-12">
+            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
+            <span className="ml-3">Loading flows...</span>
+          </div>
+        ) : (
+          <FilesTable 
+            files={filteredFiles} 
+            onRename={handleRenameFile}
+            onDelete={handleDeleteFile}
+          />
+        )}
       </div>
     </div>
   );

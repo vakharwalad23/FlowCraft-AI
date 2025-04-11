@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import { BriefInput } from "@/components/BriefInput";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import useFlowStore from "@/store/useFlowStore";
-import type { FlowStep } from "@/store/useFlowStore";
+import type { FlowStep } from "@/types/flow";
 import { Button } from "@/components/ui/button";
 import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
 import { ReactFlowProvider } from "reactflow";
@@ -15,7 +15,7 @@ export default function FlowPage() {
   const params = useParams();
   const router = useRouter();
   const {
-    loadFlowFromStorage,
+    loadFlowFromApi,
     resetFlow,
     setSteps,
     setCurrentFlowId,
@@ -33,9 +33,8 @@ export default function FlowPage() {
 
   useEffect(() => {
     console.log("FlowPage useEffect running, flowIdParam:", flowIdParam);
+
     if (!flowIdParam) {
-      console.error("Flow ID parameter is missing!");
-      router.push("/flow/new");
       return;
     }
 
@@ -50,15 +49,24 @@ export default function FlowPage() {
       console.log("Initialized new flow with ID:", newFlowId);
     } else {
       console.log(
-        "Attempting to load existing flow from storage for ID:",
+        "Attempting to load existing flow from API for ID:",
         flowIdParam
       );
       if (currentFlowId !== flowIdParam) {
-        loadFlowFromStorage(flowIdParam);
+        loadFlowFromApi(flowIdParam);
       }
       setIsLoading(false);
     }
-  }, [flowIdParam]);
+  }, [
+    flowIdParam,
+    router,
+    resetFlow,
+    setCurrentFlowId,
+    setFlowName,
+    currentFlowId,
+    loadFlowFromApi,
+    setIsLoading,
+  ]);
 
   const handleGenerateFlow = (steps: FlowStep[]) => {
     console.log("Handling generated flow steps:", steps);

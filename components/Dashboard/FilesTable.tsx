@@ -1,7 +1,4 @@
-"use client";
-
-import { MoreVertical } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import React, { useState } from "react";
 import {
   Table,
   TableBody,
@@ -10,241 +7,291 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+import { MoreHorizontal, Pencil, Trash2 } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { motion } from "framer-motion";
-import type { File } from "@/app/dashboard/page";
-import { useState } from "react";
-import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 
-type FileRowProps = {
-  file: File;
-  index: number;
-  onRename: (id: number, newName: string) => void;
-  onDelete: (id: number) => void;
-};
-
-type FilesTableProps = {
-  files: File[];
-  onRename?: (id: number, newName: string) => void;
-  onDelete?: (id: number) => void;
-};
-
-function FileRow({ file, index, onRename, onDelete }: FileRowProps) {
-  return (
-    <motion.tr
-      key={file.id}
-      initial={{ opacity: 0, y: 10 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: 0.1 * index }}
-      className="group"
-    >
-      <TableCell className="font-medium border-b border-zinc-800/50 group-hover:bg-zinc-800/20">
-        {file.name}
-      </TableCell>
-      <TableCell className="border-b border-zinc-800/50 group-hover:bg-zinc-800/20">
-        {file.created}
-      </TableCell>
-      <TableCell className="border-b border-zinc-800/50 group-hover:bg-zinc-800/20">
-        {file.edited}
-      </TableCell>
-      <TableCell className="border-b border-zinc-800/50 group-hover:bg-zinc-800/20">
-        <FileActions file={file} onRename={onRename} onDelete={onDelete} />
-      </TableCell>
-    </motion.tr>
-  );
+export interface File {
+  id: string;
+  name: string;
+  createdAt: string; // Original ISO date string
+  updatedAt: string; // Original ISO date string
+  created?: string; // Formatted date (if parent component formats it)
+  edited?: string; // Formatted date (if parent component formats it)
 }
 
-type FileActionsProps = {
-  file: File;
-  onRename: (id: number, newName: string) => void;
-  onDelete: (id: number) => void;
-};
+interface FilesTableProps {
+  files: File[];
+  onRename: (id: string, newName: string) => void;
+  onDelete: (id: string) => void;
+  onFlowClick: (id: string) => void;
+}
 
-function FileActions({ file, onRename, onDelete }: FileActionsProps) {
-  const [isRenameDialogOpen, setIsRenameDialogOpen] = useState(false);
-  const [newFileName, setNewFileName] = useState(file.name);
-  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+export function FilesTable({
+  files,
+  onRename,
+  onDelete,
+  onFlowClick,
+}: FilesTableProps) {
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editName, setEditName] = useState("");
+  const [deleteId, setDeleteId] = useState<string | null>(null);
 
-  const handleRename = () => {
-    onRename(file.id, newFileName);
-    setIsRenameDialogOpen(false);
+  const handleEdit = (id: string, currentName: string) => {
+    setEditingId(id);
+    setEditName(currentName);
   };
 
-  const handleDelete = () => {
-    onDelete(file.id);
-    setIsDeleteDialogOpen(false);
+  const handleSave = () => {
+    if (editingId && editName.trim()) {
+      onRename(editingId, editName);
+      setEditingId(null);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter") {
+      handleSave();
+    } else if (e.key === "Escape") {
+      setEditingId(null);
+    }
+  };
+
+  const confirmDelete = (id: string) => {
+    setDeleteId(id);
+  };
+
+  const handleDeleteConfirmed = () => {
+    if (deleteId) {
+      onDelete(deleteId);
+      setDeleteId(null);
+    }
+  };
+
+  // Update the format functions to be more robust
+  const formatCreatedDate = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Just created";
+      }
+
+      const options: Intl.DateTimeFormatOptions = {
+        weekday: "long",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      };
+
+      return date.toLocaleDateString("en-US", options);
+    } catch (error) {
+      console.error("Error formatting date:", error);
+      return "Just created";
+    }
+  };
+
+  // Format last edited date to show relative time
+  const formatRelativeTime = (dateString: string) => {
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) {
+        return "Just now";
+      }
+
+      const now = new Date();
+      const diffTime = Math.abs(now.getTime() - date.getTime());
+      const diffSeconds = Math.floor(diffTime / 1000);
+
+      // Rest of your formatting logic...
+      if (diffSeconds < 60) {
+        return "Just now";
+      }
+      
+      const diffMinutes = Math.floor(diffSeconds / 60);
+      if (diffMinutes < 60) {
+        return `${diffMinutes} ${diffMinutes === 1 ? 'minute' : 'minutes'} ago`;
+      }
+      
+      const diffHours = Math.floor(diffMinutes / 60);
+      if (diffHours < 24) {
+        return `${diffHours} ${diffHours === 1 ? 'hour' : 'hours'} ago`;
+      }
+      
+      const diffDays = Math.floor(diffHours / 24);
+      if (diffDays < 7) {
+        return `${diffDays} ${diffDays === 1 ? 'day' : 'days'} ago`;
+      }
+      
+      if (diffDays < 30) {
+        const weeks = Math.floor(diffDays / 7);
+        return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
+      }
+      
+      if (diffDays < 365) {
+        const months = Math.floor(diffDays / 30);
+        return `${months} ${months === 1 ? 'month' : 'months'} ago`;
+      }
+      
+      const years = Math.floor(diffDays / 365);
+      return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+    } catch (error) {
+      console.error("Error calculating relative time:", error);
+      return "Just now";
+    }
   };
 
   return (
     <>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="ghost"
-            size="icon"
-            className="h-8 w-8 text-gray-400 hover:text-white hover:bg-zinc-800/50"
-          >
-            <MoreVertical className="h-4 w-4" />
-            <span className="sr-only">Open menu</span>
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent
-          align="end"
-          className="bg-zinc-900 text-white border-zinc-700 backdrop-blur-md"
-        >
-          <DropdownMenuItem className="hover:bg-zinc-800/30 cursor-pointer">
-            Open
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-zinc-800/30 cursor-pointer"
-            onClick={() => {
-              setNewFileName(file.name);
-              setIsRenameDialogOpen(true);
-            }}
-          >
-            Rename
-          </DropdownMenuItem>
-          <DropdownMenuItem
-            className="hover:bg-zinc-800/30 cursor-pointer text-red-400"
-            onClick={() => setIsDeleteDialogOpen(true)}
-          >
-            Delete
-          </DropdownMenuItem>
-        </DropdownMenuContent>
-      </DropdownMenu>
+      <div className="rounded-lg border border-zinc-800 overflow-hidden">
+        <Table>
+          <TableHeader className="bg-zinc-900">
+            <TableRow className="hover:bg-zinc-900/50">
+              <TableHead className="w-[50%] text-zinc-400 font-medium">
+                Name
+              </TableHead>
+              <TableHead className="text-zinc-400 font-medium">
+                Created
+              </TableHead>
+              <TableHead className="text-zinc-400 font-medium">
+                Last edited
+              </TableHead>
+              <TableHead className="text-right text-zinc-400 font-medium">
+                Actions
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {files.length === 0 ? (
+              <TableRow>
+                <TableCell
+                  colSpan={4}
+                  className="text-center py-8 text-zinc-500"
+                >
+                  No flows found. Create your first flow to get started.
+                </TableCell>
+              </TableRow>
+            ) : (
+              files.map((file) => (
+                <TableRow key={file.id} className="hover:bg-zinc-800/50">
+                  <TableCell>
+                    {editingId === file.id ? (
+                      <Input
+                        value={editName}
+                        onChange={(e) => setEditName(e.target.value)}
+                        onBlur={handleSave}
+                        onKeyDown={handleKeyDown}
+                        className="bg-zinc-800 border-zinc-700 text-white"
+                        autoFocus
+                      />
+                    ) : (
+                      <div
+                        className="cursor-pointer hover:text-blue-400 transition-colors"
+                        onClick={() => onFlowClick(file.id)}
+                      >
+                        {file.name}
+                      </div>
+                    )}
+                  </TableCell>
+                  <TableCell className="text-zinc-400">
+                    {file.created ||
+                      (file.createdAt
+                        ? formatCreatedDate(file.createdAt)
+                        : "Just created")}
+                  </TableCell>
+                  <TableCell className="text-zinc-400">
+                    {file.edited ||
+                      (file.updatedAt
+                        ? formatRelativeTime(file.updatedAt)
+                        : "Just now")}
+                  </TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-zinc-400 hover:text-white"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent
+                        align="end"
+                        className="bg-zinc-800 text-white border-zinc-700"
+                      >
+                        <DropdownMenuItem
+                          className="cursor-pointer hover:bg-zinc-700"
+                          onClick={() => onFlowClick(file.id)}
+                        >
+                          Open
+                        </DropdownMenuItem>
+                        <DropdownMenuItem
+                          className="cursor-pointer hover:bg-zinc-700"
+                          onClick={() => handleEdit(file.id, file.name)}
+                        >
+                          <Pencil className="mr-2 h-4 w-4" />
+                          Rename
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="bg-zinc-700" />
+                        <DropdownMenuItem
+                          className="cursor-pointer text-red-500 hover:bg-zinc-700 hover:text-red-500"
+                          onClick={() => confirmDelete(file.id)}
+                        >
+                          <Trash2 className="mr-2 h-4 w-4" />
+                          Delete
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </div>
 
-      {/* Rename Dialog */}
-      <Dialog open={isRenameDialogOpen} onOpenChange={setIsRenameDialogOpen}>
-        <DialogContent className="bg-zinc-900 text-white border-zinc-700">
-          <DialogHeader>
-            <DialogTitle>Rename File</DialogTitle>
-          </DialogHeader>
-          <Input
-            value={newFileName}
-            onChange={(e) => setNewFileName(e.target.value)}
-            className="bg-zinc-800 border-zinc-700 text-white"
-            autoFocus
-          />
-          <DialogFooter className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsRenameDialogOpen(false)}
-              className="bg-transparent text-white border-zinc-700 hover:bg-zinc-800 hover:text-white"
-            >
+      <AlertDialog
+        open={deleteId !== null}
+        onOpenChange={() => setDeleteId(null)}
+      >
+        <AlertDialogContent className="bg-zinc-900 text-white border-zinc-700">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription className="text-zinc-400">
+              This action cannot be undone. This will permanently delete this
+              flow and all of its data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-transparent text-white border-zinc-700 hover:bg-zinc-800">
               Cancel
-            </Button>
-            <Button
-              onClick={handleRename}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
-            >
-              Rename
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Dialog */}
-      <Dialog open={isDeleteDialogOpen} onOpenChange={setIsDeleteDialogOpen}>
-        <DialogContent className="bg-zinc-900 text-white border-zinc-700">
-          <DialogHeader>
-            <DialogTitle>Delete File</DialogTitle>
-          </DialogHeader>
-          <p className="py-4">
-            Are you sure you want to delete{" "}
-            <span className="font-semibold">{file.name}</span>? This action
-            cannot be undone.
-          </p>
-          <DialogFooter className="flex justify-end gap-2 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => setIsDeleteDialogOpen(false)}
-              className="bg-transparent text-white border-zinc-700 hover:bg-zinc-800 hover:text-white"
-            >
-              Cancel
-            </Button>
-            <Button
-              onClick={handleDelete}
+            </AlertDialogCancel>
+            <AlertDialogAction
               className="bg-red-600 hover:bg-red-700 text-white"
+              onClick={handleDeleteConfirmed}
             >
               Delete
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
-  );
-}
-
-export function FilesTable({ files, onRename, onDelete }: FilesTableProps) {
-  const handleRename = (id: number, newName: string) => {
-    if (onRename) {
-      onRename(id, newName);
-    } else {
-      console.log(`Rename file ${id} to ${newName}`);
-      // Default implementation if no handler is provided
-    }
-  };
-
-  const handleDelete = (id: number) => {
-    if (onDelete) {
-      onDelete(id);
-    } else {
-      console.log(`Delete file ${id}`);
-      // Default implementation if no handler is provided
-    }
-  };
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.4 }}
-      className="bg-zinc-900/30 backdrop-blur-md border border-zinc-700/90 rounded-xl overflow-hidden p-3"
-    >
-      <Table>
-        <TableHeader>
-          <TableRow className="hover:bg-transparent border-b border-zinc-800/50">
-            <TableHead className="text-gray-400 font-medium">NAME</TableHead>
-            <TableHead className="text-gray-400 font-medium">CREATED</TableHead>
-            <TableHead className="text-gray-400 font-medium">EDITED</TableHead>
-            <TableHead className="text-gray-400 font-medium w-10"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {files.length > 0 ? (
-            files.map((file, index) => (
-              <FileRow
-                key={file.id}
-                file={file}
-                index={index}
-                onRename={handleRename}
-                onDelete={handleDelete}
-              />
-            ))
-          ) : (
-            <TableRow>
-              <TableCell
-                colSpan={7}
-                className="text-center py-6 border-b border-zinc-800/50"
-              >
-                No files found matching your search.
-              </TableCell>
-            </TableRow>
-          )}
-        </TableBody>
-      </Table>
-    </motion.div>
   );
 }

@@ -31,7 +31,7 @@ export const user = pgTable(
     uniqueIndex("user_id_idx").on(user.id),
     uniqueIndex("user_email_idx").on(user.email),
     uniqueIndex("user_name_idx").on(user.name),
-    uniqueIndex("user_created_at_idx").on(user.createdAt),
+    index("user_created_at_idx").on(user.createdAt),
   ]
 );
 
@@ -89,8 +89,8 @@ export const flow = pgTable(
   },
   (flow) => [
     uniqueIndex("flow_id_idx").on(flow.id),
-    uniqueIndex("flow_user_id_idx").on(flow.userId),
-    uniqueIndex("flow_created_at_idx").on(flow.createdAt),
+    index("flow_user_id_idx").on(flow.userId),
+    index("flow_created_at_idx").on(flow.createdAt),
     index("flow_name_search_idx").using(
       "gin",
       sql`to_tsvector('english', coalesce(${flow.name}, ''))`
@@ -111,8 +111,8 @@ export const flowFolder = pgTable(
   },
   (flowFolder) => [
     uniqueIndex("flow_folder_id_idx").on(flowFolder.id),
-    uniqueIndex("flow_folder_user_id_idx").on(flowFolder.userId),
-    uniqueIndex("flow_folder_created_at_idx").on(flowFolder.createdAt),
+    index("flow_folder_user_id_idx").on(flowFolder.userId),
+    index("flow_folder_created_at_idx").on(flowFolder.createdAt),
     index("flow_folder_name_search_idx").using(
       "gin",
       sql`to_tsvector('english', coalesce(${flowFolder.name}, ''))`

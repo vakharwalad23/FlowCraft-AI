@@ -33,7 +33,9 @@ interface FlowState {
   setNodePreview: (id: string, html: string) => void;
   persistCurrentFlow: () => Promise<void>;
   loadFlowFromApi: (flowId: string) => Promise<void>;
-  createNewFlow: (name: string) => Promise<string>;
+  createNewFlow: (
+    name: string
+  ) => Promise<{ id: string; name: string; steps: FlowStep[] }>;
   deleteCurrentFlow: () => Promise<void>;
   setCurrentFlowId: (flowId: string | null) => void;
   setFlowName: (name: string) => void;
@@ -304,6 +306,9 @@ const useFlowStore = create<FlowState>((set, get) => ({
   },
   createNewFlow: async (name: string) => {
     set({ isLoading: true });
+    console.log("Creating new flow with name:", name);
+
+    const now = new Date().toISOString();
 
     try {
       const response = await fetch("/api/flows", {
@@ -314,23 +319,29 @@ const useFlowStore = create<FlowState>((set, get) => ({
         body: JSON.stringify({
           name,
           steps: [],
+          createdAt: now, // Explicitly set creation time
+          updatedAt: now, // Explicitly set update time
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Failed to create flow: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error("API Error Response:", errorText);
+        throw new Error(`Failed to create flow: Status ${response.status}`);
       }
 
       const newFlow = await response.json();
+      console.log("Flow created successfully:", newFlow);
+
       set({
         currentFlowId: newFlow.id,
-        currentFlowName: newFlow.name,
+        currentFlowName: name,
         nodes: [],
         edges: [],
         isStoreInitialized: true,
       });
 
-      return newFlow.id;
+      return newFlow; // Return the entire flow object
     } catch (error) {
       console.error("Failed to create flow:", error);
       throw error;

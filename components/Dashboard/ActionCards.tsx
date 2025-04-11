@@ -1,16 +1,22 @@
 "use client";
 
 import type React from "react";
-import { Plus, Workflow } from "lucide-react";
+import { Workflow } from "lucide-react";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { v4 as uuidv4 } from "uuid";
+import useFlowStore from "@/store/useFlowStore";
 
 type ActionCardProps = {
   icon: React.ReactNode;
@@ -47,13 +53,14 @@ function ActionCard({
   );
 }
 
-export function ActionCards() {
+// Add a new prop for onFlowCreated
+export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
   const [isCreateFlowDialogOpen, setIsCreateFlowDialogOpen] = useState(false);
   const [flowName, setFlowName] = useState("Untitled Flow");
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
+  const { createNewFlow } = useFlowStore();
 
-  // Direct client-side flow creation that bypasses API authentication
   const handleCreateFlow = async () => {
     if (!flowName.trim()) {
       toast.error("Please enter a flow name");
@@ -62,32 +69,24 @@ export function ActionCards() {
 
     try {
       setIsCreating(true);
-      
-      // Generate a new flow ID
-      const flowId = uuidv4();
-      
-      // Create a basic flow skeleton
-      const initialStep = {
-        id: `step-${uuidv4()}`,
-        title: "Initial Step",
-        description: "Start building your flow",
-        components: [],
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      };
-      
-      // Store flow name in sessionStorage for retrieval in flow page
-      sessionStorage.setItem(`flow-${flowId}-name`, flowName.trim());
-      
+
+      // Create the flow directly using store's function which will call the API
+      const newFlow = await createNewFlow(flowName.trim());
+
       // Success feedback
       toast.success("Flow created successfully!");
       setIsCreateFlowDialogOpen(false);
-      
-      // Navigate to the flow page directly
-      router.push(`/flow/${flowId}`);
+
+      // Call the callback if provided to refresh the dashboard
+      if (onFlowCreated) {
+        onFlowCreated();
+      }
+
+      // Navigate to the flow page
+      router.push(`/flow/${newFlow.id}`);
     } catch (error) {
       console.error("Error creating flow:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      toast.error("Failed to create flow. Please try again.");
     } finally {
       setIsCreating(false);
     }
@@ -112,12 +111,15 @@ export function ActionCards() {
       </motion.div>
 
       {/* Create Flow Dialog */}
-      <Dialog open={isCreateFlowDialogOpen} onOpenChange={setIsCreateFlowDialogOpen}>
+      <Dialog
+        open={isCreateFlowDialogOpen}
+        onOpenChange={setIsCreateFlowDialogOpen}
+      >
         <DialogContent className="bg-zinc-900 text-white border-zinc-700">
           <DialogHeader>
             <DialogTitle>Create New Flow</DialogTitle>
           </DialogHeader>
-          
+
           <div className="space-y-4 py-4">
             <div className="space-y-2">
               <Label htmlFor="flow-name">Flow Name</Label>
@@ -131,7 +133,7 @@ export function ActionCards() {
               />
             </div>
           </div>
-          
+
           <DialogFooter className="flex justify-end gap-2 mt-4">
             <Button
               variant="outline"

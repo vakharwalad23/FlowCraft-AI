@@ -1,21 +1,24 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
-import { toast } from "sonner";
-import { Flow } from "@/types/flow";
-import { useRouter } from "next/navigation";
+import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
+import type { Flow, FlowFolder } from "@/types/flow";
 
-export type File = {
+// Updated interface to match the FilesTable component requirements
+interface File {
   id: string;
   name: string;
-  created: string;
-  edited: string;
-};
+  createdAt: string; // Raw date for FilesTable to format
+  updatedAt: string; // Raw date for FilesTable to format
+  created?: string; // Optional pre-formatted date
+  edited?: string; // Optional pre-formatted date
+}
 
 export default function Dashboard() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -25,53 +28,8 @@ export default function Dashboard() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchFlows = async () => {
-      try {
-        setIsLoading(true);
-        const response = await fetch("/api/flows");
-        
-        if (!response.ok) {
-          throw new Error("Failed to fetch flows");
-        }
-        
-        const data = await response.json();
-        
-        // Convert flow data to file format for the table
-        const flowFiles: File[] = [];
-        
-        // Add flows from folders
-        data.folders.forEach((folder: any) => {
-          folder.flows.forEach((flow: Flow) => {
-            flowFiles.push({
-              id: flow.id,
-              name: flow.name,
-              created: formatDate(flow.createdAt),
-              edited: formatDate(flow.updatedAt),
-            });
-          });
-        });
-        
-        // Add unorganized flows
-        data.unorganizedFlows.forEach((flow: Flow) => {
-          flowFiles.push({
-            id: flow.id,
-            name: flow.name,
-            created: formatDate(flow.createdAt),
-            edited: formatDate(flow.updatedAt),
-          });
-        });
-        
-        setFiles(flowFiles);
-      } catch (error) {
-        console.error("Error fetching flows:", error);
-        toast.error("Failed to load flows");
-      } finally {
-        setIsLoading(false);
-      }
-    };
-    
     fetchFlows();
-    
+
     const handleKeyDown = (event: KeyboardEvent) => {
       if (event.ctrlKey && event.key === "k") {
         event.preventDefault();
@@ -85,35 +43,67 @@ export default function Dashboard() {
     };
   }, []);
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
-    
-    if (diffDays === 0) {
-      return "Today";
-    } else if (diffDays === 1) {
-      return "Yesterday";
-    } else if (diffDays < 7) {
-      return `${diffDays} days ago`;
-    } else if (diffDays < 30) {
-      const weeks = Math.floor(diffDays / 7);
-      return `${weeks} ${weeks === 1 ? 'week' : 'weeks'} ago`;
-    } else if (diffDays < 365) {
-      const months = Math.floor(diffDays / 30);
-      return `${months} ${months === 1 ? 'month' : 'months'} ago`;
-    } else {
-      const years = Math.floor(diffDays / 365);
-      return `${years} ${years === 1 ? 'year' : 'years'} ago`;
+  // Update the fetchFlows function to ensure dates are handled properly
+  const fetchFlows = async () => {
+    try {
+      setIsLoading(true);
+      const response = await fetch("/api/flows");
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch flows");
+      }
+
+      const data = await response.json();
+
+      // Convert flow data to file format for the table
+      const flowFiles: File[] = [];
+
+      // Add flows from folders
+      data.folders.forEach((folder: FlowFolder) => {
+        folder.flows.forEach((flow: Flow) => {
+          // Ensure we have valid dates, default to current time if not
+          const createdAt = flow.createdAt || new Date().toISOString();
+          const updatedAt = flow.updatedAt || new Date().toISOString();
+
+          flowFiles.push({
+            id: flow.id,
+            name: flow.name,
+            createdAt: createdAt,
+            updatedAt: updatedAt,
+          });
+        });
+      });
+
+      // Add unorganized flows
+      data.unorganizedFlows.forEach((flow: Flow) => {
+        // Ensure we have valid dates, default to current time if not
+        const createdAt = flow.createdAt || new Date().toISOString();
+        const updatedAt = flow.updatedAt || new Date().toISOString();
+
+        flowFiles.push({
+          id: flow.id,
+          name: flow.name,
+          createdAt: createdAt,
+          updatedAt: updatedAt,
+        });
+      });
+
+      setFiles(flowFiles);
+    } catch (error) {
+      console.error("Error fetching flows:", error);
+      toast.error("Failed to load flows");
+    } finally {
+      setIsLoading(false);
     }
   };
+
+ 
 
   const filteredFiles = files.filter((file) =>
     file.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  const handleRenameFile = async (id: string, newName: string) => {
+  const handleRenameFlow = async (id: string, newName: string) => {
     try {
       const response = await fetch(`/api/flows/${id}`, {
         method: "PATCH",
@@ -127,13 +117,16 @@ export default function Dashboard() {
         throw new Error("Failed to rename flow");
       }
 
+      const now = new Date().toISOString();
+
       setFiles((prevFiles) =>
         prevFiles.map((file) => {
           if (file.id === id) {
             return {
               ...file,
               name: newName,
-              edited: "Just now",
+              updatedAt: now, // Update raw date
+              edited: "Just now", // Update formatted date
             };
           }
           return file;
@@ -146,7 +139,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleDeleteFile = async (id: string) => {
+  const handleDeleteFlow = async (id: string) => {
     try {
       const response = await fetch(`/api/flows/${id}`, {
         method: "DELETE",
@@ -162,6 +155,10 @@ export default function Dashboard() {
       console.error("Error deleting flow:", error);
       toast.error("Failed to delete flow");
     }
+  };
+
+  const handleFlowClick = (id: string) => {
+    router.push(`/flow/${id}`);
   };
 
   return (
@@ -188,18 +185,19 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <ActionCards />
-        
+        <ActionCards onFlowCreated={fetchFlows} />
+
         {isLoading ? (
           <div className="flex items-center justify-center py-12">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
             <span className="ml-3">Loading flows...</span>
           </div>
         ) : (
-          <FilesTable 
-            files={filteredFiles} 
-            onRename={handleRenameFile}
-            onDelete={handleDeleteFile}
+          <FilesTable
+            files={filteredFiles}
+            onRename={handleRenameFlow}
+            onDelete={handleDeleteFlow}
+            onFlowClick={handleFlowClick}
           />
         )}
       </div>

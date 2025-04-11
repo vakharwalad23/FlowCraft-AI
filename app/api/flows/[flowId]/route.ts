@@ -124,3 +124,53 @@ export async function DELETE(
     );
   }
 }
+
+// Add a PATCH handler for updating just the name
+export async function PATCH(
+  request: NextRequest,
+  { params }: { params: { flowId: string } }
+) {
+  // Get authenticated user
+  const currentUser = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!currentUser) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  try {
+    const { name } = await request.json();
+
+    // Check if the flow exists first
+    const existingFlow = await getFlowById(currentUser.user.id, params.flowId);
+
+    if (!existingFlow) {
+      return NextResponse.json({ error: "Flow not found" }, { status: 404 });
+    }
+
+    // Update just the name
+    const flowToUpdate = {
+      id: params.flowId,
+      name: name || existingFlow.flow.name,
+      steps: existingFlow.flow.steps,
+      createdAt: existingFlow.flow.createdAt,
+      updatedAt: new Date().toISOString(),
+    };
+
+    await saveFlow(currentUser.user.id, flowToUpdate, existingFlow.folderId);
+
+    // Revalidate the flows route to refresh caches
+    revalidatePath("/dashboard");
+    revalidatePath(`/flow/${params.flowId}`);
+    revalidatePath("/api/flows");
+
+    return NextResponse.json({ success: true, flow: flowToUpdate });
+  } catch (error) {
+    console.error(`Failed to update flow name ${params.flowId}:`, error);
+    return NextResponse.json(
+      { error: "Failed to update flow name" },
+      { status: 500 }
+    );
+  }
+}

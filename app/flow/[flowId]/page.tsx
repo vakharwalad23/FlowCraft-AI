@@ -33,9 +33,8 @@ export default function FlowPage() {
 
   useEffect(() => {
     console.log("FlowPage useEffect running, flowIdParam:", flowIdParam);
+
     if (!flowIdParam) {
-      console.error("Flow ID parameter is missing!");
-      router.push("/flow/new");
       return;
     }
 
@@ -58,7 +57,16 @@ export default function FlowPage() {
       }
       setIsLoading(false);
     }
-  }, [flowIdParam, router, resetFlow, setCurrentFlowId, setFlowName, currentFlowId, loadFlowFromApi, setIsLoading]);
+  }, [
+    flowIdParam,
+    router,
+    resetFlow,
+    setCurrentFlowId,
+    setFlowName,
+    currentFlowId,
+    loadFlowFromApi,
+    setIsLoading,
+  ]);
 
   const handleGenerateFlow = (steps: FlowStep[]) => {
     console.log("Handling generated flow steps:", steps);

@@ -15,8 +15,10 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation";
 
 export function HeroSection() {
+  const router = useRouter();
   return (
     <motion.section
       className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4"
@@ -129,6 +131,9 @@ export function HeroSection() {
           <Button
             size="lg"
             className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 [text-shadow:0_0_5px_rgba(255,255,255,0.6)] transition-all duration-300 transform hover:scale-105"
+            onClick={() => {
+              router.push("/dashboard");
+            }}
           >
             Get Started{" "}
             <motion.span
@@ -149,6 +154,11 @@ export function HeroSection() {
             size="lg"
             variant="outline"
             className="border-purple-500/30 bg-accent-foreground hover:text-white hover:border-purple-500/50 hover:bg-purple-500/10 transition-all duration-300"
+            onClick={() => {
+              document
+                .getElementById("how-it-works")
+                ?.scrollIntoView({ behavior: "smooth" });
+            }}
           >
             Learn More
           </Button>

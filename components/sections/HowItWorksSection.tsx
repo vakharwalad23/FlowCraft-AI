@@ -51,6 +51,7 @@ export function HowItWorksSection() {
   return (
     <motion.section
       ref={ref}
+      id="how-it-works"
       className="py-32 px-4 relative z-10"
       initial={{ opacity: 0 }}
       animate={isInView ? { opacity: 1 } : { opacity: 0 }}

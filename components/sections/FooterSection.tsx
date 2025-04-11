@@ -72,10 +72,13 @@ export function FooterSection() {
 
           <div className="flex space-x-6">
             <Link
-              href="#"
+              href="https://github.com/vakharwalad23/vercel-hackathon"
               className="text-gray-400 hover:text-purple-400 transition-colors"
             >
-              <span className="sr-only">GitHub</span>
+              <span
+                className="sr-only">
+                GitHub
+              </span>
               <svg className="h-6 w-6" fill="currentColor" viewBox="0 0 24 24">
                 <path
                   fillRule="evenodd"

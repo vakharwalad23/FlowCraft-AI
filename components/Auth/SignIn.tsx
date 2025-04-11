@@ -26,11 +26,11 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
   const [rememberMe, setRememberMe] = useState(false);
 
   return (
-    <Card className="max-w-md">
+    <Card className="max-w-md bg-black/80 border-1 border-none text-white">
       <CardHeader>
-        <CardTitle className="text-lg md:text-xl">Sign In</CardTitle>
-        <CardDescription className="text-xs md:text-sm">
-          Enter your email below to login to your account
+        <CardTitle className="text-lg md:text-xl ">Sign In</CardTitle>
+        <CardDescription className="text-xs md:text-sm ">
+          Enter your details below to login to your account
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -40,6 +40,7 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
             <Input
               id="email"
               type="email"
+              className="bg-accent/10 border-none text-white/70 placeholder:text-white/30"
               placeholder="m@example.com"
               required
               onChange={(e) => {
@@ -57,7 +58,8 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
             <Input
               id="password"
               type="password"
-              placeholder="password"
+              className="bg-accent/10 border-none text-white/70 placeholder:text-white/30"
+              placeholder="Enter your password"
               autoComplete="password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -67,6 +69,7 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
           <div className="flex items-center gap-2">
             <Checkbox
               id="remember"
+              className="bg-black/60 border-1 border-white/50 text-white/70 placeholder:text-white/30"
               onClick={() => {
                 setRememberMe(!rememberMe);
               }}
@@ -76,7 +79,7 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
 
           <Button
             type="submit"
-            className="w-full"
+            className="w-full bg-white text-black hover:bg-purple-400/90 hover:text-white"
             disabled={loading}
             onClick={async () => {
               await signIn.email(
@@ -108,8 +111,9 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
             )}
           >
             <Button
-              variant="outline"
-              className={cn("w-full gap-2")}
+              className={cn(
+                "w-full gap-2 bg-white text-black hover:bg-purple-400/90 hover:text-white"
+              )}
               disabled={loading}
               onClick={async () => {
                 await signIn.social(
@@ -158,14 +162,10 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
       </CardContent>
       <CardFooter>
         <div className="flex justify-center w-full border-t py-4">
-          <p className="text-center text-xs text-neutral-500">
-            Powered by{" "}
-            <Link
-              href="https://better-auth.com"
-              className="underline"
-              target="_blank"
-            >
-              <span className="dark:text-orange-200/90">better-auth.</span>
+          <p className="text-center text-sm text-neutral-500">
+            Don&apos;t have an account?{" "}
+            <Link href="/signup" className="underline text-purple-400/90">
+              Sign up
             </Link>
           </p>
         </div>

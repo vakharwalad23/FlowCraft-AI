@@ -1,15 +1,15 @@
+"use client";
 
-"use client"
-
-import { ArrowRight, Sparkles } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { motion, useInView } from "framer-motion"
-import { useRef } from "react"
+import { ArrowRight, Sparkles } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { motion, useInView } from "framer-motion";
+import { useRef } from "react";
+import { useRouter } from "next/navigation";
 
 export function CtsSection() {
-  const ref = useRef(null)
-  const isInView = useInView(ref, { once: false, amount: 0.2 })
-
+  const ref = useRef(null);
+  const isInView = useInView(ref, { once: false, amount: 0.2 });
+  const router = useRouter();
   return (
     <motion.section
       ref={ref}
@@ -73,7 +73,9 @@ export function CtsSection() {
           className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-purple-950/30 backdrop-blur-sm border border-purple-500/20 mb-8"
         >
           <Sparkles className="h-4 w-4 text-purple-400" />
-          <span className="text-sm font-medium text-purple-300">Revolutionize Your Design Workflow</span>
+          <span className="text-sm font-medium text-purple-300">
+            Revolutionize Your Design Workflow
+          </span>
         </motion.div>
 
         <motion.h2
@@ -92,8 +94,8 @@ export function CtsSection() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="text-xl text-gray-300 mb-10 max-w-3xl mx-auto leading-relaxed drop-shadow-[0_0_10px_rgba(219,39,119,0.3)]"
         >
-          Join the growing community of designers using FlowCraft AI to streamline their workflow and create stunning
-          experiences.
+          Join the growing community of designers using FlowCraft AI to
+          streamline their workflow and create stunning experiences.
         </motion.p>
 
         <motion.div
@@ -106,11 +108,15 @@ export function CtsSection() {
           <Button
             size="lg"
             className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-700 hover:via-pink-700 hover:to-indigo-700 text-white font-medium px-10 py-7 rounded-md shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]"
+            onClick={() => {
+              router.push("/dashboard");
+            }}
           >
-            Get Started Now <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            Get Started Now{" "}
+            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
       </div>
     </motion.section>
-  )
+  );
 }

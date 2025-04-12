@@ -231,7 +231,13 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-zinc-950 via-zinc-900 to-black text-white">
+    <div className="min-h-screen relative overflow-hidden bg-black text-white">
+      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+        <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />
+        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-pink-500/20 to-transparent blur-[100px]" />
+        <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-indigo-500/20 to-transparent blur-[100px]" />
+      </div>
+      
       <div className="container mx-auto p-4 relative z-10">
         <div className="flex items-center justify-between mb-6">
           <DashboardTabs onTabChange={handleTabChange} />
@@ -243,7 +249,7 @@ export default function Dashboard() {
                 ref={searchInputRef}
                 type="search"
                 placeholder="Search"
-                className="w-64 pl-8 bg-zinc-800/50 focus:outline-none focus:ring-0 focus:border-0 border-zinc-700/50 text-white rounded-xl"
+                className="w-64 pl-8 bg-black/50 focus:outline-none focus:ring-0 focus:border-0 border-zinc-700/50 text-white rounded-xl"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />

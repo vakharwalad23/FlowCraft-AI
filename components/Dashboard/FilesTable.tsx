@@ -184,10 +184,10 @@ export function FilesTable({
 
   return (
     <>
-      <div className="rounded-lg border border-zinc-800 overflow-hidden">
+      <div className="rounded-lg border border-zinc-700/90 overflow-hidden">
         <Table>
-          <TableHeader className="bg-zinc-900">
-            <TableRow className="hover:bg-zinc-900/50">
+          <TableHeader className="bg-black/50">
+            <TableRow className="hover:bg-black/70">
               <TableHead className="w-[50%] text-zinc-400 font-medium">
                 Name
               </TableHead>
@@ -214,7 +214,7 @@ export function FilesTable({
               </TableRow>
             ) : (
               files.map((file) => (
-                <TableRow key={file.id} className="hover:bg-zinc-800/50">
+                <TableRow key={file.id} className="hover:bg-black/30">
                   <TableCell>
                     {editingId === file.id ? (
                       <Input
@@ -222,7 +222,7 @@ export function FilesTable({
                         onChange={(e) => setEditName(e.target.value)}
                         onBlur={handleSave}
                         onKeyDown={handleKeyDown}
-                        className="bg-zinc-800 border-zinc-700 text-white"
+                        className="bg-black/50 border-zinc-700/90 text-white"
                         autoFocus
                       />
                     ) : (
@@ -234,7 +234,7 @@ export function FilesTable({
                           {file.name}
                         </div>
                         {file.folderName && (
-                          <span className="px-2 py-0.5 bg-zinc-800 text-xs rounded-full text-zinc-400 border border-zinc-700">
+                          <span className="px-2 py-0.5 bg-black/50 text-xs rounded-full text-zinc-400 border border-zinc-700/90">
                             {file.folderName}
                           </span>
                         )}
@@ -259,38 +259,38 @@ export function FilesTable({
                         <Button
                           variant="ghost"
                           size="icon"
-                          className="text-zinc-400 hover:text-white"
+                          className="text-zinc-400 hover:bg-black/10 hover:text-white "
                         >
                           <MoreHorizontal className="h-4 w-4" />
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-zinc-800 text-white border-zinc-700"
+                        className="bg-black text-white border-zinc-700/90"
                       >
                         <DropdownMenuItem
-                          className="cursor-pointer hover:bg-zinc-700"
+                          className="cursor-pointer hover:bg-black/70"
                           onClick={() => onFlowClick(file.id)}
                         >
                           Open
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="cursor-pointer hover:bg-zinc-700"
+                          className="cursor-pointer hover:bg-black/70"
                           onClick={() => handleEdit(file.id, file.name)}
                         >
                           <Pencil className="mr-2 h-4 w-4" />
                           Rename
                         </DropdownMenuItem>
                         <DropdownMenuItem
-                          className="cursor-pointer hover:bg-zinc-700"
+                          className="cursor-pointer hover:bg-black/70"
                           onClick={() => setMovingId(file.id)}
                         >
                           <MoveIcon className="mr-2 h-4 w-4" />
                           Move to Folder
                         </DropdownMenuItem>
-                        <DropdownMenuSeparator className="bg-zinc-700" />
+                        <DropdownMenuSeparator className="bg-zinc-700/90" />
                         <DropdownMenuItem
-                          className="cursor-pointer text-red-500 hover:bg-zinc-700 hover:text-red-500"
+                          className="cursor-pointer text-red-500 hover:bg-black/70 hover:text-red-500"
                           onClick={() => confirmDelete(file.id)}
                         >
                           <Trash2 className="mr-2 h-4 w-4" />
@@ -310,7 +310,7 @@ export function FilesTable({
         open={deleteId !== null}
         onOpenChange={() => setDeleteId(null)}
       >
-        <AlertDialogContent className="bg-zinc-900 text-white border-zinc-700">
+        <AlertDialogContent className="bg-black text-white border-zinc-700/90">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-400">
@@ -319,7 +319,7 @@ export function FilesTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent text-white border-zinc-700 hover:bg-zinc-800">
+            <AlertDialogCancel className="bg-transparent text-white border-zinc-700/90 hover:bg-black/70">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
@@ -333,7 +333,7 @@ export function FilesTable({
       </AlertDialog>
 
       <Dialog open={movingId !== null} onOpenChange={() => setMovingId(null)}>
-        <DialogContent className="bg-zinc-900 text-white border-zinc-700">
+        <DialogContent className="bg-black text-white border-zinc-700/90">
           <DialogHeader>
             <DialogTitle>Move Flow to Folder</DialogTitle>
             <DialogDescription className="text-zinc-400">

@@ -5,14 +5,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Workflow } from "lucide-react";
-import { motion } from "framer-motion";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogFooter,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -37,10 +30,8 @@ function ActionCard({
   onClick,
 }: ActionCardProps) {
   return (
-    <motion.div
-      whileHover={{ scale: 1.03, backgroundColor: "rgba(161, 161, 170, 0.15)" }}
-      transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="bg-zinc-900/30 backdrop-blur-md border border-zinc-700/90 rounded-xl p-8 flex flex-col items-center justify-center text-center group"
+    <div
+      className="bg-black/30 backdrop-blur-md border border-zinc-700/90 rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-zinc-900/30 transition-colors"
       onClick={onClick}
     >
       <div
@@ -50,7 +41,7 @@ function ActionCard({
       </div>
       <h3 className="text-lg font-medium">{title}</h3>
       <p className="text-sm text-gray-400 mt-2">{description}</p>
-    </motion.div>
+    </div>
   );
 }
 
@@ -86,8 +77,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
 
       // Success feedback
       toast.success(
-        `Flow "${flowName}" created ${
-          selectedFolderName ? `in folder "${selectedFolderName}"` : ""
+        `Flow "${flowName}" created ${selectedFolderName ? `in folder "${selectedFolderName}"` : ""
         }`
       );
       setIsCreateFlowDialogOpen(false);
@@ -122,12 +112,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
 
   return (
     <>
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5, delay: 0.2 }}
-        className="flex justify-center mb-8"
-      >
+      <div className="flex justify-center mb-8">
         <div className="w-full max-w-md">
           <ActionCard
             icon={<Workflow className="w-8 h-8 text-zinc-200" />}
@@ -138,14 +123,14 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
             onClick={() => setIsCreateFlowDialogOpen(true)}
           />
         </div>
-      </motion.div>
+      </div>
 
-      {/* Create Flow Dialog */}
+
       <Dialog
         open={isCreateFlowDialogOpen}
         onOpenChange={setIsCreateFlowDialogOpen}
       >
-        <DialogContent className="bg-zinc-900 text-white border-zinc-700">
+        <DialogContent className="bg-gradient-to-br from-purple-700/10 to-indigo-700/10 backdrop-blur-md text-white border border-zinc-700/90">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
               Create New Flow
@@ -159,7 +144,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
                 id="flow-name"
                 value={flowName}
                 onChange={(e) => setFlowName(e.target.value)}
-                className="bg-zinc-800 border-zinc-700 text-white"
+                className=" bg-transparent focus:ring-0  focus:ring-offset-0  border-zinc-700/90 text-white"
                 placeholder="Enter flow name"
                 autoFocus
               />
@@ -178,7 +163,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
             <Button
               variant="outline"
               onClick={() => setIsCreateFlowDialogOpen(false)}
-              className="bg-transparent text-white border-zinc-700 hover:bg-zinc-800 hover:text-white"
+              className="bg-transparent text-white border-zinc-700/90 hover:bg-zinc-900 hover:text-white"
             >
               Cancel
             </Button>

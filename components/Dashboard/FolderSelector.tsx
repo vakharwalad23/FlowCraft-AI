@@ -128,79 +128,84 @@ export function FolderSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="justify-between bg-zinc-800/50 border-zinc-700/30 text-zinc-200 hover:bg-zinc-800 hover:text-white"
+            className="justify-between bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
           >
             {selectedFolder ? (
               <span>{selectedFolder.name}</span>
             ) : (
-              <span>Select folder (optional)</span>
+              <span className="text-zinc-400">Select folder (optional)</span>
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 bg-zinc-800 border-zinc-700 text-zinc-100 w-[250px]">
-          <Command>
+        <PopoverContent className="p-0 bg-zinc-900 border-zinc-700 text-zinc-100 w-[280px] shadow-lg overflow-hidden">
+          <Command className="bg-transparent/60">
             <CommandInput
               placeholder="Search folders..."
-              className="bg-zinc-800 text-white border-b border-zinc-700"
+              className="focus:ring-0 focus:border-zinc-700 transition-colors text-zinc-200"
             />
             {loading ? (
-              <div className="flex items-center justify-center p-4">
-                <Loader2 className="h-4 w-4 text-zinc-400 animate-spin" />
-                <span className="ml-2 text-zinc-400">Loading folders...</span>
+              <div className="flex items-center justify-center p-6">
+                <Loader2 className="h-5 w-5 text-zinc-400 animate-spin" />
+                <span className="ml-2 text-zinc-400 text-sm">Loading folders...</span>
               </div>
             ) : (
-              <CommandList>
-                <CommandEmpty>No folders found</CommandEmpty>
-                <CommandGroup heading="Folders">
+              <CommandList className="max-h-[300px]">
+                <CommandEmpty className="py-3 text-zinc-400 text-sm">No folders found</CommandEmpty>
+                <CommandGroup heading="Folders" className="text-zinc-400 text-xs">
                   <CommandItem
                     value="none"
                     onSelect={() => handleSelectFolder(null)}
-                    className="cursor-pointer"
+                    className="cursor-pointer hover:bg-zinc-800 text-zinc-300"
                   >
                     <span>No folder (Default)</span>
-                    {!selectedFolder && <Check className="ml-auto h-4 w-4" />}
+                    {!selectedFolder && <Check className="ml-auto h-4 w-4 text-emerald-500" />}
                   </CommandItem>
                   {folders.map((folder) => (
                     <CommandItem
                       key={folder.id}
                       value={folder.name}
                       onSelect={() => handleSelectFolder(folder)}
-                      className="cursor-pointer"
+                      className="cursor-pointer hover:bg-zinc-800 text-zinc-300"
                     >
                       <span>{folder.name}</span>
                       {selectedFolder?.id === folder.id && (
-                        <Check className="ml-auto h-4 w-4" />
+                        <Check className="ml-auto h-4 w-4 text-emerald-500" />
                       )}
                     </CommandItem>
                   ))}
                 </CommandGroup>
-                <CommandSeparator className="bg-zinc-700" />
-                <CommandGroup heading="Create New">
-                  <div className="p-2 flex gap-2">
-                    <Input
-                      value={newFolderName}
-                      onChange={(e) => setNewFolderName(e.target.value)}
-                      placeholder="New folder name"
-                      className="bg-zinc-900 border-zinc-700 text-white text-sm"
-                      onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                          e.preventDefault();
-                          handleCreateFolder();
-                        }
-                      }}
-                    />
-                    <Button
-                      size="icon"
-                      onClick={handleCreateFolder}
-                      disabled={creating || !newFolderName.trim()}
-                      className="bg-zinc-700 hover:bg-zinc-600"
-                    >
-                      {creating ? (
-                        <Loader2 className="h-4 w-4 animate-spin" />
-                      ) : (
-                        <FolderPlus className="h-4 w-4" />
-                      )}
-                    </Button>
+                <CommandSeparator className="bg-zinc-800 my-1" />
+                <CommandGroup heading="Create New" className="text-zinc-400 text-xs">
+                  <div className="p-3 flex flex-col gap-2">
+                    <div className="flex gap-2">
+                      <Input
+                        value={newFolderName}
+                        onChange={(e) => setNewFolderName(e.target.value)}
+                        placeholder="New folder name"
+                        className="bg-zinc-800 border-zinc-700 text-zinc-200 text-sm focus:border-zinc-600 focus:ring-zinc-700/50"
+                        onKeyDown={(e) => {
+                          if (e.key === "Enter") {
+                            e.preventDefault();
+                            handleCreateFolder();
+                          }
+                        }}
+                      />
+                      <Button
+                        size="icon"
+                        onClick={handleCreateFolder}
+                        disabled={creating || !newFolderName.trim()}
+                        className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 transition-colors"
+                      >
+                        {creating ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <FolderPlus className="h-4 w-4" />
+                        )}
+                      </Button>
+                    </div>
+                    {creating && (
+                      <p className="text-xs text-zinc-400">Creating folder...</p>
+                    )}
                   </div>
                 </CommandGroup>
               </CommandList>

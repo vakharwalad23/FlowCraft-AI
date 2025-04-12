@@ -40,7 +40,7 @@ function ActionCard({
     <motion.div
       whileHover={{ scale: 1.03, backgroundColor: "rgba(161, 161, 170, 0.15)" }}
       transition={{ type: "spring", stiffness: 400, damping: 10 }}
-      className="bg-zinc-900/30 backdrop-blur-md border border-zinc-700/90 rounded-xl p-8 flex flex-col items-center justify-center text-center cursor-pointer group"
+      className="bg-zinc-900/30 backdrop-blur-md border border-zinc-700/90 rounded-xl p-8 flex flex-col items-center justify-center text-center group"
       onClick={onClick}
     >
       <div

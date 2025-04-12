@@ -25,7 +25,7 @@ function FeatureCard({
 
   return (
     <Card
-      className="from-gray-900 to-black py-6 overflow-hidden group hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] transition-all duration-300 bg-transparent border-2 border-gray-900 opacity-70"
+      className="from-gray-900 to-black py-6 overflow-hidden group hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] transition-all duration-300 bg-black/50 border-2 border-gray-800 opacity-70 relative backdrop-blur-lg"
       style={{
         transform: isHovering
           ? `translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0) scale3d(1, 1, 1)`
@@ -39,11 +39,11 @@ function FeatureCard({
         setMousePosition({ x: 0, y: 0 });
       }}
     >
-      {/* Lighter background overlay that appears on hover */}
+      {/* Lighter background overlay with blur effect that appears on hover */}
       <div
         className="absolute inset-0 opacity-0 transition-opacity duration-300"
         style={{
-          opacity: isHovering ? 0.05 : 0,
+          opacity: isHovering ? 0.1 : 0,
           backgroundImage:
             "radial-gradient(88% 100% at top, rgba(255, 255, 255, 0.15), rgba(255, 255, 255, 0))",
         }}

@@ -82,7 +82,7 @@ export function CtsSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 20 }}
           transition={{ duration: 0.6, delay: 0.2 }}
-          className="text-4xl md:text-6xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)] tracking-tight"
+          className="text-4xl md:text-6xl font-bold mb-8 bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400 drop-shadow-[0_0_25px_rgba(168,85,247,0.5)] tracking-tighter leading-18 pb-1"
         >
           Ready to Transform Your <br className="hidden md:block" />
           UX Design Process?

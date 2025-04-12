@@ -43,6 +43,35 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
     }
   };
 
+  const validateForm = () => {
+    if (!firstName || !lastName) {
+      toast.error("Please enter your first and last name");
+      return false;
+    }
+    
+    if (!email) {
+      toast.error("Please enter your email address");
+      return false;
+    }
+    
+    if (!password) {
+      toast.error("Please enter a password");
+      return false;
+    }
+    
+    if (password.length < 8) {
+      toast.error("Password must be at least 8 characters long");
+      return false;
+    }
+    
+    if (password !== passwordConfirmation) {
+      toast.error("Passwords do not match");
+      return false;
+    }
+    
+    return true;
+  };
+
   return (
     <Card className="z-50 rounded-md max-w-md bg-black/80 border-1 border-none text-white">
       <CardHeader>
@@ -138,11 +167,10 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                   type="file"
                   accept="image/*"
                   onChange={handleImageChange}
-                  className="w-full bg-accent/10 border-none text-white/80 placeholder:text-white/50 [&::file-selector-button]:text-white  [&::file-selector-button]:border-none [&::file-selector-button]:bg-accent/20 [&::file-selector-button]:mr-2 [&::file-selector-button]:px-2 [&::file-selector-button]:py-1 [&::file-selector-button]:rounded-md cursor-pointer [&::file-selector-button]:cursor-pointer"
+                  className="w-full bg-accent/10 border-none text-white/80 placeholder:text-white/50 [&::file-selector-button]:text-white  [&::file-selector-button]:border-none [&::file-selector-button]:bg-accent/20 [&::file-selector-button]:mr-2 [&::file-selector-button]:px-2 [&::file-selector-button]:py-1 [&::file-selector-button]:rounded-md"
                 />
                 {imagePreview && (
                   <X
-                    className="cursor-pointer"
                     onClick={() => {
                       setImage(null);
                       setImagePreview(null);
@@ -157,27 +185,38 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
             className="w-full bg-white text-black hover:bg-purple-400/90 hover:text-white"
             disabled={loading}
             onClick={async () => {
-              await signUp.email({
-                email,
-                password,
-                name: `${firstName} ${lastName}`,
-                image: image ? await convertImageToBase64(image) : "",
-                callbackURL: redirectTo,
-                fetchOptions: {
-                  onResponse: () => {
-                    setLoading(false);
+              if (!validateForm()) {
+                return;
+              }
+              
+              try {
+                await signUp.email({
+                  email,
+                  password,
+                  name: `${firstName} ${lastName}`,
+                  image: image ? await convertImageToBase64(image) : "",
+                  callbackURL: redirectTo,
+                  fetchOptions: {
+                    onResponse: () => {
+                      setLoading(false);
+                    },
+                    onRequest: () => {
+                      setLoading(true);
+                    },
+                    onError: (ctx) => {
+                      toast.error(ctx.error?.message || "Failed to create account");
+                      setLoading(false);
+                    },
+                    onSuccess: async () => {
+                      toast.success("Account created successfully! Redirecting...");
+                      router.push(redirectTo);
+                    },
                   },
-                  onRequest: () => {
-                    setLoading(true);
-                  },
-                  onError: (ctx) => {
-                    toast.error(ctx.error.message);
-                  },
-                  onSuccess: async () => {
-                    router.push(redirectTo);
-                  },
-                },
-              });
+                });
+              } catch (error: any) {
+                toast.error(error?.message || "An unexpected error occurred");
+                setLoading(false);
+              }
             }}
           >
             {loading ? (
@@ -210,6 +249,10 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                     onResponse: () => {
                       setLoading(false);
                     },
+                    onError: (ctx) => {
+                      toast.error(ctx.error?.message || "Failed to sign up with Google");
+                      setLoading(false);
+                    },
                   }
                 );
               }}
@@ -237,7 +280,7 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                   d="M130.55 50.479c24.514 0 41.05 10.589 50.479 19.438l36.844-35.974C195.245 12.91 165.798 0 130.55 0C79.49 0 35.393 29.301 13.925 71.947l42.211 32.783c10.59-31.477 39.891-54.251 74.414-54.251"
                 ></path>
               </svg>
-              Sign in with Google
+              Sign up with Google
             </Button>
           </div>
         </div>
@@ -245,9 +288,9 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
       <CardFooter>
         <div className="flex justify-center w-full border-t py-4">
           <p className="text-center text-sm text-neutral-500">
+            <Link href="/signin">
             Already have an account?{" "}
-            <Link href="/signin" className="underline text-purple-400/90">
-              Sign in
+            <span className="text-purple-400/90">Sign in</span>
             </Link>
           </p>
         </div>

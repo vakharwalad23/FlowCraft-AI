@@ -17,13 +17,15 @@ import { Loader2 } from "lucide-react";
 import { signIn } from "@/lib/auth-client";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
-import router from "next/router";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
 
 export default function SignIn({ redirectTo }: { redirectTo: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
+  const router = useRouter();
 
   return (
     <Card className="max-w-md bg-black/80 border-1 border-none text-white">
@@ -82,6 +84,11 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
             className="w-full bg-white text-black hover:bg-purple-400/90 hover:text-white"
             disabled={loading}
             onClick={async () => {
+              if (!email || !password) {
+                toast.error("Please enter both email and password");
+                return;
+              }
+
               await signIn.email(
                 {
                   email,
@@ -95,8 +102,13 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
                     setLoading(false);
                   },
                   onSuccess: () => {
+                    toast.success("Successfully signed in!");
                     router.push(redirectTo);
                   },
+                  onError: (ctx) => {
+                    toast.error(ctx.error?.message || "Invalid email or password");
+                    setLoading(false);
+                  }
                 }
               );
             }}
@@ -128,6 +140,10 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
                     onResponse: () => {
                       setLoading(false);
                     },
+                    onError: (ctx) => {
+                      toast.error(ctx.error?.message || "Failed to sign in with Google");
+                      setLoading(false);
+                    }
                   }
                 );
               }}
@@ -163,9 +179,9 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
       <CardFooter>
         <div className="flex justify-center w-full border-t py-4">
           <p className="text-center text-sm text-neutral-500">
-            Don&apos;t have an account?{" "}
-            <Link href="/signup" className="underline text-purple-400/90">
-              Sign up
+            <Link href="/signup">
+              Don&apos;t have an account?{" "}
+              <span className="text-purple-400/90">Sign up</span>
             </Link>
           </p>
         </div>

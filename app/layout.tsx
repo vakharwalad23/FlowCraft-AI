@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
+import CustomCursor from "@/components/CustomCursor/CustomCursor";
+import ClientOnly from "@/components/CustomCursor/ClientOnly";
 
 export const metadata: Metadata = {
   title: "Vercel Hackathon",
@@ -17,6 +19,9 @@ export default function RootLayout({
       <body>
         {children}
         <Toaster />
+        <ClientOnly>
+          <CustomCursor />
+        </ClientOnly>
       </body>
     </html>
   );

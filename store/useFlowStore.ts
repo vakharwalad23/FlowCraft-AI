@@ -34,7 +34,8 @@ interface FlowState {
   persistCurrentFlow: () => Promise<void>;
   loadFlowFromApi: (flowId: string) => Promise<void>;
   createNewFlow: (
-    name: string
+    name: string,
+    folderId?: string
   ) => Promise<{ id: string; name: string; steps: FlowStep[] }>;
   deleteCurrentFlow: () => Promise<void>;
   setCurrentFlowId: (flowId: string | null) => void;
@@ -304,9 +305,14 @@ const useFlowStore = create<FlowState>((set, get) => ({
       set({ isLoading: false, isStoreInitialized: true });
     }
   },
-  createNewFlow: async (name: string) => {
+  createNewFlow: async (name: string, folderId?: string) => {
     set({ isLoading: true });
-    console.log("Creating new flow with name:", name);
+    console.log(
+      "Creating new flow with name:",
+      name,
+      "in folder:",
+      folderId || "none"
+    );
 
     const now = new Date().toISOString();
 
@@ -319,8 +325,9 @@ const useFlowStore = create<FlowState>((set, get) => ({
         body: JSON.stringify({
           name,
           steps: [],
-          createdAt: now, // Explicitly set creation time
-          updatedAt: now, // Explicitly set update time
+          createdAt: now,
+          updatedAt: now,
+          folderId: folderId || undefined,
         }),
       });
 
@@ -336,12 +343,13 @@ const useFlowStore = create<FlowState>((set, get) => ({
       set({
         currentFlowId: newFlow.id,
         currentFlowName: name,
+        currentFolderId: folderId,
         nodes: [],
         edges: [],
         isStoreInitialized: true,
       });
 
-      return newFlow; // Return the entire flow object
+      return newFlow;
     } catch (error) {
       console.error("Failed to create flow:", error);
       throw error;

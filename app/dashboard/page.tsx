@@ -10,14 +10,16 @@ import { FilesTable } from "@/components/Dashboard/FilesTable";
 import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
 import type { Flow, FlowFolder } from "@/types/flow";
 
-// Updated interface to match the FilesTable component requirements
+// Update File interface in dashboard/page.tsx
 interface File {
   id: string;
   name: string;
-  createdAt: string; // Raw date for FilesTable to format
-  updatedAt: string; // Raw date for FilesTable to format
-  created?: string; // Optional pre-formatted date
-  edited?: string; // Optional pre-formatted date
+  createdAt: string;
+  updatedAt: string;
+  created?: string;
+  edited?: string;
+  folderId?: string;
+  folderName?: string;
 }
 
 export default function Dashboard() {
@@ -25,6 +27,7 @@ export default function Dashboard() {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>("all");
   const router = useRouter();
 
   useEffect(() => {
@@ -43,7 +46,7 @@ export default function Dashboard() {
     };
   }, []);
 
-  // Update the fetchFlows function to ensure dates are handled properly
+  // Update the fetchFlows function to maintain folder structure
   const fetchFlows = async () => {
     try {
       setIsLoading(true);
@@ -55,7 +58,7 @@ export default function Dashboard() {
 
       const data = await response.json();
 
-      // Convert flow data to file format for the table
+
       const flowFiles: File[] = [];
 
       // Add flows from folders
@@ -70,13 +73,14 @@ export default function Dashboard() {
             name: flow.name,
             createdAt: createdAt,
             updatedAt: updatedAt,
+            folderId: folder.id,
+            folderName: folder.name,
           });
         });
       });
 
       // Add unorganized flows
       data.unorganizedFlows.forEach((flow: Flow) => {
-        // Ensure we have valid dates, default to current time if not
         const createdAt = flow.createdAt || new Date().toISOString();
         const updatedAt = flow.updatedAt || new Date().toISOString();
 
@@ -97,11 +101,29 @@ export default function Dashboard() {
     }
   };
 
- 
 
-  const filteredFiles = files.filter((file) =>
-    file.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  // Filter files based on search and active tab
+  const getFilteredFiles = () => {
+    let filtered = files;
+
+    // Filter by search query
+    if (searchQuery) {
+      filtered = filtered.filter((file) =>
+        file.name.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+
+    // Filter by tab selection
+    if (activeTab === "folders") {
+      filtered = filtered.filter((file) => file.folderId);
+    } else if (activeTab === "unorganized") {
+      filtered = filtered.filter((file) => !file.folderId);
+    }
+
+    return filtered;
+  };
+
+
 
   const handleRenameFlow = async (id: string, newName: string) => {
     try {
@@ -157,15 +179,62 @@ export default function Dashboard() {
     }
   };
 
+  const handleMoveToFolder = async (
+    id: string,
+    folderId: string | null,
+    folderName: string | null
+  ) => {
+    try {
+      const response = await fetch(`/api/flows/${id}/move`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ folderId }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to move flow");
+      }
+
+      // Update the files state
+      setFiles((prevFiles) =>
+        prevFiles.map((file) => {
+          if (file.id === id) {
+            return {
+              ...file,
+              folderId: folderId || undefined,
+              folderName: folderName || undefined,
+            };
+          }
+          return file;
+        })
+      );
+
+      toast.success(
+        folderId
+          ? `Flow moved to folder "${folderName}"`
+          : "Flow removed from folder"
+      );
+    } catch (error) {
+      console.error("Error moving flow:", error);
+      toast.error("Failed to move flow");
+    }
+  };
+
   const handleFlowClick = (id: string) => {
     router.push(`/flow/${id}`);
+  };
+
+  const handleTabChange = (tab: string) => {
+    setActiveTab(tab);
   };
 
   return (
     <div className="min-h-screen relative overflow-hidden bg-gradient-to-b from-zinc-950 via-zinc-900 to-black text-white">
       <div className="container mx-auto p-4 relative z-10">
         <div className="flex items-center justify-between mb-6">
-          <DashboardTabs />
+          <DashboardTabs onTabChange={handleTabChange} />
 
           <div className="flex items-center gap-2 border border-zinc-700/50 rounded-xl">
             <div className="relative">
@@ -194,10 +263,11 @@ export default function Dashboard() {
           </div>
         ) : (
           <FilesTable
-            files={filteredFiles}
+            files={getFilteredFiles()}
             onRename={handleRenameFlow}
             onDelete={handleDeleteFlow}
             onFlowClick={handleFlowClick}
+            onMoveToFolder={handleMoveToFolder}
           />
         )}
       </div>

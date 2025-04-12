@@ -7,19 +7,21 @@ import { headers } from "next/headers";
 // GET handler for retrieving a specific flow
 export async function GET(
   request: NextRequest,
-  { params }: { params: { flowId: string } }
+  { params }: { params: Promise<{ flowId: string }> }
 ) {
-  // Get authenticated user
-  const currentUser = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
-    const flowData = await getFlowById(currentUser.user.id, params.flowId);
+    const { flowId } = await params;
+
+    // Get authenticated user
+    const currentUser = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    const flowData = await getFlowById(currentUser.user.id, flowId);
 
     if (!flowData) {
       return NextResponse.json({ error: "Flow not found" }, { status: 404 });
@@ -28,7 +30,7 @@ export async function GET(
     // Return the flow
     return NextResponse.json(flowData);
   } catch (error) {
-    console.error(`Failed to fetch flow ${params.flowId}:`, error);
+    console.error(`Failed to fetch flow:`, error);
     return NextResponse.json(
       { error: "Failed to fetch flow" },
       { status: 500 }
@@ -39,22 +41,24 @@ export async function GET(
 // PUT handler for updating a flow
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { flowId: string } }
+  { params }: { params: Promise<{ flowId: string }> }
 ) {
-  // Get authenticated user
-  const currentUser = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const { flowId } = await params;
+
+    // Get authenticated user
+    const currentUser = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { name, steps, folderId } = await request.json();
 
     // Check if the flow exists first
-    const existingFlow = await getFlowById(currentUser.user.id, params.flowId);
+    const existingFlow = await getFlowById(currentUser.user.id, flowId);
 
     if (!existingFlow) {
       return NextResponse.json({ error: "Flow not found" }, { status: 404 });
@@ -62,7 +66,7 @@ export async function PUT(
 
     // Update the flow
     const flowToUpdate = {
-      id: params.flowId,
+      id: flowId,
       name: name || existingFlow.flow.name,
       steps: steps || existingFlow.flow.steps,
       createdAt: existingFlow.flow.createdAt,
@@ -73,12 +77,12 @@ export async function PUT(
 
     // Revalidate the flows route to refresh caches
     revalidatePath("/dashboard");
-    revalidatePath(`/flow/${params.flowId}`);
+    revalidatePath(`/flow/${flowId}`);
     revalidatePath("/api/flows");
 
     return NextResponse.json({ success: true, flow: flowToUpdate });
   } catch (error) {
-    console.error(`Failed to update flow ${params.flowId}:`, error);
+    console.error(`Failed to update flow:`, error);
     return NextResponse.json(
       { error: "Failed to update flow" },
       { status: 500 }
@@ -89,27 +93,29 @@ export async function PUT(
 // DELETE handler for deleting a flow
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { flowId: string } }
+  { params }: { params: Promise<{ flowId: string }> }
 ) {
-  // Get authenticated user
-  const currentUser = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const { flowId } = await params;
+
+    // Get authenticated user
+    const currentUser = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     // Check if the flow exists first
-    const existingFlow = await getFlowById(currentUser.user.id, params.flowId);
+    const existingFlow = await getFlowById(currentUser.user.id, flowId);
 
     if (!existingFlow) {
       return NextResponse.json({ error: "Flow not found" }, { status: 404 });
     }
 
     // Delete the flow
-    await deleteFlow(currentUser.user.id, params.flowId);
+    await deleteFlow(currentUser.user.id, flowId);
 
     // Revalidate the flows route to refresh caches
     revalidatePath("/dashboard");
@@ -117,7 +123,7 @@ export async function DELETE(
 
     return NextResponse.json({ success: true });
   } catch (error) {
-    console.error(`Failed to delete flow ${params.flowId}:`, error);
+    console.error(`Failed to delete flow:`, error);
     return NextResponse.json(
       { error: "Failed to delete flow" },
       { status: 500 }
@@ -128,22 +134,24 @@ export async function DELETE(
 // Add a PATCH handler for updating just the name
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { flowId: string } }
+  { params }: { params: Promise<{ flowId: string }> }
 ) {
-  // Get authenticated user
-  const currentUser = await auth.api.getSession({
-    headers: await headers(),
-  });
-
-  if (!currentUser) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
-
   try {
+    const { flowId } = await params;
+
+    // Get authenticated user
+    const currentUser = await auth.api.getSession({
+      headers: await headers(),
+    });
+
+    if (!currentUser) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
     const { name } = await request.json();
 
     // Check if the flow exists first
-    const existingFlow = await getFlowById(currentUser.user.id, params.flowId);
+    const existingFlow = await getFlowById(currentUser.user.id, flowId);
 
     if (!existingFlow) {
       return NextResponse.json({ error: "Flow not found" }, { status: 404 });
@@ -151,7 +159,7 @@ export async function PATCH(
 
     // Update just the name
     const flowToUpdate = {
-      id: params.flowId,
+      id: flowId,
       name: name || existingFlow.flow.name,
       steps: existingFlow.flow.steps,
       createdAt: existingFlow.flow.createdAt,
@@ -162,12 +170,12 @@ export async function PATCH(
 
     // Revalidate the flows route to refresh caches
     revalidatePath("/dashboard");
-    revalidatePath(`/flow/${params.flowId}`);
+    revalidatePath(`/flow/${flowId}`);
     revalidatePath("/api/flows");
 
     return NextResponse.json({ success: true, flow: flowToUpdate });
   } catch (error) {
-    console.error(`Failed to update flow name ${params.flowId}:`, error);
+    console.error(`Failed to update flow name:`, error);
     return NextResponse.json(
       { error: "Failed to update flow name" },
       { status: 500 }

@@ -4,16 +4,19 @@ import { Star, Clock, Folder } from "lucide-react";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { motion } from "framer-motion";
 
-export function DashboardTabs() {
+interface DashboardTabsProps {
+  onTabChange?: (tab: string) => void;
+}
+
+export function DashboardTabs({ onTabChange }: DashboardTabsProps) {
   return (
     <motion.div
       initial={{ opacity: 0, y: -20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
-      className="w-full"
+      transition={{ duration: 0.3 }}
     >
-      <Tabs defaultValue="all" className="w-full ">
-        <TabsList className="bg-zinc-900/50 backdrop-blur-md border border-zinc-700/60 rounded-xl p-1">
+      <Tabs defaultValue="all" onValueChange={onTabChange}>
+        <TabsList className="bg-zinc-800/30 border border-zinc-800/50 p-1">
           <TabsTrigger
             value="all"
             className="data-[state=active]:bg-zinc-800/70 data-[state=active]:text-white text-gray-400 rounded-lg"
@@ -22,11 +25,11 @@ export function DashboardTabs() {
             All
           </TabsTrigger>
           <TabsTrigger
-            value="recents"
+            value="unorganized"
             className="data-[state=active]:bg-zinc-800/70 data-[state=active]:text-white text-gray-400 rounded-lg"
           >
             <Clock className="w-4 h-4 mr-2" />
-            Recents
+            Unorganized
           </TabsTrigger>
           <TabsTrigger
             value="folders"

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getAllFlows, createFlow } from "@/lib/db-flow";
+import { getAllFlows, createFlow, moveFlowToFolder } from "@/lib/db-flow";
 import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { headers } from "next/headers";
@@ -31,9 +31,8 @@ export async function GET() {
 
 // POST handler for creating a new flow
 export async function POST(request: NextRequest) {
-
   try {
-    // Get authenticated user - handle auth errors gracefully
+    // Get authenticated user
     let currentUser;
     try {
       currentUser = await auth.api.getSession({
@@ -65,45 +64,29 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { name = "Untitled Flow", steps = [] } = body;
+    const { name = "Untitled Flow", steps = [], folderId } = body;
 
     const userId = currentUser.user.id;
 
-    console.log(`Creating flow for user: ${userId} with name: ${name}`);
+    // Create the flow in the database
+    const newFlow = await createFlow(
+      userId,
+      name,
+      Array.isArray(steps) ? steps : []
+    );
 
-    try {
-      
-
-      // Create the flow in the database
-      const newFlow = await createFlow(
-        userId,
-        name,
-        Array.isArray(steps) ? steps : [],
-       
-      );
-
-      console.log("Flow created successfully:", newFlow);
-
-      // Revalidate paths
-      revalidatePath("/dashboard");
-      revalidatePath("/api/flows");
-
-      return NextResponse.json(newFlow, { status: 201 });
-    } catch (dbError) {
-      console.error("Database error creating flow:", dbError);
-
-      return NextResponse.json(
-        {
-          error:
-            "Database error: " +
-            (dbError instanceof Error ? dbError.message : "Unknown"),
-        },
-        { status: 500 }
-      );
+    // If folder ID is provided, move the flow to that folder
+    if (folderId) {
+      await moveFlowToFolder(userId, newFlow.id, folderId);
     }
+
+    // Revalidate paths
+    revalidatePath("/dashboard");
+    revalidatePath("/api/flows");
+
+    return NextResponse.json(newFlow, { status: 201 });
   } catch (error) {
     console.error("Failed to create flow:", error);
-
     return NextResponse.json({ error: "Server error" }, { status: 500 });
   }
 }

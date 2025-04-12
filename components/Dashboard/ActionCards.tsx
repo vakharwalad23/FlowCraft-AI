@@ -1,10 +1,11 @@
 "use client";
 
 import type React from "react";
-import { Workflow } from "lucide-react";
-import { motion } from "framer-motion";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Workflow } from "lucide-react";
+import { motion } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -15,7 +16,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
+import { FolderSelector } from "@/components/Dashboard/FolderSelector";
 import useFlowStore from "@/store/useFlowStore";
 
 type ActionCardProps = {
@@ -53,10 +54,17 @@ function ActionCard({
   );
 }
 
-// Add a new prop for onFlowCreated
-export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
+interface ActionCardsProps {
+  onFlowCreated?: () => void;
+}
+
+export function ActionCards({ onFlowCreated }: ActionCardsProps) {
   const [isCreateFlowDialogOpen, setIsCreateFlowDialogOpen] = useState(false);
   const [flowName, setFlowName] = useState("Untitled Flow");
+  const [selectedFolderId, setSelectedFolderId] = useState<string | null>(null);
+  const [selectedFolderName, setSelectedFolderName] = useState<string | null>(
+    null
+  );
   const [isCreating, setIsCreating] = useState(false);
   const router = useRouter();
   const { createNewFlow } = useFlowStore();
@@ -70,12 +78,24 @@ export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
     try {
       setIsCreating(true);
 
-      // Create the flow directly using store's function which will call the API
-      const newFlow = await createNewFlow(flowName.trim());
+      // Create the flow with folder information
+      const newFlow = await createNewFlow(
+        flowName.trim(),
+        selectedFolderId || undefined
+      );
 
       // Success feedback
-      toast.success("Flow created successfully!");
+      toast.success(
+        `Flow "${flowName}" created ${
+          selectedFolderName ? `in folder "${selectedFolderName}"` : ""
+        }`
+      );
       setIsCreateFlowDialogOpen(false);
+
+      // Reset the form
+      setFlowName("Untitled Flow");
+      setSelectedFolderId(null);
+      setSelectedFolderName(null);
 
       // Call the callback if provided to refresh the dashboard
       if (onFlowCreated) {
@@ -92,22 +112,32 @@ export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
     }
   };
 
+  const handleFolderSelect = (
+    folderId: string | null,
+    folderName: string | null
+  ) => {
+    setSelectedFolderId(folderId);
+    setSelectedFolderName(folderName);
+  };
+
   return (
     <>
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, delay: 0.2 }}
-        className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8"
+        className="flex justify-center mb-8"
       >
-        <ActionCard
-          icon={<Workflow className="w-8 h-8 text-zinc-200 " />}
-          title="Create a Blank Flow"
-          description="Start from scratch"
-          color="bg-zinc-600/50 "
-          hoverColor="bg-zinc-700"
-          onClick={() => setIsCreateFlowDialogOpen(true)}
-        />
+        <div className="w-full max-w-md">
+          <ActionCard
+            icon={<Workflow className="w-8 h-8 text-zinc-200" />}
+            title="Create Flow"
+            description="Start a new user flow diagram from scratch"
+            color="bg-blue-600/50"
+            hoverColor="bg-blue-700/50"
+            onClick={() => setIsCreateFlowDialogOpen(true)}
+          />
+        </div>
       </motion.div>
 
       {/* Create Flow Dialog */}
@@ -117,7 +147,9 @@ export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
       >
         <DialogContent className="bg-zinc-900 text-white border-zinc-700">
           <DialogHeader>
-            <DialogTitle>Create New Flow</DialogTitle>
+            <DialogTitle className="text-lg font-semibold">
+              Create New Flow
+            </DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -130,6 +162,14 @@ export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
                 className="bg-zinc-800 border-zinc-700 text-white"
                 placeholder="Enter flow name"
                 autoFocus
+              />
+            </div>
+
+            <div className="space-y-2">
+              <Label htmlFor="folder">Folder (Optional)</Label>
+              <FolderSelector
+                onSelect={handleFolderSelect}
+                selectedFolderId={selectedFolderId}
               />
             </div>
           </div>
@@ -147,7 +187,14 @@ export function ActionCards({ onFlowCreated }: { onFlowCreated?: () => void }) {
               className="bg-blue-600 hover:bg-blue-700 text-white"
               disabled={isCreating}
             >
-              {isCreating ? "Creating..." : "Create Flow"}
+              {isCreating ? (
+                <div className="flex items-center">
+                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2" />
+                  <span>Creating...</span>
+                </div>
+              ) : (
+                "Create Flow"
+              )}
             </Button>
           </DialogFooter>
         </DialogContent>

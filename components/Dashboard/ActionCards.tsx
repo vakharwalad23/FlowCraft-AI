@@ -118,8 +118,8 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
             icon={<Workflow className="w-8 h-8 text-zinc-200" />}
             title="Create Flow"
             description="Start a new user flow diagram from scratch"
-            color="bg-blue-600/50"
-            hoverColor="bg-blue-700/50"
+            color="bg-indigo-500/50"
+            hoverColor="bg-indigo-700/50"
             onClick={() => setIsCreateFlowDialogOpen(true)}
           />
         </div>
@@ -169,7 +169,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
             </Button>
             <Button
               onClick={handleCreateFlow}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white"
               disabled={isCreating}
             >
               {isCreating ? (

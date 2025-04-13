@@ -11,24 +11,24 @@ export function DashboardTabs({ onTabChange }: DashboardTabsProps) {
   return (
     <div>
       <Tabs defaultValue="all" onValueChange={onTabChange}>
-        <TabsList className="bg-black/30 border border-zinc-700/90 p-1">
+        <TabsList className="bg-black/30 border border-zinc-700/90 p-1 flex gap-2">
           <TabsTrigger
             value="all"
-            className="data-[state=active]:bg-black/70 data-[state=active]:text-white text-gray-400 rounded-lg"
+            className="data-[state=active]:bg-purple-500/60 data-[state=active]:text-white text-gray-400 rounded-lg"
           >
             <Star className="w-4 h-4 mr-2" />
             All
           </TabsTrigger>
           <TabsTrigger
             value="unorganized"
-            className="data-[state=active]:bg-black/70 data-[state=active]:text-white text-gray-400 rounded-lg"
+            className="data-[state=active]:bg-purple-500/60 data-[state=active]:text-white text-gray-400 rounded-lg"
           >
             <Clock className="w-4 h-4 mr-2" />
             Unorganized
           </TabsTrigger>
           <TabsTrigger
             value="folders"
-            className="data-[state=active]:bg-black/70 data-[state=active]:text-white text-gray-400 rounded-lg"
+            className="data-[state=active]:bg-purple-500/60 data-[state=active]:text-white text-gray-400 rounded-lg"
           >
             <Folder className="w-4 h-4 mr-2" />
             Folders

@@ -170,18 +170,20 @@ export function FlowNodePreview({
   };
 
   return (
-    <Card className="p-6 space-y-6 bg-slate-900/90 border-slate-800">
+    <Card className="p-6 space-y-6 bg-gradient-to-br from-slate-900/95 to-slate-950/95 border-slate-800/50 shadow-lg shadow-purple-900/20">
       <div className="space-y-2">
-        <h3 className="text-lg font-medium text-slate-100">{title} Preview</h3>
+        <h3 className="text-lg font-medium bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">{title} Preview</h3>
         <p className="text-sm text-slate-400">{description}</p>
       </div>
       <div className="space-y-4">
         {components.map((component, index) => (
           <div key={index} className="space-y-2">
-            <Label className="text-sm font-medium text-cyan-400">
+            <Label className="text-sm font-medium text-cyan-400/80">
               {component}
             </Label>
-            {renderComponent(component)}
+            <div className="relative p-4 rounded-lg bg-gradient-to-br from-purple-900/10 to-indigo-900/10 border border-slate-800/50 hover:border-slate-700/50 transition-colors">
+              {renderComponent(component)}
+            </div>
           </div>
         ))}
       </div>

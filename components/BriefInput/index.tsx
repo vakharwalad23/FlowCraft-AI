@@ -65,6 +65,8 @@ export function BriefInput({
         if (newState.error) {
           toast.error("Oops! 😅", {
             description: getErrorMessage(newState.error),
+            className: "text-black",
+            
           });
         }
       },
@@ -94,7 +96,9 @@ export function BriefInput({
 
   const handleGenerateFlow = async () => {
     if (!brief.trim()) {
-      toast.error("Please provide a brief description first");
+      toast.error("Please provide a brief description first", {
+        className: "text-black"
+      });
       return;
     }
 
@@ -140,11 +144,14 @@ export function BriefInput({
       }));
 
       onGenerateFlow(validatedSteps);
-      toast.success("Flow generated successfully! ✨");
+      toast.success("Flow generated successfully! ✨", {
+        className: "text-black"
+      });
     } catch (error) {
       console.error("Error generating flow:", error);
       toast.error("Failed to generate flow", {
         description: error instanceof Error ? error.message : "Unknown error",
+        className: "text-black",
       });
     } finally {
       setIsGenerating(false);
@@ -161,36 +168,34 @@ export function BriefInput({
       "audio-capture": "Mic check 1,2! Check your settings 🎧",
       "service-not-allowed": "This browser isn't it rn, try another one 🤔",
     };
-    return errorMessages[errorCode] || `Uh oh! Error: ${errorCode}`;
+    return errorMessages[errorCode] || `<span class="text-black">Uh oh! Error: ${errorCode}</span>`;
   };
 
   const progress = (brief.length / maxLength) * 100;
 
   return (
-    <Card className="relative overflow-hidden border-[0.5px] border-slate-800 bg-[#0A0A0A] shadow-2xl">
+    <Card className="relative overflow-hidden border-[0.5px] border-slate-800 bg-[#000000] shadow-2xl">
       {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900/50 via-black to-slate-900/50" />
+      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-black to-pink-900/50" />
 
       {/* Neon glow effect */}
-      <div className="absolute inset-0 bg-gradient-to-r from-blue-500/5 via-cyan-500/5 to-indigo-500/5 opacity-50 animate-gradient" />
+      <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-indigo-500/5 opacity-50 animate-gradient" />
 
       <div className="relative p-6 space-y-4">
         <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-cyan-400 animate-pulse" />
-            <span className="text-sm font-medium bg-gradient-to-r from-cyan-400 via-blue-500 to-cyan-400 bg-clip-text text-transparent animate-text-shimmer">
+            <Zap className="w-5 h-5 text-pink-400 animate-pulse" />
+            <span className="text-sm font-medium bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-400 bg-clip-text text-transparent animate-text-shimmer">
               Give a brief
             </span>
           </div>
           <Button
-            variant={
-              recognitionState.isListening ? "destructive" : "secondary"
-            }
+            variant={recognitionState.isListening ? "destructive" : "secondary"}
             size="sm"
             className={`relative transition-all duration-300 hover:scale-105 ${
               recognitionState.isListening
                 ? "bg-red-950/80 hover:bg-red-900/80 border border-red-800/50 text-red-400"
-                : "bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)]"
+                : "bg-slate-900 hover:bg-slate-800 border border-purple-800/50 text-pink-400 hover:border-pink-900/50 hover:shadow-[0_0_20px_rgba(236,72,153,0.15)]"
             }`}
             onClick={
               recognitionState.isListening
@@ -221,7 +226,7 @@ export function BriefInput({
 
         <Textarea
           placeholder="Drop your thoughts here... make it awesome! ✨"
-          className="min-h-[200px] resize-none bg-slate-900/50 border-slate-800 text-slate-100 placeholder:text-slate-600 focus:border-cyan-900/50 focus:ring-2 focus:ring-cyan-900/20 transition-all duration-300"
+          className="min-h-[200px] resize-none bg-slate-900/50 border-purple-800/50 text-slate-100 placeholder:text-slate-600 focus:border-pink-900/50 focus:ring-2 focus:ring-purple-900/20 transition-all duration-300"
           value={brief}
           onChange={handleTextChange}
         />
@@ -229,13 +234,13 @@ export function BriefInput({
         <div className="flex items-center justify-between text-sm text-slate-400">
           <div className="flex items-center gap-2">
             {recognitionState.isListening && (
-              <div className="flex items-center gap-2 text-cyan-400">
+              <div className="flex items-center gap-2 text-pink-400">
                 <Loader2 className="w-4 h-4 animate-spin" />
                 <span className="animate-pulse">Listening... 🎧</span>
               </div>
             )}
             {recognitionState.error && (
-              <div className="flex items-center gap-2 text-red-400">
+              <div className="flex items-center gap-2 text-yellow-400">
                 <AlertCircle className="w-4 h-4" />
                 <span>{getErrorMessage(recognitionState.error)}</span>
               </div>
@@ -246,7 +251,7 @@ export function BriefInput({
               className={`${
                 brief.length > maxLength * 0.9
                   ? "text-red-400"
-                  : "text-cyan-400"
+                  : "text-pink-400"
               }`}
             >
               {brief.length} / {maxLength}
@@ -256,20 +261,19 @@ export function BriefInput({
 
         <Progress
           value={progress}
-          className="h-1 bg-slate-900/50 rounded-full overflow-hidden border border-slate-800"
+          className="h-1 bg-slate-900/50 rounded-full overflow-hidden border border-purple-800/50"
           style={{
-            backgroundImage: "linear-gradient(to right, #0e7490, #0369a1)",
+            backgroundImage: "linear-gradient(to right, #9333ea, #db2777)",
             backgroundSize: `${progress}% 100%`,
             backgroundRepeat: "no-repeat",
-            boxShadow:
-              progress > 0 ? "0 0 10px rgba(34,211,238,0.2)" : "none",
+            boxShadow: progress > 0 ? "0 0 10px rgba(236,72,153,0.2)" : "none",
           }}
         />
 
         <Button
           onClick={handleGenerateFlow}
           disabled={isGenerating || brief.trim().length === 0}
-          className="w-full bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white shadow-lg hover:shadow-cyan-500/20 transition-all duration-300"
+          className="w-full bg-gradient-to-r from-purple-500 to-pink-600 hover:from-purple-600 hover:to-pink-700 text-white shadow-lg hover:shadow-pink-500/20 transition-all duration-300"
         >
           {isGenerating ? (
             <>

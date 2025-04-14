@@ -166,7 +166,8 @@ export function FlowDiagram() {
           animated: true,
           style: { stroke: "#0e7490", strokeWidth: 2 },
         }}
-        className="react-flow bg-[#030712]"
+        className="react-flow bg-gradient-to-bl from-purple-900/5 via-indigo-800/15 to-pink-700/15 backdrop-blur-3xl [&_.react-flow__pane]:cursor-none"
+        style={{ zIndex: 1 }}
         minZoom={0.2}
         maxZoom={4}
         nodesDraggable={true}

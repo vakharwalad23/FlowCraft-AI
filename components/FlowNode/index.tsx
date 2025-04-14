@@ -73,9 +73,10 @@ import {
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import useFlowStore, { FlowStep } from "@/store/useFlowStore";
+import useFlowStore from "@/store/useFlowStore";
 import { cn } from "@/lib/utils";
 import { FlowNodePreview } from "@/components/FlowNodePreview";
+import type { FlowStep } from "@/types/flow";
 
 type FlowNodeData = FlowStep;
 
@@ -207,10 +208,10 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
   };
 
   const handleInputChange = (
-    field: keyof FlowNodeData,
-    value: FlowNodeData[keyof FlowNodeData]
+    field: keyof FlowStep,
+    value: string | string[]
   ) => {
-    setEditedData((prev) => ({
+    setEditedData((prev: FlowStep) => ({
       ...prev,
       [field]: value,
       previewHtml: undefined,
@@ -233,7 +234,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
   const handleComponentDelete = (index: number) => {
     handleInputChange(
       "components",
-      editedData.components.filter((_, i) => i !== index)
+      editedData.components.filter((_: unknown, i: number) => i !== index)
     );
   };
 
@@ -242,7 +243,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
       <Handle
         type="target"
         position={Position.Left}
-        className="w-2.5 h-2.5 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-left-1.5"
+        className="w-2.5 h-2.5 border-2 border-pink-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-left-1.5"
       />
       <Card className="w-[350px] bg-slate-900 border border-slate-700 shadow-lg hover:shadow-cyan-500/15 transition-all duration-300 group-hover:border-cyan-600/50 rounded-xl">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
@@ -359,28 +360,30 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                   Components
                 </h4>
                 <div className="flex flex-wrap gap-1.5">
-                  {(editedData.components || []).map((component, index) => {
-                    const CompIcon = getUIComponentIcon(component);
-                    return (
-                      <Badge
-                        key={index}
-                        variant="secondary"
-                        className="flex items-center gap-1.5 px-2 py-1 bg-slate-800 border border-slate-700 text-cyan-400 text-xs font-normal relative group/badge cursor-default"
-                      >
-                        <CompIcon className="w-3 h-3 text-cyan-500" />
-                        <span>{component}</span>
-                        {isEditing && (
-                          <button
-                            onClick={() => handleComponentDelete(index)}
-                            className="ml-1 -mr-1 text-slate-500 hover:text-red-400 opacity-0 group-hover/badge:opacity-100 transition-opacity p-0.5 leading-none focus:outline-none"
-                            aria-label="Remove component"
-                          >
-                            <X className="w-2.5 h-2.5" />
-                          </button>
-                        )}
-                      </Badge>
-                    );
-                  })}
+                  {(editedData.components || []).map(
+                    (component: string, index: number) => {
+                      const CompIcon = getUIComponentIcon(component);
+                      return (
+                        <Badge
+                          key={index}
+                          variant="secondary"
+                          className="flex items-center gap-1.5 px-2 py-1 bg-slate-800 border border-slate-700 text-purple-400 text-xs font-normal relative group/badge cursor-default"
+                        >
+                          <CompIcon className="w-3 h-3 text-purple-500" />
+                          <span>{component}</span>
+                          {isEditing && (
+                            <button
+                              onClick={() => handleComponentDelete(index)}
+                              className="ml-1 -mr-1 text-slate-500 hover:text-red-400 opacity-0 group-hover/badge:opacity-100 transition-opacity p-0.5 leading-none focus:outline-none"
+                              aria-label="Remove component"
+                            >
+                              <X className="w-2.5 h-2.5" />
+                            </button>
+                          )}
+                        </Badge>
+                      );
+                    }
+                  )}
                   {isEditing && (
                     <Dialog
                       open={isAddingComponent}

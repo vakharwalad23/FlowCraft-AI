@@ -89,7 +89,7 @@ export default function FlowPage() {
   if (isLoading || isStoreLoading) {
     return (
       <div className="min-h-screen bg-[#030712] text-white flex items-center justify-center">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-purple-500" />
         <span className="ml-3">Loading Flow...</span>
       </div>
     );
@@ -98,7 +98,7 @@ export default function FlowPage() {
   return (
     <ReactFlowProvider>
       <main className="min-h-screen bg-[#030712] text-white relative overflow-hidden">
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-slate-900/80 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-slate-700/50 shadow-lg">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/50 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-slate-700/50 shadow-lg">
           <span className="text-sm font-medium text-slate-200">
             {currentFlowName}
           </span>
@@ -108,7 +108,7 @@ export default function FlowPage() {
           variant="secondary"
           size="sm"
           onClick={togglePanel}
-          className="fixed top-4 left-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
+          className="fixed top-4 left-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-400 hover:border-pink-900/50 hover:shadow-[0_0_20px_rgba(236,72,153,0.15)] transition-all duration-300"
         >
           {isPanelOpen ? (
             <PanelLeftClose className="w-4 h-4" />
@@ -119,9 +119,11 @@ export default function FlowPage() {
 
         <div className="flex h-screen">
           <div
-            className={`w-[400px] min-w-[400px] p-6 border-r border-slate-800 overflow-y-auto transition-all duration-300 transform ${
-              isPanelOpen ? "translate-x-0" : "-translate-x-full"
-            } fixed top-0 left-0 h-full z-40 bg-[#030712]`}
+            className={`w-[400px] min-w-[400px] p-6 border-r border-slate-800 overflow-y-auto transition-all duration-300 transform 
+              bg-gradient-to-br from-slate-900 via-[#0f0a1f] to-[#030712] backdrop-blur-sm
+              shadow-[inset_0_0_30px_rgba(139,92,246,0.05)]
+              ${isPanelOpen ? "translate-x-0" : "-translate-x-full"
+            } fixed top-0 left-0 h-full z-40 `}
           >
             <div className="pt-16">
               <BriefInput

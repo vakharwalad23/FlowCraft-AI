@@ -72,7 +72,7 @@ export function FlowDiagram() {
         });
         element.style.transform = element.style.transform.replace(
           "translate3d",
-          "translate"
+          "translate" 
         );
         element.style.transition = "none";
       });
@@ -164,7 +164,7 @@ export function FlowDiagram() {
         defaultEdgeOptions={{
           type: "smoothstep",
           animated: true,
-          style: { stroke: "#0e7490", strokeWidth: 2 },
+          style: { stroke: "#6366f1", strokeWidth: 2 },
         }}
         className="react-flow bg-gradient-to-bl from-purple-900/5 via-indigo-800/15 to-pink-700/15 backdrop-blur-3xl [&_.react-flow__pane]:cursor-none"
         style={{ zIndex: 1 }}
@@ -193,7 +193,7 @@ export function FlowDiagram() {
           <Button
             variant="secondary"
             size="sm"
-            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-300/90 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
             onClick={handleExportImage}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -202,7 +202,7 @@ export function FlowDiagram() {
           <Button
             variant="secondary"
             size="sm"
-            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-300/90 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
             onClick={handleExportJSON}
           >
             <Download className="w-4 h-4 mr-2" />
@@ -211,7 +211,7 @@ export function FlowDiagram() {
           <Button
             variant="secondary"
             size="sm"
-            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
+            className="bg-slate-900 hover:bg-slate-800 border border-slate-800 text-indigo-300/90 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
             onClick={resetFlow}
           >
             <Undo className="w-4 h-4 mr-2" />

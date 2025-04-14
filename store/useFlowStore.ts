@@ -88,7 +88,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
           ...connection,
           type: "smoothstep",
           animated: true,
-          style: { strokeWidth: 2, stroke: "#0e7490" },
+          style: { strokeWidth: 2, stroke: "#6366f1" },
         },
         state.edges
       ),
@@ -114,7 +114,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
       animated: true,
       style: {
         strokeWidth: 2,
-        stroke: "#0e7490",
+        stroke: "#6366f1",
       },
     }));
 
@@ -207,7 +207,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
           target: newNodes[i + 1].id,
           type: "smoothstep",
           animated: true,
-          style: { strokeWidth: 2, stroke: "#0e7490" },
+          style: { strokeWidth: 2, stroke: "#6366f1" },
         });
       }
       return { nodes: newNodes, edges: newEdges };

@@ -245,7 +245,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
         position={Position.Left}
         className="w-2.5 h-2.5 border-2 border-pink-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-left-1.5"
       />
-      <Card className="w-[350px] bg-slate-900 border border-slate-700 shadow-lg hover:shadow-cyan-500/15 transition-all duration-300 group-hover:border-cyan-600/50 rounded-xl">
+      <Card className="w-[350px] bg-slate-900 border border-slate-700 shadow-lg hover:shadow-indigo-500/15 transition-all duration-300 group-hover:border-purple-600/50 rounded-xl">
         <Collapsible open={isOpen} onOpenChange={setIsOpen}>
           <div
             className={cn(
@@ -258,7 +258,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                 <Button
                   variant="ghost"
                   size="icon"
-                  className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-md w-6 h-6"
+                  className="text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-md w-6 h-6"
                 >
                   {isOpen ? (
                     <ChevronUp className="w-4 h-4" />
@@ -268,7 +268,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                 </Button>
               </CollapsibleTrigger>
               <div className="relative w-5 h-5 flex items-center justify-center">
-                <Icon className="w-5 h-5 text-cyan-400 z-10" />
+                <Icon className="w-5 h-5 text-purple-400/80 z-10" />
                 <div className="absolute inset-0 bg-cyan-500/10 blur-md rounded-full" />
               </div>
               {isEditing ? (
@@ -276,7 +276,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                   type="text"
                   value={editedData.title}
                   onChange={(e) => handleInputChange("title", e.target.value)}
-                  className="h-8 bg-slate-800 text-white px-2 py-1 rounded border border-slate-700 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 outline-none text-base font-medium"
+                  className="h-8 bg-slate-800 text-white px-2 py-1 rounded border border-slate-700 focus:border-purple-500/40 focus:ring-1 focus:ring-purple-500/30 outline-none text-base font-medium"
                   placeholder="Step Title"
                 />
               ) : (
@@ -310,7 +310,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                   <Button
                     variant="ghost"
                     size="icon"
-                    className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-md w-7 h-7"
+                    className="text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-md w-7 h-7"
                     onClick={() => setIsPreviewOpen(true)}
                   >
                     <Eye className="w-4 h-4" />
@@ -319,7 +319,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                     variant="ghost"
                     size="icon"
                     onClick={handleEdit}
-                    className="text-slate-400 hover:text-cyan-400 hover:bg-slate-800 rounded-md w-7 h-7"
+                    className="text-slate-400 hover:text-indigo-400 hover:bg-slate-800 rounded-md w-7 h-7"
                   >
                     <Pencil className="w-3.5 h-3.5" />
                   </Button>
@@ -345,7 +345,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                     handleInputChange("description", e.target.value)
                   }
                   placeholder="Step description..."
-                  className="w-full bg-slate-800 border-slate-700 text-sm text-slate-300 rounded-md p-2 focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500 min-h-[60px]"
+                  className="w-full bg-slate-800 border-slate-700 text-sm text-slate-300 rounded-md p-2  min-h-[60px]"
                 />
               ) : (
                 <p className="text-sm text-slate-400 leading-relaxed">
@@ -366,8 +366,8 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                       return (
                         <Badge
                           key={index}
-                          variant="secondary"
-                          className="flex items-center gap-1.5 px-2 py-1 bg-slate-800 border border-slate-700 text-purple-400 text-xs font-normal relative group/badge cursor-default"
+                          variant="outline"
+                          className="flex items-center gap-1.5 px-2 py-1 bg-slate-800 border border-slate-700 text-gray-300/70 text-xs font-normal relative group/badge cursor-default"
                         >
                           <CompIcon className="w-3 h-3 text-purple-500" />
                           <span>{component}</span>
@@ -393,7 +393,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
                         <Button
                           variant="outline"
                           size="sm"
-                          className="border-dashed border-slate-600 text-slate-400 hover:text-cyan-400 hover:border-cyan-600 hover:bg-slate-800 h-6 px-2 py-0 text-xs"
+                          className="border-dashed border-slate-600 text-slate-400  hover:bg-slate-800 h-6 px-2 py-0 text-xs"
                         >
                           <Plus className="w-3 h-3 mr-1" /> Add
                         </Button>
@@ -435,7 +435,7 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
         onClick={handleAddNode}
         className={cn(
           "absolute left-1/2 -translate-x-1/2 -bottom-4",
-          "w-7 h-7 rounded-full bg-cyan-600 hover:bg-cyan-500 border-2 border-slate-900",
+          "w-7 h-7 rounded-full bg-purple-600  border-2 border-slate-900",
           "flex items-center justify-center text-white shadow-md",
           "opacity-0 group-hover:opacity-100 transition-all duration-200 scale-75 group-hover:scale-100",
           "z-10"
@@ -448,25 +448,17 @@ export const FlowNode = memo(({ data, id }: NodeProps<FlowNodeData>) => {
       <Handle
         type="source"
         position={Position.Right}
-        className="w-2.5 h-2.5 border-2 border-cyan-500 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-right-1.5"
+        className="w-2.5 h-2.5 border-2 border-purple-500/50 bg-[#030712] opacity-0 group-hover:opacity-100 transition-opacity !-right-1.5"
       />
 
       <Dialog open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
-        <DialogContent className="max-w-5xl h-[80vh] flex flex-col bg-slate-950 border-slate-800 p-0">
-          <DialogHeader className="p-4 border-b border-slate-800 flex flex-row items-center justify-between">
-            <DialogTitle className="text-slate-100 text-base font-medium">
+        <DialogContent className="max-w-5xl h-[80vh] flex flex-col bg-slate-500/10 backdrop-blur-2xl border-slate-800 p-0 text-gray-100 focus:ring-0 ">
+          <DialogHeader className="p-4 border-b border-slate-800 flex flex-row items-center justify-between focus:border-0">
+            <DialogTitle className="text-slate-100  text-base font-medium">
               Component Preview: {data.title}
             </DialogTitle>
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => setIsPreviewOpen(false)}
-              className="text-slate-400 hover:text-white hover:bg-slate-800 w-7 h-7"
-            >
-              <X className="w-4 h-4" />
-            </Button>
           </DialogHeader>
-          <div className="flex-grow p-6 overflow-hidden">
+          <div className="flex-grow p-6 overflow-auto">
             <FlowNodePreview
               nodeId={id}
               title={data.title}

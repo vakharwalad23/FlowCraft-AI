@@ -29,7 +29,7 @@ interface FlowState {
   resetFlow: () => void;
   updateNode: (id: string, data: Partial<FlowStep>) => void;
   deleteNode: (id: string) => void;
-  addNode: (sourceId: string) => void;
+  addNode: (sourceId: string, isAfter?: boolean) => string | undefined;
   setNodePreview: (id: string, html: string) => void;
   persistCurrentFlow: () => Promise<void>;
   loadFlowFromApi: (flowId: string) => Promise<void>;
@@ -164,14 +164,17 @@ const useFlowStore = create<FlowState>((set, get) => ({
     });
     if (get().isStoreInitialized) get().persistCurrentFlow();
   },
-  addNode: (sourceId: string) => {
+  addNode: (sourceId: string, isAfter = true) => {
     const { nodes, currentFlowId } = get();
     if (!currentFlowId) return;
 
     const sourceNode = nodes.find((node) => node.id === sourceId);
     if (!sourceNode) return;
 
-    const newNodeIndex = nodes.findIndex((n) => n.id === sourceId) + 1;
+    // Find the index based on whether we want to insert after or before the source node
+    const sourceIndex = nodes.findIndex((n) => n.id === sourceId);
+    const newNodeIndex = isAfter ? sourceIndex + 1 : sourceIndex;
+
     const newNodeId = `flowstep_${Date.now()}`;
     const now = new Date().toISOString();
 
@@ -189,7 +192,7 @@ const useFlowStore = create<FlowState>((set, get) => ({
       id: newNodeId,
       type: "flowNode",
       position: {
-        x: sourceNode.position.x + NODE_SPACING_X,
+        x: sourceNode.position.x + (isAfter ? NODE_SPACING_X : -NODE_SPACING_X),
         y: sourceNode.position.y,
       },
       data: newNodeData,
@@ -199,20 +202,41 @@ const useFlowStore = create<FlowState>((set, get) => ({
       const newNodes = [...state.nodes];
       newNodes.splice(newNodeIndex, 0, newNode);
 
+      // Reposition all nodes to maintain even spacing
+      const repositionedNodes = newNodes.map((node, index) => ({
+        ...node,
+        position: {
+          x: NODE_INITIAL_X + NODE_SPACING_X * index,
+          y: NODE_INITIAL_Y + Math.sin(index * 0.5) * 50,
+        },
+      }));
+
+      // Recreate all edges to ensure proper connections
       const newEdges: Edge[] = [];
-      for (let i = 0; i < newNodes.length - 1; i++) {
+      for (let i = 0; i < repositionedNodes.length - 1; i++) {
         newEdges.push({
-          id: `e${newNodes[i].id}-${newNodes[i + 1].id}`,
-          source: newNodes[i].id,
-          target: newNodes[i + 1].id,
+          id: `e${repositionedNodes[i].id}-${repositionedNodes[i + 1].id}`,
+          source: repositionedNodes[i].id,
+          target: repositionedNodes[i + 1].id,
           type: "smoothstep",
           animated: true,
-          style: { strokeWidth: 2, stroke: "#0e7490" },
+          style: {
+            strokeWidth: 2,
+            stroke: "#0e7490",
+          },
         });
       }
-      return { nodes: newNodes, edges: newEdges };
+
+      return {
+        nodes: repositionedNodes,
+        edges: newEdges,
+      };
     });
+
     if (get().isStoreInitialized) get().persistCurrentFlow();
+
+    // Return the ID of the new node to make it easier to reference
+    return newNodeId;
   },
   setNodePreview: (id: string, html: string) => {
     set((state) => ({

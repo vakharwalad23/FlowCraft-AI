@@ -73,7 +73,8 @@ import {
 } from "@/components/ui/collapsible";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
-import useFlowStore, { FlowStep } from "@/store/useFlowStore";
+import { FlowStep } from "@/hooks/useFlowGeneration";
+import  useFlowStore  from "@/store/useFlowStore";
 import { cn } from "@/lib/utils";
 import { FlowNodePreview } from "@/components/FlowNodePreview";
 

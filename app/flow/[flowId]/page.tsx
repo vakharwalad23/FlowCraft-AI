@@ -109,7 +109,7 @@ export default function FlowPage() {
   return (
     <ReactFlowProvider>
       <main className="min-h-screen bg-[#030712] text-white relative overflow-hidden">
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-zinc-900/50 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-slate-700/50 shadow-lg">
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-purple-900/40 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-slate-700/50 shadow-lg">
           <span className="text-sm font-medium text-slate-200">
             {currentFlowName}
           </span>

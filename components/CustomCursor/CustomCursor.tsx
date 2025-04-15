@@ -8,7 +8,12 @@ export default function CustomCursor() {
   const [isClicking, setIsClicking] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const [isMounted, setIsMounted] = useState(false);
+  const [isOverFlow, setIsOverFlow] = useState(false);
   const pathname = usePathname();
+
+  // Check if we're on the landing page
+  const isLandingPage = pathname === "/";
+  const isDashboardPage = pathname === "/dashboard";
 
   useEffect(() => {
     setIsMounted(true);
@@ -16,8 +21,8 @@ export default function CustomCursor() {
   }, []);
 
   useEffect(() => {
-    // Skip if not mounted yet (prevents SSR issues)
-    if (!isMounted || typeof window === "undefined" || !cursorRef.current)
+    // Skip if not mounted yet (prevents SSR issues) or not on landing page
+    if (!isMounted || typeof window === "undefined" || !cursorRef.current || (!isLandingPage && !isDashboardPage))
       return;
 
     const cursor = cursorRef.current;
@@ -34,48 +39,105 @@ export default function CustomCursor() {
       setIsClicking(true);
     };
 
-    // Function to handle mouse up
     const handleMouseUp = () => {
       setIsClicking(false);
     };
 
-    // Function to handle mouse leave
     const handleMouseLeave = () => {
       setIsVisible(false);
     };
 
-    // Function to handle mouse enter
     const handleMouseEnter = () => {
       setIsVisible(true);
     };
 
-    // Add event listeners
+    // Check if mouse is over React Flow
+    const checkIfOverFlow = (e: MouseEvent) => {
+      const target = e.target as HTMLElement;
+      // Only consider the actual flow canvas and nodes as React Flow, not the outer container
+      const isReactFlow =
+        target.closest('.react-flow__pane') !== null ||
+        target.closest('.react-flow__node') !== null ||
+        target.closest('.react-flow__edge') !== null ||
+        target.closest('.react-flow__handle') !== null;
+
+      setIsOverFlow(isReactFlow);
+    };
+
     document.addEventListener("mousemove", updatePosition);
+    document.addEventListener("mousemove", checkIfOverFlow);
     document.addEventListener("mousedown", handleMouseDown);
     document.addEventListener("mouseup", handleMouseUp);
     document.addEventListener("mouseleave", handleMouseLeave);
     document.addEventListener("mouseenter", handleMouseEnter);
 
-    // Apply global cursor style
+    // Apply global cursor style only on landing page and dashboard
     const styleElement = document.createElement("style");
-    styleElement.innerHTML = `
-      * {
-        cursor: none !important;
-      }
-      
-      a, button, [role="button"], input, select, textarea, [tabindex]:not([tabindex="-1"]),
-      .react-flow__pane,
-      .react-flow__node,
-      .react-flow__edge,
-      .react-flow__handle {
-        cursor: none !important;
-      }
-    `;
+
+    if (isDashboardPage) {
+      // More aggressive style for dashboard to override all default cursors
+      styleElement.innerHTML = `
+        /* Hide default cursor globally */
+        body, 
+        button, 
+        a, 
+        input, 
+        select, 
+        textarea,
+        [role="button"],
+        .cursor-pointer,
+        *[class*="cursor-"] {
+          cursor: none !important;
+        }
+        
+        /* Override any inline styles */
+        *[style*="cursor"] {
+          cursor: none !important;
+        }
+      `;
+    } else {
+      // Regular style for landing page
+      styleElement.innerHTML = `
+        /* Hide default cursor globally */
+        body {
+          cursor: none !important;
+        }
+        
+        /* Specific override for React Flow interactive elements */
+        .react-flow__pane,
+        .react-flow__node,
+        .react-flow__edge,
+        .react-flow__handle {
+          cursor: auto !important;
+        }
+        
+        /* Specific cursor styles for React Flow elements */
+        .react-flow__handle {
+          cursor: crosshair !important;
+        }
+        
+        .react-flow__pane {
+          cursor: grab !important;
+        }
+        
+        .react-flow__pane.react-flow__pane-dragging {
+          cursor: grabbing !important;
+        }
+        
+        /* Preserving native cursor for Panel buttons inside React Flow */
+        .react-flow__panel-top-right button,
+        .react-flow__panel button,
+        .react-flow__controls button {
+          cursor: pointer !important;
+        }
+      `;
+    }
+
     document.head.appendChild(styleElement);
 
-    // Clean up event listeners and styles on unmount
     return () => {
       document.removeEventListener("mousemove", updatePosition);
+      document.removeEventListener("mousemove", checkIfOverFlow);
       document.removeEventListener("mousedown", handleMouseDown);
       document.removeEventListener("mouseup", handleMouseUp);
       document.removeEventListener("mouseleave", handleMouseLeave);
@@ -84,18 +146,23 @@ export default function CustomCursor() {
         document.head.removeChild(styleElement);
       }
     };
-  }, [isMounted, pathname]);
+  }, [isMounted, pathname, isLandingPage, isDashboardPage]);
 
-  if (!isMounted) {
+  // Don't render anything if not on landing page or not mounted
+  if (!isMounted || (!isLandingPage && !isDashboardPage)) {
+    return null;
+  }
+
+  // Only hide the custom cursor when over the interactive parts of React Flow
+  if (isOverFlow && !isDashboardPage) {
     return null;
   }
 
   return (
     <div
       ref={cursorRef}
-      className={`fixed pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-100 ${
-        isClicking ? "scale-90" : "scale-100"
-      }`}
+      className={`fixed pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-100 ${isClicking ? "scale-90" : "scale-100"
+        }`}
       style={{
         left: "-100px",
         top: "-100px",

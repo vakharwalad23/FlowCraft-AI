@@ -72,7 +72,7 @@ export function FlowDiagram() {
         });
         element.style.transform = element.style.transform.replace(
           "translate3d",
-          "translate" 
+          "translate"
         );
         element.style.transition = "none";
       });
@@ -166,7 +166,7 @@ export function FlowDiagram() {
           animated: true,
           style: { stroke: "#6366f1", strokeWidth: 2 },
         }}
-        className="react-flow bg-gradient-to-bl from-purple-900/5 via-indigo-800/15 to-pink-700/15 backdrop-blur-3xl [&_.react-flow__pane]:cursor-none"
+        className="react-flow bg-gradient-to-bl from-purple-900/5 via-indigo-800/15 to-pink-700/15 backdrop-blur-3xl"
         style={{ zIndex: 1 }}
         minZoom={0.2}
         maxZoom={4}

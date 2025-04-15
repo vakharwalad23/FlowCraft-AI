@@ -120,135 +120,19 @@ export async function POST(req: Request) {
     try {
       console.log("Claude response content:", content);
 
-      // More sophisticated JSON extraction approach
-      let jsonContent = "";
-      let openBraces = 0;
-      const startIndex = content.indexOf("{");
-
-      if (startIndex !== -1) {
-        // Process character by character to find properly nested JSON
-        for (let i = startIndex; i < content.length; i++) {
-          const char = content[i];
-          jsonContent += char;
-
-          if (char === "{") {
-            openBraces++;
-          } else if (char === "}") {
-            openBraces--;
-
-            // If we've found a complete JSON object, break
-            if (openBraces === 0) {
-              break;
-            }
-          }
-        }
+      // Extract JSON object from response - simple approach
+      const jsonMatch = content.match(/\{[\s\S]*\}/);
+      if (!jsonMatch) {
+        throw new Error("No valid JSON object found in response");
       }
 
-      // If we didn't get a complete JSON object, try regex as fallback
-      if (!jsonContent || openBraces !== 0) {
-        const jsonMatch = content.match(/\{[\s\S]*?\}/);
-        if (jsonMatch) {
-          jsonContent = jsonMatch[0].trim();
-        }
-      }
-
-      // If we still don't have valid JSON, return error
-      if (!jsonContent) {
-        console.log("No valid JSON found in Claude response");
-        return NextResponse.json({
-          suggestions: [
-            {
-              id: "error-format",
-              title: "Suggestion format issue",
-              description:
-                "The AI couldn't generate properly formatted suggestions. Please try again.",
-              type: "warning",
-              actionable: false,
-            },
-          ],
-        });
-      }
-
-      // Try to parse the JSON with better error handling
-      let parsedData;
-      try {
-        console.log("Attempting to parse JSON:", jsonContent);
-        parsedData = JSON.parse(jsonContent);
-      } catch (jsonError) {
-        console.error("JSON parse error:", jsonError);
-
-        // Try to fix common JSON formatting issues and try again
-        try {
-          // Use a more robust approach to fix invalid JSON
-          // This handles nested quotes inside JSON string values
-          const fixedContent = jsonContent
-            .replace(/'/g, '"') // Replace single quotes with double quotes
-            .replace(/\n/g, " ") // Replace newlines with spaces
-            .replace(/,\s*}/g, "}") // Fix trailing commas in objects
-            .replace(/,\s*]/g, "]") // Fix trailing commas in arrays
-            .replace(/([,{[]\s*)"(.*?)"\s*:/g, '$1"$2":') // Fix property names
-            .replace(/"([^"]*?)(?<!\\)"(?!\s*[,}\]:])(?!\s*")/g, '"$1\\"') // Escape unescaped quotes in values
-            .replace(/""([^"]*)"/g, '"$1"'); // Fix double quotes that got doubled
-
-          console.log("Attempting to parse fixed robust JSON:", fixedContent);
-
-          try {
-            parsedData = JSON.parse(fixedContent);
-          } catch {
-            // If that still fails, try a more aggressive approach with a JSON5 parser-like handling
-            // Replace all problematic quotes in string values with encoded versions
-            const sanitizedJson = jsonContent.replace(
-              /:\s*"([^"]*?)"/g,
-              (match, p1) => {
-                // Replace any quotes in the string value with encoded quotes
-                const sanitized = p1.replace(/"/g, '\\"');
-                return ': "' + sanitized + '"';
-              }
-            );
-
-            console.log("Last attempt parsing sanitized JSON:", sanitizedJson);
-            parsedData = JSON.parse(sanitizedJson);
-          }
-        } catch (fixError) {
-          console.error("Failed to fix and parse JSON:", fixError);
-
-          // Create a fallback response with dummy suggestions when all else fails
-          return NextResponse.json({
-            suggestions: [
-              {
-                id: "json-parse-error",
-                title: "Invalid JSON format",
-                description:
-                  "The AI response contained invalid JSON. Please try again.",
-                type: "warning",
-                actionable: false,
-              },
-            ],
-          });
-        }
-      }
+      // Parse the JSON
+      const parsedData = JSON.parse(jsonMatch[0]);
 
       // Continue with validation and processing...
       if (!parsedData.suggestions || !Array.isArray(parsedData.suggestions)) {
         console.log("Invalid response structure:", parsedData);
-
-        // If the structure is wrong but we have a valid JSON, try to fix it
-        if (typeof parsedData === "object") {
-          // Maybe the suggestions array is under a different key or at the root level
-          const possibleSuggestions = Array.isArray(parsedData)
-            ? parsedData
-            : Object.values(parsedData).find((val) => Array.isArray(val));
-
-          if (possibleSuggestions && possibleSuggestions.length > 0) {
-            parsedData = { suggestions: possibleSuggestions };
-          } else {
-            throw new Error(
-              "Invalid response format: missing suggestions array"
-            );
-          }
-        } else {
-          throw new Error("Invalid response format: missing suggestions array");
-        }
+        throw new Error("Invalid response format: missing suggestions array");
       }
 
       // Ensure each suggestion has required fields

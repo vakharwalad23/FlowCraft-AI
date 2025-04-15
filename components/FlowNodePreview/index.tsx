@@ -49,7 +49,7 @@ export function FlowNodePreview({
         return (
           <nav className="flex items-center justify-between p-4 bg-slate-800 rounded-lg">
             <div className="flex items-center gap-6">
-              <Home className="h-5 w-5 text-cyan-400" />
+              <Home className="h-5 w-5 text-indigo-400-400" />
               <Button variant="ghost" className="text-slate-200">
                 Features
               </Button>
@@ -74,7 +74,7 @@ export function FlowNodePreview({
       case "welcome banner":
         return (
           <div className="text-center space-y-4 p-8 bg-gradient-to-br from-slate-800 to-slate-900 rounded-lg">
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-cyan-400 to-blue-500 bg-clip-text text-transparent">
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-400 to-blue-500 bg-clip-text text-transparent">
               {title}
             </h1>
             <p className="text-slate-300 max-w-lg mx-auto">{description}</p>
@@ -170,15 +170,15 @@ export function FlowNodePreview({
   };
 
   return (
-    <Card className="p-6 space-y-6 bg-gradient-to-br from-slate-900/95 to-slate-950/95 border-slate-800/50 shadow-lg shadow-purple-900/20">
+    <Card className="p-6 space-y-6 bg-gradient-to-br from-slate-900/95 to-black-950/95 border-slate-800/50 shadow-lg shadow-purple-900/20">
       <div className="space-y-2">
-        <h3 className="text-lg font-medium bg-gradient-to-r from-cyan-400 to-indigo-400 bg-clip-text text-transparent">{title} Preview</h3>
+        <h3 className="text-lg font-medium bg-gradient-to-r text-gray-200 bg-clip-text">{title} Preview</h3>
         <p className="text-sm text-slate-400">{description}</p>
       </div>
       <div className="space-y-4">
         {components.map((component, index) => (
           <div key={index} className="space-y-2">
-            <Label className="text-sm font-medium text-cyan-400/80">
+            <Label className="text-sm font-medium text-gray-400/80">
               {component}
             </Label>
             <div className="relative p-4 rounded-lg bg-gradient-to-br from-purple-900/10 to-indigo-900/10 border border-slate-800/50 hover:border-slate-700/50 transition-colors">

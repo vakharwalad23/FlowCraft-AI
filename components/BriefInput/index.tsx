@@ -63,11 +63,7 @@ export function BriefInput({
       (newState) => {
         setRecognitionState(newState);
         if (newState.error) {
-          toast.error("Oops! 😅", {
-            description: getErrorMessage(newState.error),
-            className: "text-black",
-            
-          });
+          toast.error(`Oops ! ${getErrorMessage(newState.error)}`, {});
         }
       },
       {
@@ -97,7 +93,7 @@ export function BriefInput({
   const handleGenerateFlow = async () => {
     if (!brief.trim()) {
       toast.error("Please provide a brief description first", {
-        className: "text-black"
+        className: "text-black",
       });
       return;
     }
@@ -145,7 +141,7 @@ export function BriefInput({
 
       onGenerateFlow(validatedSteps);
       toast.success("Flow generated successfully! ✨", {
-        className: "text-black"
+        className: "text-black",
       });
     } catch (error) {
       console.error("Error generating flow:", error);
@@ -168,7 +164,7 @@ export function BriefInput({
       "audio-capture": "Mic check 1,2! Check your settings 🎧",
       "service-not-allowed": "This browser isn't it rn, try another one 🤔",
     };
-    return errorMessages[errorCode] || `<span class="text-black">Uh oh! Error: ${errorCode}</span>`;
+    return errorMessages[errorCode] || `Uh oh! Error: ${errorCode}`;
   };
 
   const progress = (brief.length / maxLength) * 100;
@@ -176,7 +172,7 @@ export function BriefInput({
   return (
     <Card className="relative overflow-hidden border-[0.5px] border-slate-800 bg-[#000000] shadow-2xl">
       {/* Subtle gradient overlay */}
-      <div className="absolute inset-0 bg-gradient-to-br from-purple-900/50 via-black to-pink-900/50" />
+      <div className="absolute inset-0 bg-gradient-to-bl from-pink-400/15 via-purple-500/10 to-slate-900/10 backdrop-blur-xl" />
 
       {/* Neon glow effect */}
       <div className="absolute inset-0 bg-gradient-to-r from-purple-500/5 via-pink-500/5 to-indigo-500/5 opacity-50 animate-gradient" />

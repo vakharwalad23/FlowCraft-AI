@@ -319,7 +319,7 @@ export function FilesTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent text-white border-zinc-700/90 hover:bg-black/70">
+            <AlertDialogCancel className="bg-transparent text-white border-zinc-700/90 hover:bg-zinc-500/90">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction

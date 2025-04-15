@@ -4,10 +4,17 @@ import { useState, useEffect } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { BriefInput } from "@/components/BriefInput";
 import { FlowDiagram } from "@/components/FlowDiagram";
+import { AISuggestions } from "@/components/AISuggestions";
 import useFlowStore from "@/store/useFlowStore";
 import type { FlowStep } from "@/types/flow";
 import { Button } from "@/components/ui/button";
-import { PanelLeftClose, PanelLeftOpen } from "lucide-react";
+import {
+  PanelLeftClose,
+  PanelLeftOpen,
+  PanelRightClose,
+  PanelRightOpen,
+  Sparkles,
+} from "lucide-react";
 import { ReactFlowProvider } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 
@@ -28,7 +35,8 @@ export default function FlowPage() {
     ? params.flowId[0]
     : params.flowId;
 
-  const [isPanelOpen, setIsPanelOpen] = useState(true);
+  const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
+  const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -73,15 +81,18 @@ export default function FlowPage() {
     setSteps(steps);
   };
 
-  const togglePanel = () => {
-    setIsPanelOpen(!isPanelOpen);
+  const toggleLeftPanel = () => {
+    setIsLeftPanelOpen(!isLeftPanelOpen);
+  };
+
+  const toggleRightPanel = () => {
+    setIsRightPanelOpen(!isRightPanelOpen);
   };
 
   const isStoreLoading = !useFlowStore((state) => state.isStoreInitialized);
 
-  // Handle brief changes (if BriefInput needs external control)
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const handleBriefChange = (brief: string) => {
+  // Handle brief changes
+  const handleBriefChange = () => {
     // Placeholder - This might be needed by BriefInput props,
     // currently handled internally by BriefInput but prop might be required.
   };
@@ -104,26 +115,46 @@ export default function FlowPage() {
           </span>
         </div>
 
+        {/* Left Panel Toggle Button */}
         <Button
           variant="secondary"
           size="sm"
-          onClick={togglePanel}
-          className="fixed top-4 left-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-400 hover:border-pink-900/50 hover:shadow-[0_0_20px_rgba(236,72,153,0.15)] transition-all duration-300"
+          onClick={toggleLeftPanel}
+          className="fixed top-4 left-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
         >
-          {isPanelOpen ? (
+          {isLeftPanelOpen ? (
             <PanelLeftClose className="w-4 h-4" />
           ) : (
             <PanelLeftOpen className="w-4 h-4" />
           )}
         </Button>
 
+        {/* Right Panel Toggle Button */}
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={toggleRightPanel}
+          className="fixed top-4 right-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-400 hover:border-purple-900/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] transition-all duration-300"
+        >
+          {isRightPanelOpen ? (
+            <>
+              <PanelRightClose className="w-4 h-4 mr-2" />
+              <Sparkles className="w-3 h-3" />
+            </>
+          ) : (
+            <>
+              <Sparkles className="w-3 h-3 mr-2" />
+              <PanelRightOpen className="w-4 h-4" />
+            </>
+          )}
+        </Button>
+
         <div className="flex h-screen">
+          {/* Left Panel - Brief Input */}
           <div
-            className={`w-[400px] min-w-[400px] p-6 border-r border-slate-800 overflow-y-auto transition-all duration-300 transform 
-              bg-gradient-to-br from-slate-900 via-[#0f0a1f] to-[#030712] backdrop-blur-sm
-              shadow-[inset_0_0_30px_rgba(139,92,246,0.05)]
-              ${isPanelOpen ? "translate-x-0" : "-translate-x-full"
-            } fixed top-0 left-0 h-full z-40 `}
+            className={`w-[400px] min-w-[400px] p-6 border-r border-slate-800 overflow-y-auto transition-all duration-300 transform ${
+              isLeftPanelOpen ? "translate-x-0" : "-translate-x-full"
+            } fixed top-0 left-0 h-full z-40 bg-[#030712]`}
           >
             <div className="pt-16">
               <BriefInput
@@ -133,10 +164,22 @@ export default function FlowPage() {
             </div>
           </div>
 
+          {/* Right Panel - AI Suggestions */}
+          <div
+            className={`w-[400px] min-w-[400px] p-6 border-l border-slate-800 overflow-y-auto transition-all duration-300 transform ${
+              isRightPanelOpen ? "translate-x-0" : "translate-x-full"
+            } fixed top-0 right-0 h-full z-40 bg-[#030712]`}
+          >
+            <div className="pt-16">
+              <AISuggestions />
+            </div>
+          </div>
+
+          {/* Main Flow Diagram Area */}
           <div
             className={`flex-1 relative transition-all duration-300 ${
-              isPanelOpen ? "ml-[400px]" : "ml-0"
-            }`}
+              isLeftPanelOpen ? "ml-[400px]" : "ml-0"
+            } ${isRightPanelOpen ? "mr-[400px]" : "mr-0"}`}
           >
             <FlowDiagram />
           </div>

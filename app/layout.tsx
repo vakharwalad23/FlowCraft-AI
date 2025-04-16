@@ -3,6 +3,7 @@ import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 import CustomCursor from "@/components/CustomCursor/CustomCursor";
 import ClientOnly from "@/components/CustomCursor/ClientOnly";
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Vercel Hackathon",
@@ -22,6 +23,7 @@ export default function RootLayout({
         <ClientOnly>
           <CustomCursor />
         </ClientOnly>
+        <Analytics />
       </body>
     </html>
   );

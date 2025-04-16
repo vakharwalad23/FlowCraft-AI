@@ -30,7 +30,7 @@ export const user = pgTable(
   (user) => [
     uniqueIndex("user_id_idx").on(user.id),
     uniqueIndex("user_email_idx").on(user.email),
-    uniqueIndex("user_name_idx").on(user.name),
+    index("user_name_idx").on(user.name),
     index("user_created_at_idx").on(user.createdAt),
   ]
 );

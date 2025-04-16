@@ -2,6 +2,7 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
+import Image from "next/image";
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -22,7 +23,12 @@ export default function CustomCursor() {
 
   useEffect(() => {
     // Skip if not mounted yet (prevents SSR issues) or not on landing page
-    if (!isMounted || typeof window === "undefined" || !cursorRef.current || (!isLandingPage && !isDashboardPage))
+    if (
+      !isMounted ||
+      typeof window === "undefined" ||
+      !cursorRef.current ||
+      (!isLandingPage && !isDashboardPage)
+    )
       return;
 
     const cursor = cursorRef.current;
@@ -56,10 +62,10 @@ export default function CustomCursor() {
       const target = e.target as HTMLElement;
       // Only consider the actual flow canvas and nodes as React Flow, not the outer container
       const isReactFlow =
-        target.closest('.react-flow__pane') !== null ||
-        target.closest('.react-flow__node') !== null ||
-        target.closest('.react-flow__edge') !== null ||
-        target.closest('.react-flow__handle') !== null;
+        target.closest(".react-flow__pane") !== null ||
+        target.closest(".react-flow__node") !== null ||
+        target.closest(".react-flow__edge") !== null ||
+        target.closest(".react-flow__handle") !== null;
 
       setIsOverFlow(isReactFlow);
     };
@@ -161,8 +167,9 @@ export default function CustomCursor() {
   return (
     <div
       ref={cursorRef}
-      className={`fixed pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-100 ${isClicking ? "scale-90" : "scale-100"
-        }`}
+      className={`fixed pointer-events-none z-[9999] transform -translate-x-1/2 -translate-y-1/2 transition-transform duration-100 ${
+        isClicking ? "scale-90" : "scale-100"
+      }`}
       style={{
         left: "-100px",
         top: "-100px",
@@ -171,7 +178,7 @@ export default function CustomCursor() {
         transition: "opacity 0.2s ease, transform 0.1s ease",
       }}
     >
-      <img
+      <Image
         src="/cursor.svg"
         alt="Custom Cursor"
         width={32}

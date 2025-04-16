@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Plus, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
@@ -60,7 +60,6 @@ export default function Dashboard() {
 
       const data = await response.json();
 
-
       const flowFiles: File[] = [];
 
       // Add flows from folders
@@ -103,7 +102,6 @@ export default function Dashboard() {
     }
   };
 
-
   // Filter files based on search and active tab
   const getFilteredFiles = () => {
     let filtered = files;
@@ -124,8 +122,6 @@ export default function Dashboard() {
 
     return filtered;
   };
-
-
 
   const handleRenameFlow = async (id: string, newName: string) => {
     try {
@@ -256,7 +252,6 @@ export default function Dashboard() {
           <DashboardTabs onTabChange={handleTabChange} />
 
           <div className="flex items-center gap-2">
-
             <Button
               variant="default"
               className="text-white border-zinc-700/90 bg-red-500/70 hover:bg-red-500/40 hover:text-white"

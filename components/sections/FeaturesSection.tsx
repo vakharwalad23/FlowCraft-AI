@@ -7,7 +7,6 @@ import { FileJson, Lightbulb, Mic, Sparkles, Save } from "lucide-react";
 
 function FeatureCard({
   feature,
-  index,
 }: {
   feature: { title: string; description: string; icon: React.ReactElement };
   index: number;

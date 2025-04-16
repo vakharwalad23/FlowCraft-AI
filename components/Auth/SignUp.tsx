@@ -48,27 +48,27 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
       toast.error("Please enter your first and last name");
       return false;
     }
-    
+
     if (!email) {
       toast.error("Please enter your email address");
       return false;
     }
-    
+
     if (!password) {
       toast.error("Please enter a password");
       return false;
     }
-    
+
     if (password.length < 8) {
       toast.error("Password must be at least 8 characters long");
       return false;
     }
-    
+
     if (password !== passwordConfirmation) {
       toast.error("Passwords do not match");
       return false;
     }
-    
+
     return true;
   };
 
@@ -188,7 +188,7 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
               if (!validateForm()) {
                 return;
               }
-              
+
               try {
                 await signUp.email({
                   email,
@@ -204,17 +204,25 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                       setLoading(true);
                     },
                     onError: (ctx) => {
-                      toast.error(ctx.error?.message || "Failed to create account");
+                      toast.error(
+                        ctx.error?.message || "Failed to create account"
+                      );
                       setLoading(false);
                     },
                     onSuccess: async () => {
-                      toast.success("Account created successfully! Redirecting...");
+                      toast.success(
+                        "Account created successfully! Redirecting..."
+                      );
                       router.push(redirectTo);
                     },
                   },
                 });
-              } catch (error: any) {
-                toast.error(error?.message || "An unexpected error occurred");
+              } catch (error) {
+                toast.error(
+                  error instanceof Error
+                    ? error.message
+                    : "An unexpected error occurred"
+                );
                 setLoading(false);
               }
             }}
@@ -250,7 +258,9 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                       setLoading(false);
                     },
                     onError: (ctx) => {
-                      toast.error(ctx.error?.message || "Failed to sign up with Google");
+                      toast.error(
+                        ctx.error?.message || "Failed to sign up with Google"
+                      );
                       setLoading(false);
                     },
                   }
@@ -289,8 +299,8 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
         <div className="flex justify-center w-full border-t py-4">
           <p className="text-center text-sm text-neutral-500">
             <Link href="/signin">
-            Already have an account?{" "}
-            <span className="text-purple-400/90">Sign in</span>
+              Already have an account?{" "}
+              <span className="text-purple-400/90">Sign in</span>
             </Link>
           </p>
         </div>

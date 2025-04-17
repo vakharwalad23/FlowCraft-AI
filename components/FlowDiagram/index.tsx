@@ -299,19 +299,19 @@ export function FlowDiagram() {
         />
 
         {/* Replace the existing custom controls with this minimal version */}
-        <div className="absolute bottom-4 left-4 z-50 flex items-center gap-1.5">
+        <div className="absolute bottom-4 left-4 z-50 flex flex-col sm:flex-row items-start sm:items-center gap-1.5">
           {/* Zoom percentage display */}
-          <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-800 px-2 py-1 rounded-md shadow-lg">
+          <div className="bg-black/50 backdrop-blur-sm border border-zinc-700/90 px-2 py-1 rounded-md shadow-lg">
             <span className="text-xs font-medium text-purple-300">
               {zoomLevel}%
             </span>
           </div>
 
           {/* Controls buttons in a row */}
-          <div className="flex bg-slate-900/90 backdrop-blur-sm border border-slate-800 rounded-md shadow-lg overflow-hidden">
+          <div className="flex flex-col sm:flex-row bg-black/50 backdrop-blur-sm border border-zinc-700/90 rounded-md shadow-lg overflow-hidden">
             {/* Zoom out button */}
             <button
-              className="p-1.5 text-gray-300 hover:text-white hover:bg-slate-800 transition-colors"
+              className="p-1.5 text-gray-300 hover:text-white hover:bg-black/70 transition-colors focus:ring-0 focus:outline-none"
               onClick={handleZoomOut}
               title="Zoom out"
             >
@@ -320,7 +320,7 @@ export function FlowDiagram() {
 
             {/* Zoom in button */}
             <button
-              className="p-1.5 text-gray-300 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-800"
+              className="p-1.5 text-gray-300 hover:text-white hover:bg-black/70 transition-colors border-t sm:border-t-0 sm:border-l border-zinc-700/90 focus:ring-0 focus:outline-none"
               onClick={handleZoomIn}
               title="Zoom in"
             >
@@ -329,7 +329,7 @@ export function FlowDiagram() {
 
             {/* Fit view button */}
             <button
-              className="p-1.5 text-gray-300 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-800"
+              className="p-1.5 text-gray-300 hover:text-white hover:bg-black/70 transition-colors border-t sm:border-t-0 sm:border-l border-zinc-700/90 focus:ring-0 focus:outline-none"
               onClick={() => fitView({ padding: 0.2, duration: 300 })}
               title="Fit view"
             >

@@ -1,4 +1,5 @@
 import SignUp from "@/components/Auth/SignUp";
+import { BGAuth } from "@/components/Auth/BGAuth";
 
 export const metadata = {
   title: "FlowCraft AI | Sign Up",
@@ -7,10 +8,9 @@ export const metadata = {
 
 export default function SignUpPage() {
   return (
-    <div
-      className="flex items-center justify-center min-h-screen py-12 bg-cover bg-center"
-      style={{ backgroundImage: "url('./BgAuth.svg')" }}
-    >
+    <div className="relative flex items-center justify-center min-h-screen py-12 overflow-hidden">
+      {" "}
+      <BGAuth className="absolute inset-0 w-full h-full -z-10" />{" "}
       <SignUp redirectTo="/dashboard" />
     </div>
   );

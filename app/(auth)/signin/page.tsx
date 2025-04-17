@@ -1,4 +1,5 @@
 import SignIn from "@/components/Auth/SignIn";
+import { BGAuth } from "@/components/Auth/BGAuth";
 
 export const metadata = {
   title: "FlowCraft AI | Sign In",
@@ -7,11 +8,9 @@ export const metadata = {
 
 export default function SignInPage() {
   return (
-    <div
-      className="flex items-center justify-center min-h-screen  bg-cover bg-center"
-      style={{ backgroundImage: "url('./BgAuth.svg')" }}
-    >
-      <SignIn redirectTo="/dashboard" />
+    <div className="relative flex items-center justify-center min-h-screen overflow-hidden">
+      <BGAuth className="absolute inset-0 w-full h-full -z-10" />
+      <SignIn redirectTo="/dashboard" />{" "}
     </div>
   );
 }

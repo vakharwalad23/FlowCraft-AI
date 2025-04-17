@@ -104,16 +104,28 @@ export function CtsSection() {
           transition={{ duration: 0.6, delay: 0.6 }}
           className="relative inline-block group"
         >
-          <div className="absolute -inset-1 bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 rounded-lg blur-md opacity-75 group-hover:opacity-100 transition duration-200"></div>
+          <div className="absolute -inset-1  rounded-lg blur-md opacity-75 group-hover:opacity-100 transition duration-200"></div>
           <Button
             size="lg"
-            className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-indigo-600 hover:from-purple-700 hover:via-pink-700 hover:to-indigo-700 text-white font-medium px-10 py-7 rounded-md shadow-xl transition-all duration-300 transform hover:scale-105 hover:shadow-[0_0_25px_rgba(168,85,247,0.5)]"
+            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 [text-shadow:0_0_5px_rgba(255,255,255,0.6)] transition-all duration-300 transform hover:scale-105"
             onClick={() => {
               router.push("/dashboard");
             }}
           >
-            Get Started Now{" "}
-            <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
+            Get Started{" "}
+            <motion.span
+              animate={{
+                x: [0, 5, 0],
+              }}
+              transition={{
+                duration: 1.5,
+                repeat: Number.POSITIVE_INFINITY,
+                repeatType: "loop",
+                ease: "easeInOut",
+              }}
+            >
+              <ArrowRight className="ml-2 h-4 w-4" />
+            </motion.span>
           </Button>
         </motion.div>
       </div>

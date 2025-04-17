@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams } from "next/navigation";
 import { BriefInput } from "@/components/BriefInput";
 import { FlowDiagram } from "@/components/FlowDiagram";
 import { AISuggestions } from "@/components/AISuggestions";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { DesignerLoader } from "@/components/Loading/designer-loader";
 import debounce from "lodash/debounce";
 import {
-  PanelLeftClose, 
+  PanelLeftClose,
   PanelLeftOpen,
   PanelRightClose,
   PanelRightOpen,
@@ -22,13 +22,11 @@ import { v4 as uuidv4 } from "uuid";
 
 export default function FlowPage() {
   const params = useParams();
-  const router = useRouter();
   const {
     loadFlowFromApi,
     resetFlow,
     setSteps,
     setCurrentFlowId,
-    currentFlowId,
     currentFlowName,
     setFlowName,
   } = useFlowStore();
@@ -67,13 +65,7 @@ export default function FlowPage() {
       loadFlowFromApi(flowIdParam);
       setIsLoading(false);
     }
-  }, [
-    flowIdParam,
-    resetFlow,
-    setCurrentFlowId,
-    setFlowName,
-    loadFlowFromApi,
-  ]);
+  }, [flowIdParam, resetFlow, setCurrentFlowId, setFlowName, loadFlowFromApi]);
 
   // Update local state when store changes
   // This is used to update the flow name in the local state

@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Search, Star, Clock, Folder } from "lucide-react";
+import { Search, Workflow, Clock, Folder } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
@@ -262,11 +262,11 @@ export default function Dashboard() {
           <ActionCards onFlowCreated={fetchFlows} />
 
           {/* Add a title section that shows current tab */}
-          <div className="bg-zinc-900/30 backdrop-blur-md border border-zinc-700/90 rounded-xl p-6 mt-6">
+          <div className=" p-6 mt-6">
             <div className="mb-4 flex justify-between items-center">
               <h2 className="text-xl font-semibold text-white flex items-center">
                 {activeTab === "all" && (
-                  <Star className="h-5 w-5 mr-2 text-purple-400" />
+                  <Workflow className="h-5 w-5 mr-2 text-purple-400" />
                 )}
                 {activeTab === "unorganized" && (
                   <Clock className="h-5 w-5 mr-2 text-purple-400" />

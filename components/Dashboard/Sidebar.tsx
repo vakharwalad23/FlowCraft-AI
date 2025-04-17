@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Home, Folder, LogOut, Clock, Star } from "lucide-react";
+import { Home, Folder, LogOut, Clock, Workflow } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -147,7 +147,7 @@ export function Sidebar({
           )}
           onClick={() => handleTabChange("all")}
         >
-          <Star className="mr-2 h-4 w-4" />
+          <Workflow className="mr-2 h-4 w-4" />
           All
         </Button>
         <Button

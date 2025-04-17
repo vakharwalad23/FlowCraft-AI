@@ -8,9 +8,8 @@ import { Input } from "@/components/ui/input";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
 import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
+import { Sidebar } from "@/components/Dashboard/Sidebar";
 import type { Flow, FlowFolder } from "@/types/flow";
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth-client";
 
 // Update File interface in dashboard/page.tsx
 interface File {
@@ -159,16 +158,7 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      toast.success("Logged out successfully");
-      router.push("/");
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast.error("Failed to log out");
-    }
-  };
+  
 
   const handleDeleteFlow = async (id: string) => {
     try {
@@ -240,25 +230,22 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black text-white ">
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />
-        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-pink-500/20 to-transparent blur-[100px]" />
-        <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-indigo-500/20 to-transparent blur-[100px]" />
-      </div>
+    <div className="flex h-screen bg-black text-white overflow-hidden">
+      {/* Sidebar */}
+      <Sidebar />
 
-      <div className="container mx-auto p-4 relative z-10">
-        <div className="flex items-center justify-between mb-6">
-          <DashboardTabs onTabChange={handleTabChange} />
+      {/* Main content */}
+      <div className="flex-1 relative overflow-y-auto">
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />
+          <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-pink-500/20 to-transparent blur-[100px]" />
+          <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-indigo-500/20 to-transparent blur-[100px]" />
+        </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="default"
-              className="text-white border-zinc-700/90 bg-red-500/70 hover:bg-red-500/40 hover:text-white"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
+        <div className="container p-4 relative z-10">
+          <div className="flex items-center justify-between mb-6">
+            <DashboardTabs onTabChange={handleTabChange} />
+
             <div className="relative border border-zinc-700/50 rounded-xl">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
               <Input
@@ -274,24 +261,24 @@ export default function Dashboard() {
               </span>
             </div>
           </div>
+
+          <ActionCards onFlowCreated={fetchFlows} />
+
+          {isLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
+              <span className="ml-3">Loading flows...</span>
+            </div>
+          ) : (
+            <FilesTable
+              files={getFilteredFiles()}
+              onRename={handleRenameFlow}
+              onDelete={handleDeleteFlow}
+              onFlowClick={handleFlowClick}
+              onMoveToFolder={handleMoveToFolder}
+            />
+          )}
         </div>
-
-        <ActionCards onFlowCreated={fetchFlows} />
-
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
-            <span className="ml-3">Loading flows...</span>
-          </div>
-        ) : (
-          <FilesTable
-            files={getFilteredFiles()}
-            onRename={handleRenameFlow}
-            onDelete={handleDeleteFlow}
-            onFlowClick={handleFlowClick}
-            onMoveToFolder={handleMoveToFolder}
-          />
-        )}
       </div>
     </div>
   );

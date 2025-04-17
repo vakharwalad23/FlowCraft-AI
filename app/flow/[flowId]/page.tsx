@@ -120,7 +120,7 @@ export default function FlowPage() {
           variant="secondary"
           size="sm"
           onClick={toggleLeftPanel}
-          className="fixed top-4 left-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-cyan-400 hover:border-cyan-900/50 hover:shadow-[0_0_20px_rgba(34,211,238,0.15)] transition-all duration-300"
+          className="fixed top-4 left-4 z-50 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-purple-400 hover:border-purple-900/50 hover:shadow-[0_0_20px_rgba(168,85,247,0.15)] transition-all duration-300"
         >
           {isLeftPanelOpen ? (
             <PanelLeftClose className="w-4 h-4" />

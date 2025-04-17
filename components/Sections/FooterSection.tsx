@@ -9,10 +9,10 @@ export function FooterSection() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 0.6 }}
       transition={{ duration: 0.8 }}
-      className="py-12 px-4 relative z-10 border-t border-purple-500/10"
+      className="py-8 sm:py-12 px-4 sm:px-6 md:px-8 relative z-10 border-t border-zinc-700/90"
     >
       <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-10 ">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-10">
           <div>
             <Link
               href="/"
@@ -20,7 +20,7 @@ export function FooterSection() {
             >
               FlowCraft AI
             </Link>
-            <p className="mt-4 text-gray-400 max-w-xs">
+            <p className="mt-3 sm:mt-4 text-gray-400 max-w-xs text-sm sm:text-base">
               Transform your UX design process with AI-powered user flows and
               component suggestions.
             </p>
@@ -65,7 +65,7 @@ export function FooterSection() {
           </div>
         </div>
 
-        <div className="mt-12 pt-8 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center">
+        <div className="mt-8 sm:mt-12 pt-6 sm:pt-8 border-t border-zinc-700/90 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-500 text-sm mb-4 md:mb-0">
             © {new Date().getFullYear()} FlowCraft AI. All rights reserved.
           </p>

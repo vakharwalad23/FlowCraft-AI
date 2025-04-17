@@ -128,7 +128,7 @@ export function FolderSelector({
             variant="outline"
             role="combobox"
             aria-expanded={open}
-            className="justify-between bg-transparent border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white transition-colors"
+            className="justify-between bg-transparent border-zinc-700/90 text-zinc-300 hover:bg-black/70 hover:text-white transition-colors focus:ring-0 focus:outline-none"
           >
             {selectedFolder ? (
               <span>{selectedFolder.name}</span>
@@ -137,25 +137,25 @@ export function FolderSelector({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="p-0 bg-zinc-900 border-zinc-700 text-zinc-100 w-[280px] shadow-lg overflow-hidden">
-          <Command className="bg-transparent/60">
+        <PopoverContent className="p-0 bg-black/50 border-zinc-700/90 text-zinc-100 w-[90vw] sm:w-[280px] shadow-lg overflow-hidden">
+          <Command className="bg-transparent">
             <CommandInput
               placeholder="Search folders..."
-              className="focus:ring-0 focus:border-zinc-700 transition-colors text-zinc-200"
+              className="focus:ring-0 focus:outline-none border-zinc-700/90 transition-colors text-zinc-200 bg-transparent"
             />
             {loading ? (
-              <div className="flex items-center justify-center p-6">
+              <div className="flex items-center justify-center p-4 sm:p-6">
                 <Loader2 className="h-5 w-5 text-zinc-400 animate-spin" />
                 <span className="ml-2 text-zinc-400 text-sm">Loading folders...</span>
               </div>
             ) : (
               <CommandList className="max-h-[300px]">
                 <CommandEmpty className="py-3 text-zinc-400 text-sm">No folders found</CommandEmpty>
-                <CommandGroup heading="Folders" className="text-zinc-400 text-xs">
+                <CommandGroup heading="Folders" className="text-zinc-400 text-xs px-2 sm:px-3">
                   <CommandItem
                     value="none"
                     onSelect={() => handleSelectFolder(null)}
-                    className="cursor-pointer hover:bg-zinc-800 text-zinc-300"
+                    className="cursor-pointer hover:bg-black/70 text-zinc-300 focus:ring-0 focus:outline-none"
                   >
                     <span>No folder (Default)</span>
                     {!selectedFolder && <Check className="ml-auto h-4 w-4 text-emerald-500" />}
@@ -165,7 +165,7 @@ export function FolderSelector({
                       key={folder.id}
                       value={folder.name}
                       onSelect={() => handleSelectFolder(folder)}
-                      className="cursor-pointer hover:bg-zinc-800 text-zinc-300"
+                      className="cursor-pointer hover:bg-black/70 text-zinc-300 focus:ring-0 focus:outline-none"
                     >
                       <span>{folder.name}</span>
                       {selectedFolder?.id === folder.id && (
@@ -174,15 +174,15 @@ export function FolderSelector({
                     </CommandItem>
                   ))}
                 </CommandGroup>
-                <CommandSeparator className="bg-zinc-800 my-1" />
-                <CommandGroup heading="Create New" className="text-zinc-400 text-xs">
-                  <div className="p-3 flex flex-col gap-2">
+                <CommandSeparator className="bg-zinc-700/90 my-1" />
+                <CommandGroup heading="Create New" className="text-zinc-400 text-xs px-2 sm:px-3">
+                  <div className="p-2 sm:p-3 flex flex-col gap-2">
                     <div className="flex gap-2">
                       <Input
                         value={newFolderName}
                         onChange={(e) => setNewFolderName(e.target.value)}
                         placeholder="New folder name"
-                        className="bg-zinc-800 border-zinc-700 text-zinc-200 text-sm focus:border-zinc-600 focus:ring-zinc-700/50"
+                        className="bg-black/50 border-zinc-700/90 text-zinc-200 text-sm focus:outline-none focus:ring-0"
                         onKeyDown={(e) => {
                           if (e.key === "Enter") {
                             e.preventDefault();
@@ -194,7 +194,7 @@ export function FolderSelector({
                         size="icon"
                         onClick={handleCreateFolder}
                         disabled={creating || !newFolderName.trim()}
-                        className="bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 text-zinc-200 transition-colors"
+                        className="bg-black/50 hover:bg-black/70 border border-zinc-700/90 text-zinc-200 transition-colors focus:ring-0 focus:outline-none"
                       >
                         {creating ? (
                           <Loader2 className="h-4 w-4 animate-spin" />

@@ -184,20 +184,20 @@ export function FilesTable({
 
   return (
     <>
-      <div className="rounded-lg border border-zinc-700/90 overflow-hidden">
+      <div className="rounded-lg border border-zinc-700/90 overflow-hidden overflow-x-auto">
         <Table>
-          <TableHeader className="bg-black/50">
+          <TableHeader className="bg-black/50 whitespace-nowrap">
             <TableRow className="hover:bg-black/70">
-              <TableHead className="w-[50%] text-zinc-400 font-medium">
+              <TableHead className="w-[40%] sm:w-[50%] text-zinc-400 font-medium text-xs sm:text-sm">
                 Name
               </TableHead>
-              <TableHead className="text-zinc-400 font-medium">
+              <TableHead className="text-zinc-400 font-medium text-xs sm:text-sm hidden sm:table-cell">
                 Created
               </TableHead>
-              <TableHead className="text-zinc-400 font-medium">
+              <TableHead className="text-zinc-400 font-medium text-xs sm:text-sm hidden sm:table-cell">
                 Last edited
               </TableHead>
-              <TableHead className="text-right text-zinc-400 font-medium">
+              <TableHead className="text-right text-zinc-400 font-medium text-xs sm:text-sm">
                 Actions
               </TableHead>
             </TableRow>
@@ -207,7 +207,7 @@ export function FilesTable({
               <TableRow>
                 <TableCell
                   colSpan={4}
-                  className="text-center py-8 text-zinc-500"
+                  className="text-center py-4 sm:py-8 text-zinc-500 text-sm"
                 >
                   No flows found. Create your first flow to get started.
                 </TableCell>
@@ -222,32 +222,32 @@ export function FilesTable({
                         onChange={(e) => setEditName(e.target.value)}
                         onBlur={handleSave}
                         onKeyDown={handleKeyDown}
-                        className="bg-black/50 border-zinc-700/90 text-white"
+                        className="bg-transparent focus:ring-0 focus:outline-none border-zinc-700/90 text-white text-xs sm:text-sm"
                         autoFocus
                       />
                     ) : (
                       <div className="flex items-center gap-2">
                         <div
-                          className="cursor-pointer hover:text-blue-400 transition-colors"
+                          className="cursor-pointer hover:text-blue-400 transition-colors text-xs sm:text-sm"
                           onClick={() => onFlowClick(file.id)}
                         >
                           {file.name}
                         </div>
                         {file.folderName && (
-                          <span className="px-2 py-0.5 bg-black/50 text-xs rounded-full text-zinc-400 border border-zinc-700/90">
+                          <span className="px-1.5 py-0.5 bg-black/50 text-xs rounded-full text-zinc-400 border border-zinc-700/90 ml-1">
                             {file.folderName}
                           </span>
                         )}
                       </div>
                     )}
                   </TableCell>
-                  <TableCell className="text-zinc-400">
+                  <TableCell className="text-zinc-400 text-xs sm:text-sm hidden sm:table-cell">
                     {file.created ||
                       (file.createdAt
                         ? formatCreatedDate(file.createdAt)
                         : "Just created")}
                   </TableCell>
-                  <TableCell className="text-zinc-400">
+                  <TableCell className="text-zinc-400 text-xs sm:text-sm hidden sm:table-cell">
                     {file.edited ||
                       (file.updatedAt
                         ? formatRelativeTime(file.updatedAt)
@@ -310,7 +310,7 @@ export function FilesTable({
         open={deleteId !== null}
         onOpenChange={() => setDeleteId(null)}
       >
-        <AlertDialogContent className="bg-black text-white border-zinc-700/90">
+        <AlertDialogContent className="bg-black/50 text-white border-zinc-700/90 max-w-[90vw] sm:max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Are you sure?</AlertDialogTitle>
             <AlertDialogDescription className="text-zinc-400">
@@ -319,11 +319,11 @@ export function FilesTable({
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-transparent text-white border-zinc-700/90 hover:bg-zinc-500/90">
+            <AlertDialogCancel className="bg-transparent text-white border-zinc-700/90 hover:bg-black/70 focus:ring-0 focus:outline-none">
               Cancel
             </AlertDialogCancel>
             <AlertDialogAction
-              className="bg-red-600 hover:bg-red-700 text-white"
+              className="bg-red-600 hover:bg-red-700 text-white focus:ring-0 focus:outline-none"
               onClick={handleDeleteConfirmed}
             >
               Delete
@@ -333,7 +333,7 @@ export function FilesTable({
       </AlertDialog>
 
       <Dialog open={movingId !== null} onOpenChange={() => setMovingId(null)}>
-        <DialogContent className="bg-black text-white border-zinc-700/90">
+        <DialogContent className="bg-black/50 text-white border-zinc-700/90 max-w-[90vw] sm:max-w-md">
           <DialogHeader>
             <DialogTitle>Move Flow to Folder</DialogTitle>
             <DialogDescription className="text-zinc-400">

@@ -266,7 +266,7 @@ export function FilesTable({
                       </DropdownMenuTrigger>
                       <DropdownMenuContent
                         align="end"
-                        className="bg-gradient-to-r from-purple-700/10 to-indigo-700/10 text-white border-zinc-700/90 rounded-xl"
+                        className="bg-black/50 text-white backdrop-blur-md rounded-xl border border-zinc-700/90"
                       >
                         <DropdownMenuItem
                           className="cursor-pointer hover:bg-black/70"

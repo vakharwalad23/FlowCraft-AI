@@ -86,12 +86,16 @@ export function Sidebar({
     if (onTabChange) {
       onTabChange(tab);
     }
+    // Close sidebar on mobile when a tab is clicked
+    if (onClose && window.innerWidth < 768) {
+      onClose();
+    }
   };
 
   return (
     <div
       className={cn(
-        "fixed md:relative w-64 h-screen bg-black/50 backdrop-blur-xl border-r border-zinc-700/90 flex flex-col z-20 transition-transform duration-300 ease-in-out",
+        "fixed md:relative w-64 h-screen bg-black/50 backdrop-blur-xl border-r border-zinc-700/90 flex flex-col z-40 transition-transform duration-300 ease-in-out overflow-y-auto",
         isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         className
       )}
@@ -101,7 +105,7 @@ export function Sidebar({
         {onClose && (
           <button
             onClick={onClose}
-            className="p-1 text-zinc-400 hover:text-white focus:outline-none focus:ring-0"
+            className="p-1 text-zinc-400 hover:text-white focus:outline-none focus:ring-0 "
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -119,7 +123,7 @@ export function Sidebar({
         )}
       </div>
       {/* User profile */}
-      <div className="p-3 sm:p-4 border-b border-zinc-700/90">
+      <div className="p-3 sm:p-4 border-b border-zinc-700/90 mt-10 md:mt-0">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white font-medium text-xs sm:text-sm">
             {isLoading ? (
@@ -153,12 +157,18 @@ export function Sidebar({
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 py-3 sm:py-4 px-2 sm:px-3 space-y-1">
+      <div className="flex-grow py-3 sm:py-4 px-2 sm:px-3 space-y-1">
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
-          onClick={() => router.push("/")}
+          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-black/70"
+          onClick={() => {
+            router.push("/");
+            // Close sidebar on mobile when home button is clicked
+            if (onClose && window.innerWidth < 768) {
+              onClose();
+            }
+          }}
         >
           <Home className="mr-2 h-4 w-4" />
           Home
@@ -204,12 +214,18 @@ export function Sidebar({
       </div>
 
       {/* Logout button */}
-      <div className="p-3 sm:p-4 border-t border-zinc-700/90 mt-auto">
+      <div className="p-3 sm:p-4 border-t border-zinc-700/90 mt-auto sticky bottom-0 bg-black/50 backdrop-blur-xl">
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
-          onClick={handleLogout}
+          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-black/70 focus:ring-0 focus:outline-none"
+          onClick={() => {
+            handleLogout();
+            // Close sidebar on mobile when logout button is clicked
+            if (onClose && window.innerWidth < 768) {
+              onClose();
+            }
+          }}
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout

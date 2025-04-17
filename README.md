@@ -81,7 +81,7 @@ FlowCraft AI is a powerful web application designed for UX designers to streamli
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/vakharwalad23/vercel-hackathon.git
+git clone https://github.com/vakharwalad23/FlowCraft-AI.git
 cd flowcraft-ai
 ```
 

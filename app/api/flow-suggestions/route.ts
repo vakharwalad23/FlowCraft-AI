@@ -79,7 +79,7 @@ export async function POST(req: Request) {
     const message = await anthropic.messages.create({
       model: "claude-3-haiku-20240307",
       max_tokens: 1000,
-      temperature: 0.7,
+      temperature: 0.2,
       system: `You are an expert UX design assistant specializing in user flows. Your task is to analyze a user flow and provide helpful, specific suggestions for improvements.
 
       IMPORTANT: You MUST respond with ONLY a valid JSON object in the following format with no other text or explanation:

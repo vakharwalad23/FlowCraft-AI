@@ -528,7 +528,7 @@ export function AISuggestions({ className }: AISuggestionsProps) {
                   >
                     <div className="p-4">
                       <div className="flex items-center justify-between">
-                        <div 
+                        <div
                           className="flex items-center gap-2 cursor-pointer flex-1"
                           onClick={() => toggleSuggestion(suggestion.id)}
                         >
@@ -539,22 +539,17 @@ export function AISuggestions({ className }: AISuggestionsProps) {
                         </div>
                         <div className="flex items-center gap-2">
                           {getTypeBadge(suggestion.type)}
-                          <CollapsibleTrigger>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="h-8 w-8 p-0 focus:ring-0 focus:outline-none border-0 bg-transparent hover:bg-black/30 hover:text-white"
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                toggleSuggestion(suggestion.id);
-                              }}
+                          <CollapsibleTrigger asChild>
+                            <button
+                              type="button"
+                              className="h-8 w-8 p-0 flex items-center justify-center cursor-pointer rounded-md bg-transparent hover:bg-black/70 border-0 focus:ring-0 focus:outline-none"
                             >
                               {isOpen[suggestion.id] ? (
                                 <ChevronUp className="h-4 w-4" />
                               ) : (
                                 <ChevronDown className="h-4 w-4" />
                               )}
-                            </Button>
+                            </button>
                           </CollapsibleTrigger>
                         </div>
                       </div>

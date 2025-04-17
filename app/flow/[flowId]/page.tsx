@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useParams, useRouter } from "next/navigation";
 import { BriefInput } from "@/components/BriefInput";
 import { FlowDiagram } from "@/components/FlowDiagram";
@@ -8,6 +8,7 @@ import { AISuggestions } from "@/components/AISuggestions";
 import useFlowStore from "@/store/useFlowStore";
 import type { FlowStep } from "@/types/flow";
 import { Button } from "@/components/ui/button";
+import debounce from "lodash/debounce";
 import {
   PanelLeftClose,
   PanelLeftOpen,
@@ -38,6 +39,8 @@ export default function FlowPage() {
   const [isLeftPanelOpen, setIsLeftPanelOpen] = useState(true);
   const [isRightPanelOpen, setIsRightPanelOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
+  const [localFlowName, setLocalFlowName] = useState(currentFlowName);
+  const [isSaving, setIsSaving] = useState(false);
 
   useEffect(() => {
     console.log("FlowPage useEffect running, flowIdParam:", flowIdParam);
@@ -60,21 +63,46 @@ export default function FlowPage() {
         "Attempting to load existing flow from API for ID:",
         flowIdParam
       );
-      if (currentFlowId !== flowIdParam) {
-        loadFlowFromApi(flowIdParam);
-      }
+      loadFlowFromApi(flowIdParam);
       setIsLoading(false);
     }
   }, [
     flowIdParam,
-    router,
     resetFlow,
     setCurrentFlowId,
     setFlowName,
-    currentFlowId,
     loadFlowFromApi,
-    setIsLoading,
   ]);
+
+  // Update local state when store changes
+  // This is used to update the flow name in the local state
+  useEffect(() => {
+    setLocalFlowName(currentFlowName);
+  }, [currentFlowName]);
+
+  // Debounced save function
+  const debouncedSave = useCallback(
+    debounce((name: string) => {
+      setIsSaving(true);
+      setFlowName(name.trim() || "Untitled");
+      setIsSaving(false);
+    }, 500),
+    [setFlowName]
+  );
+
+  // Handle input change
+  const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newName = e.target.value;
+    setLocalFlowName(newName);
+    debouncedSave(newName);
+  };
+
+  // Handle blur event
+  const handleNameBlur = () => {
+    const trimmedName = localFlowName.trim();
+    setLocalFlowName(trimmedName || "Untitled");
+    setFlowName(trimmedName || "Untitled");
+  };
 
   const handleGenerateFlow = (steps: FlowStep[]) => {
     console.log("Handling generated flow steps:", steps);
@@ -109,10 +137,26 @@ export default function FlowPage() {
   return (
     <ReactFlowProvider>
       <main className="min-h-screen bg-[#030712] text-white relative overflow-hidden">
-        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-purple-900/40 backdrop-blur-sm px-4 py-1.5 rounded-lg border border-slate-700/50 shadow-lg">
-          <span className="text-sm font-medium text-slate-200">
-            {currentFlowName}
-          </span>
+        <div className="fixed top-4 left-1/2 -translate-x-1/2 z-50 bg-black/40 backdrop-blur-sm rounded-lg border border-zinc-700/90 shadow-lg overflow-auto">
+          <div className="relative">
+            <input
+              type="text"
+              value={localFlowName}
+              onChange={handleNameChange}
+              onBlur={handleNameBlur}
+              maxLength={100}
+              className={`text-sm font-medium text-white bg-purple-900/40 backdrop-blur-sm rounded-lg border ${
+                isSaving ? "border-purple-500/50" : "border-slate-700/50"
+              } focus:ring-0 focus:outline-gray-400 text-center py-2 px-4 w-[180px] overflow-auto transition-colors duration-300`}
+              aria-label="Flow name"
+              placeholder="Untitled"
+            />
+            {isSaving && (
+              <div className="absolute right-2 top-1/2 -translate-y-1/2">
+                <div className="animate-spin rounded-full h-4 w-4 border-2 border-purple-500" />
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Left Panel Toggle Button */}

@@ -58,7 +58,7 @@ Important guidelines:
       model: "claude-3-haiku-20240307",
       temperature: 0.7,
       system: systemPrompt,
-      max_tokens: 2048,
+      max_tokens: 4000,
     });
 
     // Extract and validate JSON from the response

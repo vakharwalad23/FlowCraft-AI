@@ -12,8 +12,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useState } from "react";
-import Image from "next/image";
-import { Loader2, X } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { signIn, signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
@@ -26,22 +25,8 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const [image, setImage] = useState<File | null>(null);
-  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const router = useRouter();
   const [loading, setLoading] = useState(false);
-
-  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreview(reader.result as string);
-      };
-      reader.readAsDataURL(file);
-    }
-  };
 
   const validateForm = () => {
     if (!firstName || !lastName) {
@@ -148,38 +133,6 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
               placeholder="Confirm your password"
             />
           </div>
-          <div className="grid gap-2">
-            <Label htmlFor="image">Profile Image (optional)</Label>
-            <div className="flex items-end gap-4">
-              {imagePreview && (
-                <div className="relative w-16 h-16 rounded-sm overflow-hidden">
-                  <Image
-                    src={imagePreview}
-                    alt="Profile preview"
-                    layout="fill"
-                    objectFit="cover"
-                  />
-                </div>
-              )}
-              <div className="flex items-center gap-2 w-full ">
-                <Input
-                  id="image"
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageChange}
-                  className="w-full bg-accent/10 border-none text-white/80 placeholder:text-white/50 [&::file-selector-button]:text-white  [&::file-selector-button]:border-none [&::file-selector-button]:bg-accent/20 [&::file-selector-button]:mr-2 [&::file-selector-button]:px-2 [&::file-selector-button]:py-1 [&::file-selector-button]:rounded-md"
-                />
-                {imagePreview && (
-                  <X
-                    onClick={() => {
-                      setImage(null);
-                      setImagePreview(null);
-                    }}
-                  />
-                )}
-              </div>
-            </div>
-          </div>
           <Button
             type="submit"
             className="w-full bg-white text-black hover:bg-purple-400/90 hover:text-white"
@@ -194,7 +147,7 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                   email,
                   password,
                   name: `${firstName} ${lastName}`,
-                  image: image ? await convertImageToBase64(image) : "",
+                  image: "",
                   callbackURL: redirectTo,
                   fetchOptions: {
                     onResponse: () => {
@@ -307,13 +260,4 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
       </CardFooter>
     </Card>
   );
-}
-
-async function convertImageToBase64(file: File): Promise<string> {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onloadend = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsDataURL(file);
-  });
 }

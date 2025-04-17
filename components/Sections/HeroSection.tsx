@@ -21,7 +21,7 @@ export function HeroSection() {
   const router = useRouter();
   return (
     <motion.section
-      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4"
+      className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 sm:px-6 md:px-8"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8 }}
@@ -91,10 +91,10 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.3, duration: 0.8 }}
-          className="flex items-center justify-center gap-4 mb-6"
+          className="flex items-center justify-center gap-2 sm:gap-4 mb-4 sm:mb-6"
         >
           <SparklesIcon className="h-6 w-6 text-purple-400" />
-          <p className="text-sm md:text-base text-gray-400 uppercase tracking-widest">
+          <p className="text-xs sm:text-sm md:text-base text-gray-400 uppercase tracking-widest">
             Introducing
           </p>
           <SparklesIcon className="h-6 w-6 text-purple-400" />
@@ -106,7 +106,7 @@ export function HeroSection() {
           transition={{ delay: 0.5, duration: 0.8, type: "spring" }}
           className="mb-8"
         >
-          <h1 className="text-6xl md:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 [text-shadow:0_0_25px_rgba(168,85,247,0.4),0_0_30px_rgba(236,72,153,0.2)]">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-400 via-pink-500 to-indigo-500 [text-shadow:0_0_25px_rgba(168,85,247,0.4),0_0_30px_rgba(236,72,153,0.2)]">
             FlowCraft AI
           </h1>
         </motion.div>
@@ -115,7 +115,7 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7, duration: 0.8 }}
-          className="text-xl md:text-2xl mb-12 max-w-3xl mx-auto font-light"
+          className="text-lg sm:text-xl md:text-2xl mb-8 sm:mb-12 max-w-3xl mx-auto font-light px-2 sm:px-4"
         >
           Transform your <GlowingText>UX design</GlowingText> process with
           <GlowingText> AI-powered</GlowingText> user flows and component
@@ -126,11 +126,11 @@ export function HeroSection() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.9, duration: 0.8 }}
-          className="flex flex-col sm:flex-row gap-4 justify-center"
+          className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center w-full max-w-md sm:max-w-none mx-auto"
         >
           <Button
             size="lg"
-            className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 [text-shadow:0_0_5px_rgba(255,255,255,0.6)] transition-all duration-300 transform hover:scale-105"
+            className="w-full sm:w-auto bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 [text-shadow:0_0_5px_rgba(255,255,255,0.6)] transition-all duration-300 transform hover:scale-105"
             onClick={() => {
               router.push("/dashboard");
             }}
@@ -153,7 +153,7 @@ export function HeroSection() {
           <Button
             size="lg"
             variant="outline"
-            className="border-purple-500/30 bg-accent-foreground hover:text-white hover:border-purple-500/50 hover:bg-purple-500/10 transition-all duration-300"
+            className="w-full sm:w-auto border-purple-500/30 bg-black/50 hover:bg-black/70 hover:text-white hover:border-purple-500/50 transition-all duration-300 focus:ring-0 focus:outline-none"
             onClick={() => {
               document
                 .getElementById("how-it-works")
@@ -179,7 +179,7 @@ function FloatingObject({
 }) {
   return (
     <motion.div
-      className={`absolute ${positionClass} h-16 w-16 md:h-20 md:w-20`}
+      className={`absolute ${positionClass} h-12 w-12 sm:h-16 sm:w-16 md:h-20 md:w-20`}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 1, delay }}
@@ -199,7 +199,7 @@ function FloatingObject({
         }}
       >
         <div className="absolute   rounded-full blur-xl"></div>
-        <div className="relative flex items-center justify-center w-12 h-12 md:w-16 md:h-16  backdrop-blur-md borde rounded-2xl shadow-xl transform rotate-12">
+        <div className="relative flex items-center justify-center w-10 h-10 sm:w-12 sm:h-12 md:w-16 md:h-16 backdrop-blur-md border-zinc-700/90 rounded-2xl shadow-xl transform rotate-12">
           <div className="h-6 w-6 md:h-8 md:w-8 text-transparent stroke-[url('#icon-gradient')]">
             {icon}
           </div>

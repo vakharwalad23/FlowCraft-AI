@@ -87,14 +87,14 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "w-64 h-screen bg-black border-r border-zinc-800/50 flex flex-col",
+        "w-56 sm:w-64 h-screen bg-black/50 border-r border-zinc-700/90 flex flex-col",
         className
       )}
     >
       {/* User profile */}
-      <div className="p-4 border-b border-zinc-800/50">
+      <div className="p-3 sm:p-4 border-b border-zinc-700/90">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white font-medium">
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-600 to-indigo-700 flex items-center justify-center text-white font-medium text-xs sm:text-sm">
             {isLoading ? (
               <div className="h-4 w-4 rounded-full border-2 border-white border-t-transparent animate-spin" />
             ) : user?.name ? (
@@ -113,10 +113,10 @@ export function Sidebar({
               </>
             ) : (
               <>
-                <h3 className="text-sm font-medium text-white truncate">
+                <h3 className="text-xs sm:text-sm font-medium text-white truncate">
                   {user?.name || "User"}
                 </h3>
-                <p className="text-xs text-zinc-400 truncate">
+                <p className="text-xs text-zinc-400 truncate text-[10px] sm:text-xs">
                   {user?.email || "user@example.com"}
                 </p>
               </>
@@ -126,7 +126,7 @@ export function Sidebar({
       </div>
 
       {/* Navigation */}
-      <div className="flex-1 py-4 px-3 space-y-1">
+      <div className="flex-1 py-3 sm:py-4 px-2 sm:px-3 space-y-1">
         <Button
           variant="ghost"
           size="sm"
@@ -142,7 +142,7 @@ export function Sidebar({
           variant="ghost"
           size="sm"
           className={cn(
-            "w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50",
+            "w-full justify-start text-zinc-300 hover:text-white hover:bg-black/70 text-xs sm:text-sm focus:ring-0 focus:outline-none",
             activeTab === "all" && "bg-purple-500/60 text-white"
           )}
           onClick={() => handleTabChange("all")}
@@ -154,7 +154,7 @@ export function Sidebar({
           variant="ghost"
           size="sm"
           className={cn(
-            "w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50",
+            "w-full justify-start text-zinc-300 hover:text-white hover:bg-black/70 text-xs sm:text-sm focus:ring-0 focus:outline-none",
             activeTab === "unorganized" && "bg-purple-500/60 text-white"
           )}
           onClick={() => handleTabChange("unorganized")}
@@ -166,7 +166,7 @@ export function Sidebar({
           variant="ghost"
           size="sm"
           className={cn(
-            "w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50",
+            "w-full justify-start text-zinc-300 hover:text-white hover:bg-black/70 text-xs sm:text-sm focus:ring-0 focus:outline-none",
             activeTab === "folders" && "bg-purple-500/60 text-white"
           )}
           onClick={() => handleTabChange("folders")}
@@ -177,7 +177,7 @@ export function Sidebar({
       </div>
 
       {/* Logout button */}
-      <div className="p-4 border-t border-zinc-800/50 mt-auto">
+      <div className="p-3 sm:p-4 border-t border-zinc-700/90 mt-auto">
         <Button
           variant="ghost"
           size="sm"

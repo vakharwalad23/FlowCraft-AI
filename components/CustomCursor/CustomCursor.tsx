@@ -3,6 +3,7 @@
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -11,6 +12,7 @@ export default function CustomCursor() {
   const [isMounted, setIsMounted] = useState(false);
   const [isOverFlow, setIsOverFlow] = useState(false);
   const pathname = usePathname();
+  const isMobile = useMediaQuery("(max-width: 768px)");
 
   // Check if we're on the landing page
   const isLandingPage = pathname === "/";
@@ -101,8 +103,8 @@ export default function CustomCursor() {
           cursor: none !important;
         }
       `;
-    } else {
-      // Regular style for landing page
+    } else if (!isMobile) {
+      // Regular style for landing page (only on non-mobile)
       styleElement.innerHTML = `
         /* Hide default cursor globally */
         body {
@@ -154,8 +156,8 @@ export default function CustomCursor() {
     };
   }, [isMounted, pathname, isLandingPage, isDashboardPage]);
 
-  // Don't render anything if not on landing page or not mounted
-  if (!isMounted || (!isLandingPage && !isDashboardPage)) {
+  // Don't render anything if not on landing page, not mounted, or on mobile
+  if (!isMounted || (!isLandingPage && !isDashboardPage) || isMobile) {
     return null;
   }
 

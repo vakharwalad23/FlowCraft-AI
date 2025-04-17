@@ -24,7 +24,7 @@ function FeatureCard({
 
   return (
     <Card
-      className="from-gray-900 to-black py-6 overflow-hidden group hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] transition-all duration-300 bg-black/50 border-2 border-gray-800 opacity-70 relative backdrop-blur-lg"
+      className="from-gray-900 to-black py-4 sm:py-6 overflow-hidden group hover:shadow-[0_0_25px_rgba(168,85,247,0.2)] transition-all duration-300 bg-black/50 border-2 border-zinc-700/90 opacity-70 relative backdrop-blur-lg"
       style={{
         transform: isHovering
           ? `translate3d(${mousePosition.x}px, ${mousePosition.y}px, 0) scale3d(1, 1, 1)`
@@ -77,13 +77,13 @@ function FeatureCard({
               </linearGradient>
             </svg>
           </div>
-          <CardTitle className="text-left text-white px-2 text-xl bg-clip-text relative z-10">
+          <CardTitle className="text-left text-white px-2 text-lg sm:text-xl bg-clip-text relative z-10">
             {feature.title}
           </CardTitle>
         </CardHeader>
 
         <CardContent>
-          <p className="text-gray-400 relative z-10 text-left">
+          <p className="text-gray-400 relative z-10 text-left text-sm sm:text-base">
             {feature.description}
           </p>
         </CardContent>
@@ -127,12 +127,12 @@ export function FeaturesSection() {
   ];
 
   return (
-    <section className="py-12 bg-black">
+    <section className="py-8 sm:py-12 bg-black px-4 sm:px-6">
       <div className="container mx-auto text-center">
-        <h2 className="text-3xl font-semibold text-white mb-8">
+        <h2 className="text-2xl sm:text-3xl font-semibold text-white mb-6 sm:mb-8">
           Our Key Features
         </h2>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
           {features.map((feature, index) => (
             <FeatureCard key={index} feature={feature} index={index} />
           ))}

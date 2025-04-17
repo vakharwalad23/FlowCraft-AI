@@ -31,16 +31,16 @@ function ActionCard({
 }: ActionCardProps) {
   return (
     <div
-      className="bg-black/30 backdrop-blur-md border border-zinc-700/90 rounded-xl p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-zinc-900/30 transition-colors"
+      className="bg-black/50 backdrop-blur-md border border-zinc-700/90 rounded-xl p-4 sm:p-6 md:p-8 flex flex-col items-center justify-center text-center group cursor-pointer hover:bg-black/70 transition-colors"
       onClick={onClick}
     >
       <div
-        className={`w-16 h-16 mb-4 flex items-center justify-center ${color} rounded-full group-hover:${hoverColor} transition-colors`}
+        className={`w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 mb-3 sm:mb-4 flex items-center justify-center ${color} rounded-full group-hover:${hoverColor} transition-colors`}
       >
         {icon}
       </div>
-      <h3 className="text-lg font-medium">{title}</h3>
-      <p className="text-sm text-gray-400 mt-2">{description}</p>
+      <h3 className="text-base sm:text-lg font-medium">{title}</h3>
+      <p className="text-xs sm:text-sm text-gray-400 mt-1 sm:mt-2">{description}</p>
     </div>
   );
 }
@@ -112,7 +112,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
 
   return (
     <>
-      <div className="flex justify-start mb-8 ml-6">
+      <div className="flex justify-start mb-4 sm:mb-6 md:mb-8 mx-4 sm:ml-6">
         <div className="w-full max-w-md">
           <ActionCard
             icon={<Workflow className="w-8 h-8 text-zinc-200" />}
@@ -130,7 +130,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
         open={isCreateFlowDialogOpen}
         onOpenChange={setIsCreateFlowDialogOpen}
       >
-        <DialogContent className="bg-gradient-to-br from-purple-700/10 to-indigo-700/10 backdrop-blur-md text-white border border-zinc-700/90">
+        <DialogContent className="bg-black/50 backdrop-blur-md text-white border border-zinc-700/90 max-w-[90vw] sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
               Create New Flow
@@ -144,7 +144,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
                 id="flow-name"
                 value={flowName}
                 onChange={(e) => setFlowName(e.target.value)}
-                className=" bg-transparent focus:ring-0  focus:ring-offset-0  border-zinc-700/90 text-white"
+                className="bg-transparent focus:ring-0 focus:outline-none border-zinc-700/90 text-white"
                 placeholder="Enter flow name"
                 autoFocus
               />
@@ -163,13 +163,13 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
             <Button
               variant="outline"
               onClick={() => setIsCreateFlowDialogOpen(false)}
-              className="bg-transparent text-white border-zinc-700/90 hover:bg-zinc-900 hover:text-white"
+              className="bg-transparent text-white border-zinc-700/90 hover:bg-black/70 hover:text-white focus:ring-0 focus:outline-none"
             >
               Cancel
             </Button>
             <Button
               onClick={handleCreateFlow}
-              className="bg-indigo-600 hover:bg-indigo-700 text-white"
+              className="bg-indigo-600 hover:bg-indigo-700 text-white focus:ring-0 focus:outline-none"
               disabled={isCreating}
             >
               {isCreating ? (

@@ -144,6 +144,10 @@ AUTH_URL="http://localhost:3000"
 
 # AI
 ANTHROPIC_API_KEY="sk-ant-api-key"
+
+# Google OAuth
+GOOGLE_CLIENT_ID="your-google-client-id"
+GOOGLE_CLIENT_SECRET="your-google-client-secret"
 ```
 
 ## 📚 Project Structure

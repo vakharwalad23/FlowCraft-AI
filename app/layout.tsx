@@ -6,7 +6,7 @@ import ClientOnly from "@/components/CustomCursor/ClientOnly";
 import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
-  title: "FlowCraft AI | %s",
+  title: "FlowCraft AI | Transform Project Briefs into UX Flows with AI",
   description:
     "FlowCraft AI transforms natural language project briefs into interactive user flow diagrams with UI component suggestions, streamlining the UX design process.",
   keywords: [
@@ -49,7 +49,6 @@ export const metadata: Metadata = {
     images: ["https://your-domain.com/twitter-image.png"],
     creator: "@yourhandle",
   },
-  viewport: "width=device-width, initial-scale=1",
   alternates: {
     canonical: "https://flowcraftai.vercel.app",
   },

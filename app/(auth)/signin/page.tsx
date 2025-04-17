@@ -1,7 +1,7 @@
 import SignIn from "@/components/Auth/SignIn";
 
 export const metadata = {
-  title: "Sign In",
+  title: "FlowCraft AI | Sign In",
   description: "Sign in to your account",
 };
 

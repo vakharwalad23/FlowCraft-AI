@@ -1,7 +1,7 @@
 import SignUp from "@/components/Auth/SignUp";
 
 export const metadata = {
-  title: "Sign Up",
+  title: "FlowCraft AI | Sign Up",
   description: "Create a new account",
 };
 

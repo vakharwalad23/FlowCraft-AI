@@ -29,13 +29,18 @@ export default function Dashboard() {
   const [files, setFiles] = useState<File[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("all");
+  const [isMac, setIsMac] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     fetchFlows();
 
+    // Detect if user is on macOS
+    setIsMac(navigator.platform.toUpperCase().indexOf("MAC") >= 0);
+
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.ctrlKey && event.key === "k") {
+      // Check for both Command key (macOS) and Ctrl key (Windows/Linux)
+      if ((isMac ? event.metaKey : event.ctrlKey) && event.key === "k") {
         event.preventDefault();
         searchInputRef.current?.focus();
       }
@@ -45,7 +50,7 @@ export default function Dashboard() {
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, []);
+  }, [isMac]);
 
   // Update the fetchFlows function to maintain folder structure
   const fetchFlows = async () => {
@@ -254,7 +259,7 @@ export default function Dashboard() {
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
               <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-zinc-800 px-2 py-1 rounded text-gray-400">
-                Ctrl + K
+                {isMac ? "⌘ + K" : "Ctrl + K"}
               </span>
             </div>
           </div>

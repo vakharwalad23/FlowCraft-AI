@@ -90,6 +90,7 @@ export function FlowDiagram() {
     }
   }, [nodes.length, fitView]);
 
+  // Update the handleExportImage function
   const handleExportImage = useCallback(async () => {
     if (!flowRef.current) {
       toast.error("Could not export flow diagram");
@@ -102,24 +103,36 @@ export function FlowDiagram() {
         flowRef.current.getElementsByClassName("react-flow__node");
       const originalStyles: { [key: string]: string }[] = [];
 
+      // Get flow name from store
+      const currentFlowName =
+        useFlowStore.getState().currentFlowName || "Untitled Flow";
+
       // Hide all control elements and panels
       const controlsElements = [
         ".react-flow__panel-top-right", // Controls
         ".react-flow__panel-bottom-right", // Bottom panel with buttons
-        ".react-flow__controls" // Navigation controls
+        ".react-flow__controls", // Navigation controls
+        ".absolute.bottom-4.left-4.z-50", // Our custom zoom controls
+        ".fixed.bottom-16.right-16.z-50", // Temporary zoom indicator
       ];
 
-      const hiddenElements: { element: HTMLElement, originalDisplay: string }[] = [];
+      const hiddenElements: {
+        element: HTMLElement;
+        originalDisplay: string;
+      }[] = [];
 
       // Hide all control elements
-      controlsElements.forEach(selector => {
-        const element = flowRef.current?.querySelector(selector) as HTMLElement;
-        if (element) {
-          hiddenElements.push({
-            element,
-            originalDisplay: element.style.display
+      controlsElements.forEach((selector) => {
+        const elements = flowRef.current?.querySelectorAll(selector);
+        if (elements) {
+          elements.forEach((element) => {
+            const htmlElement = element as HTMLElement;
+            hiddenElements.push({
+              element: htmlElement,
+              originalDisplay: htmlElement.style.display,
+            });
+            htmlElement.style.display = "none";
           });
-          element.style.display = "none";
         }
       });
 
@@ -136,6 +149,32 @@ export function FlowDiagram() {
         element.style.transition = "none";
       });
 
+      // Add a temporary flow name element that will be visible in the exported image
+      const flowNameElement = document.createElement("div");
+      flowNameElement.className = "flow-name-export";
+      flowNameElement.textContent = currentFlowName;
+
+      // Style the flow name element
+      Object.assign(flowNameElement.style, {
+        position: "absolute",
+        top: "20px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        backgroundColor: "rgba(15, 23, 42, 0.8)",
+        color: "white",
+        padding: "8px 16px",
+        borderRadius: "8px",
+        fontSize: "16px",
+        fontWeight: "500",
+        zIndex: "1000",
+        boxShadow: "0 4px 6px rgba(0,0,0,0.1)",
+        border: "1px solid rgba(100, 116, 139, 0.5)",
+        backdropFilter: "blur(8px)",
+      });
+
+      // Append the flow name element to the flow container
+      flowRef.current.appendChild(flowNameElement);
+
       const dataUrl = await toPng(flowRef.current, {
         backgroundColor: "#030712",
         quality: 1,
@@ -145,6 +184,9 @@ export function FlowDiagram() {
           height: "100%",
         },
       });
+
+      // Remove the temporary flow name element
+      flowRef.current.removeChild(flowNameElement);
 
       // Restore original styles
       Array.from(elements).forEach((el, index) => {
@@ -160,7 +202,9 @@ export function FlowDiagram() {
 
       // Create download link
       const link = document.createElement("a");
-      link.download = "flowcraft-diagram.png";
+      link.download = `${currentFlowName
+        .replace(/\s+/g, "-")
+        .toLowerCase()}.png`;
       link.href = dataUrl;
       link.click();
 

@@ -242,7 +242,7 @@ export default function Dashboard() {
 
         <div className="container p-4 relative z-10">
           {/* Updated search bar container - centered and full width */}
-          <div className="flex items-center justify-center mb-8">
+          <div className="flex items-center justify-start mb-8 ml-6">
             <div className="relative border border-zinc-700/50 rounded-xl w-1/2 max-w-xl">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input

@@ -112,7 +112,7 @@ export function ActionCards({ onFlowCreated }: ActionCardsProps) {
 
   return (
     <>
-      <div className="flex justify-center mb-8">
+      <div className="flex justify-start mb-8 ml-6">
         <div className="w-full max-w-md">
           <ActionCard
             icon={<Workflow className="w-8 h-8 text-zinc-200" />}

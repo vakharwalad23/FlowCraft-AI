@@ -179,8 +179,9 @@ export function Sidebar({
       {/* Logout button */}
       <div className="p-4 border-t border-zinc-800/50 mt-auto">
         <Button
+          variant="ghost"
           size="sm"
-          className="w-full justify-start text-white font-medium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0 transition-all duration-300 hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]"
+          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />

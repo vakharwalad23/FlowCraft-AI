@@ -1,5 +1,10 @@
 import SignUp from "@/components/Auth/SignUp";
 
+export const metadata = {
+  title: "Sign Up",
+  description: "Create a new account",
+};
+
 export default function SignUpPage() {
   return (
     <div

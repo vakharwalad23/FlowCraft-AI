@@ -20,6 +20,11 @@ import {
 import { ReactFlowProvider } from "reactflow";
 import { v4 as uuidv4 } from "uuid";
 
+export const metadata = {
+  title: "Flow Page",
+  description: "Create and manage your flow diagrams",
+};
+
 export default function FlowPage() {
   const params = useParams();
   const {

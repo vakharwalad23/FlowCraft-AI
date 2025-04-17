@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import ReactFlow, {
   Background,
-  Controls,
   Panel,
   BackgroundVariant,
   useReactFlow,
@@ -13,7 +12,7 @@ import "reactflow/dist/style.css";
 import { FlowNode } from "@/components/FlowNode";
 import useFlowStore from "@/store/useFlowStore";
 import { Button } from "@/components/ui/button";
-import { Download, Undo } from "lucide-react";
+import { Download, Undo, ZoomIn, ZoomOut } from "lucide-react";
 import { toPng } from "html-to-image";
 import { toast } from "sonner";
 
@@ -27,10 +26,60 @@ export function FlowDiagram() {
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, resetFlow } =
     useFlowStore();
 
-  const { fitView } = useReactFlow();
+  const { fitView, zoomIn, zoomOut, getViewport } = useReactFlow();
   const flowRef = useRef<HTMLDivElement>(null);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
+
+  // Add zoom tracking state
+  const [zoomLevel, setZoomLevel] = useState(100);
+  const [showZoomIndicator, setShowZoomIndicator] = useState(false);
+  const zoomTimeout = useRef<NodeJS.Timeout | null>(null);
+
+  // Update zoom level from current viewport
+  const updateZoomLevel = useCallback(() => {
+    const currentViewport = getViewport();
+    const zoomPercentage = Math.round(currentViewport.zoom * 100);
+    setZoomLevel(zoomPercentage);
+    setShowZoomIndicator(true);
+
+    // Clear any existing timeout
+    if (zoomTimeout.current) {
+      clearTimeout(zoomTimeout.current);
+    }
+
+    // Hide indicator after 2 seconds
+    zoomTimeout.current = setTimeout(() => {
+      setShowZoomIndicator(false);
+    }, 2000);
+  }, [getViewport]);
+
+  // Handle viewport changes (zoom)
+
+  // Custom zoom handlers that also update our zoom indicator
+  const handleZoomIn = useCallback(() => {
+    zoomIn();
+    setTimeout(updateZoomLevel, 50);
+  }, [zoomIn, updateZoomLevel]);
+
+  const handleZoomOut = useCallback(() => {
+    zoomOut();
+    setTimeout(updateZoomLevel, 50);
+  }, [zoomOut, updateZoomLevel]);
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (zoomTimeout.current) {
+        clearTimeout(zoomTimeout.current);
+      }
+    };
+  }, []);
+
+  // Set initial zoom level
+  useEffect(() => {
+    setTimeout(updateZoomLevel, 100);
+  }, [updateZoomLevel]);
 
   // Re-fit view when nodes change
   useEffect(() => {
@@ -160,6 +209,17 @@ export function FlowDiagram() {
 
   return (
     <div className="absolute inset-0" ref={flowRef}>
+      {/* Temporary zoom indicator that appears when zooming */}
+      <div
+        className={`fixed bottom-16 right-16 z-50 bg-slate-900/80 backdrop-blur-sm px-3 py-1.5 rounded-lg border border-slate-700/50 shadow-lg transition-opacity duration-300 ${
+          showZoomIndicator ? "opacity-100" : "opacity-0"
+        }`}
+      >
+        <span className="text-sm font-medium text-purple-300">
+          {zoomLevel}%
+        </span>
+      </div>
+
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -169,6 +229,7 @@ export function FlowDiagram() {
         nodeTypes={nodeTypes}
         defaultViewport={defaultViewport}
         onInit={setReactFlowInstance}
+        onMove={updateZoomLevel} // Use the existing updateZoomLevel function
         fitView
         fitViewOptions={{ padding: 0.2, duration: 200 }}
         defaultEdgeOptions={{
@@ -192,14 +253,63 @@ export function FlowDiagram() {
           size={1}
           color="#1E293B"
         />
-        <Controls
-          className="bg-slate-900/90 border border-slate-800 p-2 rounded-lg shadow-xl"
-          showInteractive={false}
-        />
+
+        {/* Replace the existing custom controls with this minimal version */}
+        <div className="absolute bottom-4 left-4 z-50 flex items-center gap-1.5">
+          {/* Zoom percentage display */}
+          <div className="bg-slate-900/90 backdrop-blur-sm border border-slate-800 px-2 py-1 rounded-md shadow-lg">
+            <span className="text-xs font-medium text-purple-300">
+              {zoomLevel}%
+            </span>
+          </div>
+
+          {/* Controls buttons in a row */}
+          <div className="flex bg-slate-900/90 backdrop-blur-sm border border-slate-800 rounded-md shadow-lg overflow-hidden">
+            {/* Zoom out button */}
+            <button
+              className="p-1.5 text-gray-300 hover:text-white hover:bg-slate-800 transition-colors"
+              onClick={handleZoomOut}
+              title="Zoom out"
+            >
+              <ZoomOut size={16} />
+            </button>
+
+            {/* Zoom in button */}
+            <button
+              className="p-1.5 text-gray-300 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-800"
+              onClick={handleZoomIn}
+              title="Zoom in"
+            >
+              <ZoomIn size={16} />
+            </button>
+
+            {/* Fit view button */}
+            <button
+              className="p-1.5 text-gray-300 hover:text-white hover:bg-slate-800 transition-colors border-l border-slate-800"
+              onClick={() => fitView({ padding: 0.2, duration: 300 })}
+              title="Fit view"
+            >
+              <svg
+                height="16"
+                width="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
+              </svg>
+            </button>
+          </div>
+        </div>
+
         <Panel
           position="bottom-right"
           className="flex gap-2 react-flow__panel-bottom-right "
         >
+          {/* Export and reset buttons (unchanged) */}
           <Button
             variant="secondary"
             size="sm"

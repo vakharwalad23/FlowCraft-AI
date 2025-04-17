@@ -217,8 +217,7 @@ export function AISuggestions({ className }: AISuggestionsProps) {
                 findBestNodePlacement(suggestion);
 
               console.log(
-                `Adding node ${isAfter ? "after" : "before"} node "${
-                  nodes.find((n) => n.id === sourceNodeId)?.data.title
+                `Adding node ${isAfter ? "after" : "before"} node "${nodes.find((n) => n.id === sourceNodeId)?.data.title
                 }" (ID: ${sourceNodeId})`
               );
 
@@ -463,15 +462,15 @@ export function AISuggestions({ className }: AISuggestionsProps) {
 
   return (
     <div className={`flex flex-col h-full ${className}`}>
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-4 w-full gap-1">
         <h2 className="text-xl font-bold flex items-center">
-          <Sparkles className="h-5 w-5 mr-2 text-purple-400" />
+          <Sparkles className="h-4 w-4 mr-2 text-purple-400" />
           AI Suggestions
         </h2>
         <Button
           onClick={generateSuggestions}
           disabled={isLoading}
-          className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700"
+          className="bg-gradient-to-r from-indigo-500 to-purple-600 hover:from-indigo-600 hover:to-purple-700 "
         >
           {isLoading ? (
             <>
@@ -500,12 +499,12 @@ export function AISuggestions({ className }: AISuggestionsProps) {
             className="mb-4"
             onValueChange={setActiveTab}
           >
-            <TabsList className="grid grid-cols-5 mb-4 bg-zinc-900/50">
-              <TabsTrigger value="all">All</TabsTrigger>
-              <TabsTrigger value="improvements">Improve</TabsTrigger>
-              <TabsTrigger value="additions">Add</TabsTrigger>
-              <TabsTrigger value="structure">Structure</TabsTrigger>
-              <TabsTrigger value="warnings">Warnings</TabsTrigger>
+            <TabsList className="grid grid-cols-5 mb-4 bg-black/50 w-full">
+              <TabsTrigger value="all" className="text-popover data-[state=active]:text-zinc-800">All</TabsTrigger>
+              <TabsTrigger value="improvements" className="text-popover data-[state=active]:text-zinc-800">Improve</TabsTrigger>
+              <TabsTrigger value="additions" className="text-popover data-[state=active]:text-zinc-800">Add</TabsTrigger>
+              <TabsTrigger value="structure" className="text-popover data-[state=active]:text-zinc-800">Structure</TabsTrigger>
+              <TabsTrigger value="warnings" className="text-popover data-[state=active]:text-zinc-800">Warnings</TabsTrigger>
             </TabsList>
 
             <TabsContent value={activeTab} className="m-0">
@@ -517,24 +516,22 @@ export function AISuggestions({ className }: AISuggestionsProps) {
                     onOpenChange={() => toggleSuggestion(suggestion.id)}
                     className={`
                       bg-zinc-800/40 border rounded-lg overflow-hidden
-                      ${
-                        isOpen[suggestion.id]
-                          ? "border-blue-600/50"
-                          : "border-zinc-700/50"
+                      ${isOpen[suggestion.id]
+                        ? "border-blue-600/50"
+                        : "border-zinc-700/50"
                       }
-                      ${
-                        isOpen[suggestion.id]
-                          ? "shadow-[0_0_15px_rgba(59,130,246,0.15)]"
-                          : ""
+                      ${isOpen[suggestion.id]
+                        ? "shadow-[0_0_15px_rgba(59,130,246,0.15)]"
+                        : ""
                       }
                     `}
                   >
-                    <div
-                      className="p-4 cursor-pointer"
-                      onClick={() => toggleSuggestion(suggestion.id)}
-                    >
+                    <div className="p-4">
                       <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-2">
+                        <div
+                          className="flex items-center gap-2 cursor-pointer flex-1"
+                          onClick={() => toggleSuggestion(suggestion.id)}
+                        >
                           {getTypeIcon(suggestion.type)}
                           <h3 className="font-medium text-white">
                             {suggestion.title}
@@ -543,17 +540,16 @@ export function AISuggestions({ className }: AISuggestionsProps) {
                         <div className="flex items-center gap-2">
                           {getTypeBadge(suggestion.type)}
                           <CollapsibleTrigger asChild>
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              className="h-8 w-8 p-0"
+                            <button
+                              type="button"
+                              className="h-8 w-8 p-0 flex items-center justify-center cursor-pointer rounded-md bg-transparent hover:bg-black/70 border-0 focus:ring-0 focus:outline-none"
                             >
                               {isOpen[suggestion.id] ? (
                                 <ChevronUp className="h-4 w-4" />
                               ) : (
                                 <ChevronDown className="h-4 w-4" />
                               )}
-                            </Button>
+                            </button>
                           </CollapsibleTrigger>
                         </div>
                       </div>
@@ -565,7 +561,7 @@ export function AISuggestions({ className }: AISuggestionsProps) {
                           {suggestion.actionable && (
                             <Badge
                               variant="outline"
-                              className="bg-zinc-900/50 border-zinc-700"
+                              className="bg-zinc-300/50  border-zinc-700"
                             >
                               Actionable
                             </Badge>

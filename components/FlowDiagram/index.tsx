@@ -53,16 +53,26 @@ export function FlowDiagram() {
         flowRef.current.getElementsByClassName("react-flow__node");
       const originalStyles: { [key: string]: string }[] = [];
 
-      // Hide control buttons and panel
-      const controlsPanel = flowRef.current.querySelector(
-        ".react-flow__panel-top-right"
-      );
-      const controlsOriginalDisplay = controlsPanel
-        ? (controlsPanel as HTMLElement).style.display
-        : "";
-      if (controlsPanel) {
-        (controlsPanel as HTMLElement).style.display = "none";
-      }
+      // Hide all control elements and panels
+      const controlsElements = [
+        ".react-flow__panel-top-right", // Controls
+        ".react-flow__panel-bottom-right", // Bottom panel with buttons
+        ".react-flow__controls" // Navigation controls
+      ];
+
+      const hiddenElements: { element: HTMLElement, originalDisplay: string }[] = [];
+
+      // Hide all control elements
+      controlsElements.forEach(selector => {
+        const element = flowRef.current?.querySelector(selector) as HTMLElement;
+        if (element) {
+          hiddenElements.push({
+            element,
+            originalDisplay: element.style.display
+          });
+          element.style.display = "none";
+        }
+      });
 
       Array.from(elements).forEach((el) => {
         const element = el as HTMLElement;
@@ -94,10 +104,10 @@ export function FlowDiagram() {
         element.style.transition = originalStyles[index].transition;
       });
 
-      // Restore controls visibility
-      if (controlsPanel) {
-        (controlsPanel as HTMLElement).style.display = controlsOriginalDisplay;
-      }
+      // Restore visibility of all hidden elements
+      hiddenElements.forEach(({ element, originalDisplay }) => {
+        element.style.display = originalDisplay;
+      });
 
       // Create download link
       const link = document.createElement("a");
@@ -187,8 +197,8 @@ export function FlowDiagram() {
           showInteractive={false}
         />
         <Panel
-          position="top-right"
-          className="flex gap-2 react-flow__panel-top-right"
+          position="bottom-right"
+          className="flex gap-2 react-flow__panel-bottom-right "
         >
           <Button
             variant="secondary"

@@ -13,6 +13,7 @@ import {
   applyEdgeChanges,
 } from "reactflow";
 import type { Flow as StorageFlow, FlowStep } from "@/types/flow";
+import debounce from "lodash/debounce";
 
 interface FlowState {
   nodes: Node<FlowStep>[];
@@ -64,6 +65,47 @@ const convertStateToStorageFlow = (
   };
 };
 // --------------------------------------------------------
+
+// Create a debounced save function outside the store to avoid recreation on each store update
+const debouncedSaveFlow = debounce(async (
+  flowId: string, 
+  nodes: Node<FlowStep>[], 
+  flowName: string, 
+  folderId?: string
+) => {
+  if (!flowId || typeof window === "undefined") return;
+
+  try {
+    const flowToSave = convertStateToStorageFlow(
+      nodes,
+      flowName,
+      flowId
+    );
+
+    console.log("Saving flow with debounced function:", flowId);
+    
+    // Use the API to save the flow
+    const response = await fetch(`/api/flows/${flowId}`, {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        name: flowToSave.name,
+        steps: flowToSave.steps,
+        folderId: folderId,
+      }),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to save flow: ${response.statusText}`);
+    }
+
+    console.log("Flow saved successfully");
+  } catch (error) {
+    console.error(`Failed to save flow ${flowId}:`, error);
+  }
+}, 1000); // 1 second debounce time
 
 const useFlowStore = create<FlowState>((set, get) => ({
   nodes: [],
@@ -260,37 +302,11 @@ const useFlowStore = create<FlowState>((set, get) => ({
       currentFolderId,
       isStoreInitialized,
     } = get();
-    if (!currentFlowId || !isStoreInitialized || typeof window === "undefined")
-      return;
-
-    try {
-      const flowToSave = convertStateToStorageFlow(
-        nodes,
-        currentFlowName,
-        currentFlowId
-      );
-
-      // Use the API to save the flow
-      const response = await fetch(`/api/flows/${currentFlowId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: flowToSave.name,
-          steps: flowToSave.steps,
-          folderId: currentFolderId,
-        }),
-      });
-
-      if (!response.ok) {
-        throw new Error(`Failed to save flow: ${response.statusText}`);
-      }
-
-      console.log("Flow saved successfully");
-    } catch (error) {
-      console.error(`Failed to save flow ${currentFlowId}:`, error);
-    }
+    
+    if (!currentFlowId || !isStoreInitialized || typeof window === "undefined") return;
+    
+    // Use the debounced version instead of making the API call directly
+    debouncedSaveFlow(currentFlowId, nodes, currentFlowName, currentFolderId);
   },
   loadFlowFromApi: async (flowId: string) => {
     set({ isLoading: true, isStoreInitialized: false });

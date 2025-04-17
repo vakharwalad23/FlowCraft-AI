@@ -166,7 +166,7 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                       toast.success(
                         "Account created successfully! Redirecting..."
                       );
-                      router.push(redirectTo);
+                      router.push("/dashboard");
                     },
                   },
                 });

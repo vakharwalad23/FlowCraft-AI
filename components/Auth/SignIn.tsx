@@ -103,12 +103,14 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
                   },
                   onSuccess: () => {
                     toast.success("Successfully signed in!");
-                    router.push(redirectTo);
+                    router.push("/dashboard");
                   },
                   onError: (ctx) => {
-                    toast.error(ctx.error?.message || "Invalid email or password");
+                    toast.error(
+                      ctx.error?.message || "Invalid email or password"
+                    );
                     setLoading(false);
-                  }
+                  },
                 }
               );
             }}
@@ -141,9 +143,11 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
                       setLoading(false);
                     },
                     onError: (ctx) => {
-                      toast.error(ctx.error?.message || "Failed to sign in with Google");
+                      toast.error(
+                        ctx.error?.message || "Failed to sign in with Google"
+                      );
                       setLoading(false);
-                    }
+                    },
                   }
                 );
               }}

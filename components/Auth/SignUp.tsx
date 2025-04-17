@@ -15,7 +15,7 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 import { signIn, signUp } from "@/lib/auth-client";
 import { toast } from "sonner";
-import { useRouter } from "next/navigation";
+// import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
@@ -25,7 +25,7 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [passwordConfirmation, setPasswordConfirmation] = useState("");
-  const router = useRouter();
+  // const router = useRouter();
   const [loading, setLoading] = useState(false);
 
   const validateForm = () => {
@@ -167,8 +167,8 @@ export default function SignUp({ redirectTo }: { redirectTo: string }) {
                         "Account created successfully! Redirecting..."
                       );
                       setTimeout(() => {
-                        router.push(redirectTo);
-                      }, 800);
+                        window.location.href = "/dashboard";
+                      }, 500);
                     },
                   },
                 });

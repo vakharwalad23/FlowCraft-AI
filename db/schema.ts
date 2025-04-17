@@ -139,7 +139,7 @@ export const flowFolderRelation = pgTable(
       flowFolderRelation.flowId,
       flowFolderRelation.folderId
     ),
-    uniqueIndex("flow_folder_relation_created_at_idx").on(
+    index("flow_folder_relation_created_at_idx").on(
       flowFolderRelation.createdAt
     ),
   ]

@@ -43,6 +43,13 @@
       "when": 1744801730874,
       "tag": "0005_colorful_romulus",
       "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1744897055367,
+      "tag": "0006_left_justice",
+      "breakpoints": true
     }
   ]
 }

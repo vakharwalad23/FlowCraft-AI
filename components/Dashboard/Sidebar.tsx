@@ -1,16 +1,22 @@
 import React, { useEffect, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Home, Folder, LogOut, Layers, Clock } from "lucide-react";
+import { Home, Folder, LogOut, Clock, Star } from "lucide-react";
 import { signOut } from "@/lib/auth-client";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 interface SidebarProps {
   className?: string;
+  activeTab?: string;
+  onTabChange?: (tab: string) => void;
 }
 
-export function Sidebar({ className }: SidebarProps) {
+export function Sidebar({
+  className,
+  activeTab = "all",
+  onTabChange,
+}: SidebarProps) {
   const [user, setUser] = useState<{
     name: string;
     email: string;
@@ -18,10 +24,9 @@ export function Sidebar({ className }: SidebarProps) {
   } | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
-  const pathname = usePathname();
 
   useEffect(() => {
-    // Fetch user data from the new API endpoint
+    // Fetch user data from the API endpoint
     const fetchUserData = async () => {
       try {
         setIsLoading(true);
@@ -73,6 +78,12 @@ export function Sidebar({ className }: SidebarProps) {
     }
   };
 
+  const handleTabChange = (tab: string) => {
+    if (onTabChange) {
+      onTabChange(tab);
+    }
+  };
+
   return (
     <div
       className={cn(
@@ -93,20 +104,23 @@ export function Sidebar({ className }: SidebarProps) {
             )}
           </div>
           <div className="overflow-hidden">
-            <h3 className="text-sm font-medium text-white truncate">
-              {isLoading ? (
-                <div className="h-4 w-20 bg-zinc-800 rounded animate-pulse" />
-              ) : (
-                user?.name || "User"
-              )}
-            </h3>
-            <p className="text-xs text-zinc-400 truncate">
-              {isLoading ? (
-                <div className="h-3 w-24 bg-zinc-800 rounded animate-pulse mt-1" />
-              ) : (
-                user?.email || "user@example.com"
-              )}
-            </p>
+            {isLoading ? (
+              <>
+                {/* Skeleton for name */}
+                <div className="h-4 w-20 bg-zinc-800 rounded animate-pulse mb-1" />
+                {/* Skeleton for email */}
+                <div className="h-3 w-24 bg-zinc-800 rounded animate-pulse" />
+              </>
+            ) : (
+              <>
+                <h3 className="text-sm font-medium text-white truncate">
+                  {user?.name || "User"}
+                </h3>
+                <p className="text-xs text-zinc-400 truncate">
+                  {user?.email || "user@example.com"}
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
@@ -117,37 +131,45 @@ export function Sidebar({ className }: SidebarProps) {
           variant="ghost"
           size="sm"
           className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
-          onClick={() => router.push("/dashboard")}
+          onClick={() => router.push("/")}
         >
           <Home className="mr-2 h-4 w-4" />
           Home
+        </Button>
+
+        {/* Tab navigation buttons */}
+        <Button
+          variant="ghost"
+          size="sm"
+          className={cn(
+            "w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50",
+            activeTab === "all" && "bg-purple-500/60 text-white"
+          )}
+          onClick={() => handleTabChange("all")}
+        >
+          <Star className="mr-2 h-4 w-4" />
+          All
         </Button>
         <Button
           variant="ghost"
           size="sm"
           className={cn(
             "w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50",
-            pathname === "/dashboard" && "bg-zinc-800/70 text-white"
+            activeTab === "unorganized" && "bg-purple-500/60 text-white"
           )}
-          onClick={() => router.push("/dashboard?tab=all")}
-        >
-          <Layers className="mr-2 h-4 w-4" />
-          All Flows
-        </Button>
-        <Button
-          variant="ghost"
-          size="sm"
-          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
-          onClick={() => router.push("/dashboard?tab=unorganized")}
+          onClick={() => handleTabChange("unorganized")}
         >
           <Clock className="mr-2 h-4 w-4" />
-          Unorganized Flows
+          Unorganized
         </Button>
         <Button
           variant="ghost"
           size="sm"
-          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
-          onClick={() => router.push("/dashboard?tab=folders")}
+          className={cn(
+            "w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50",
+            activeTab === "folders" && "bg-purple-500/60 text-white"
+          )}
+          onClick={() => handleTabChange("folders")}
         >
           <Folder className="mr-2 h-4 w-4" />
           Folders
@@ -155,11 +177,10 @@ export function Sidebar({ className }: SidebarProps) {
       </div>
 
       {/* Logout button */}
-      <div className="p-4 border-t border-zinc-800/50">
+      <div className="p-4 border-t border-zinc-800/50 mt-auto">
         <Button
-          variant="ghost"
           size="sm"
-          className="w-full justify-start text-zinc-300 hover:text-white hover:bg-zinc-800/50"
+          className="w-full justify-start text-white font-medium bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 border-0 transition-all duration-300 hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]"
           onClick={handleLogout}
         >
           <LogOut className="mr-2 h-4 w-4" />

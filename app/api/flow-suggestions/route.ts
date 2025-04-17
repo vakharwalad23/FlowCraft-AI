@@ -96,7 +96,9 @@ export async function POST(req: Request) {
         ]
       }
       
-      Your entire response must be a valid, parseable JSON object. Do not include any markdown, explanation text, or formatting outside of the JSON. Do not explain the JSON structure.
+      Your entire response must be a valid, parseable JSON object. Do not include any markdown, explanation text, or formatting outside of the JSON. 
+      Crucially, ensure that any double quotes (") inside JSON string values are properly escaped with a backslash (\\"). For example: "title": "Add a \\"Welcome\\" step".
+      Do not explain the JSON structure itself in the output.
       
       For addition suggestions, please follow these guidelines:
       1. Use format "add-after-[position]" or "add-before-[position]" for the id field

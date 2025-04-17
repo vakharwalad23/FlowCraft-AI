@@ -10,12 +10,16 @@ interface SidebarProps {
   className?: string;
   activeTab?: string;
   onTabChange?: (tab: string) => void;
+  isOpen?: boolean;
+  onClose?: () => void;
 }
 
 export function Sidebar({
   className,
   activeTab = "all",
   onTabChange,
+  isOpen = true,
+  onClose,
 }: SidebarProps) {
   const [user, setUser] = useState<{
     name: string;
@@ -87,10 +91,33 @@ export function Sidebar({
   return (
     <div
       className={cn(
-        "w-56 sm:w-64 h-screen bg-black/50 border-r border-zinc-700/90 flex flex-col",
+        "fixed md:relative w-64 h-screen bg-black/50 backdrop-blur-xl border-r border-zinc-700/90 flex flex-col z-20 transition-transform duration-300 ease-in-out",
+        isOpen ? "translate-x-0" : "-translate-x-full md:translate-x-0",
         className
       )}
     >
+      {/* Close button for mobile */}
+      <div className="md:hidden absolute right-2 top-2">
+        {onClose && (
+          <button
+            onClick={onClose}
+            className="p-1 text-zinc-400 hover:text-white focus:outline-none focus:ring-0"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              className="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fillRule="evenodd"
+                d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                clipRule="evenodd"
+              />
+            </svg>
+          </button>
+        )}
+      </div>
       {/* User profile */}
       <div className="p-3 sm:p-4 border-b border-zinc-700/90">
         <div className="flex items-center gap-3">

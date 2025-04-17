@@ -8,8 +8,10 @@ import { Input } from "@/components/ui/input";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
 import { Sidebar } from "@/components/Dashboard/Sidebar";
+import { MobileHeader } from "@/components/Dashboard/MobileHeader";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Flow, FlowFolder } from "@/types/flow";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 
 // Update File interface in dashboard/page.tsx
 interface File {
@@ -30,6 +32,8 @@ export default function Dashboard() {
   const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<string>("all");
   const [isMac, setIsMac] = useState(false);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const isMobile = useMediaQuery("(max-width: 768px)");
   const router = useRouter();
 
   useEffect(() => {
@@ -232,13 +236,50 @@ export default function Dashboard() {
     setActiveTab(tab);
   };
 
+  const toggleSidebar = () => {
+    setIsSidebarOpen(!isSidebarOpen);
+  };
+
+  const closeSidebar = () => {
+    setIsSidebarOpen(false);
+  };
+
+  // Add an overlay for mobile when sidebar is open
+  const handleOverlayClick = () => {
+    if (isMobile && isSidebarOpen) {
+      closeSidebar();
+    }
+  };
+
   return (
     <div className="flex h-screen bg-black text-white overflow-hidden">
+      {/* Mobile sidebar overlay */}
+      {isMobile && isSidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-10" 
+          onClick={handleOverlayClick}
+          aria-hidden="true"
+        />
+      )}
+
       {/* Pass activeTab and handleTabChange to Sidebar */}
-      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
+      <Sidebar 
+        activeTab={activeTab} 
+        onTabChange={handleTabChange} 
+        isOpen={isMobile ? isSidebarOpen : true}
+        onClose={closeSidebar}
+      />
 
       {/* Main content */}
-      <div className="flex-1 relative overflow-y-auto">
+      <div className="flex-1 relative overflow-y-auto w-full md:w-auto">
+        {/* Mobile header with burger menu and search */}
+        <MobileHeader 
+          isSidebarOpen={isSidebarOpen}
+          toggleSidebar={toggleSidebar}
+          searchQuery={searchQuery}
+          setSearchQuery={setSearchQuery}
+          isMac={isMac}
+        />
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />
           <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-pink-500/20 to-transparent blur-[100px]" />
@@ -246,19 +287,19 @@ export default function Dashboard() {
         </div>
 
         <div className="container p-4 relative z-10">
-          {/* Updated search bar container - centered and full width */}
-          <div className="flex items-center justify-start mb-8 ml-6">
-            <div className="relative border border-zinc-700/50 rounded-xl w-1/2 max-w-xl">
+          {/* Desktop search bar - hidden on mobile */}
+          <div className="hidden md:flex items-center justify-start mb-8 ml-6">
+            <div className="relative border border-zinc-700/90 rounded-xl w-1/2 max-w-xl">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 ref={searchInputRef}
                 type="search"
                 placeholder="Search your flows..."
-                className="w-full pl-10 py-6 h-12 text-base bg-black/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 border-zinc-700/50 text-white rounded-xl"
+                className="w-full pl-10 py-6 h-12 text-base bg-black/50 focus:outline-none focus:ring-0 border-zinc-700/90 text-white rounded-xl"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-zinc-800 px-2 py-1 rounded text-gray-400">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-black/70 px-2 py-1 rounded text-gray-400 border border-zinc-700/90">
                 {isMac ? "⌘ + K" : "Ctrl + K"}
               </span>
             </div>

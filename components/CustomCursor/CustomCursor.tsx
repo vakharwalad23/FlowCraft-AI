@@ -2,8 +2,8 @@
 
 import { useEffect, useState, useRef } from "react";
 import { usePathname } from "next/navigation";
-import Image from "next/image";
 import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { CursorSVG } from "./CursorSVG";
 
 export default function CustomCursor() {
   const cursorRef = useRef<HTMLDivElement>(null);
@@ -180,13 +180,7 @@ export default function CustomCursor() {
         transition: "opacity 0.2s ease, transform 0.1s ease",
       }}
     >
-      <Image
-        src="/cursor.svg"
-        alt="Custom Cursor"
-        width={32}
-        height={32}
-        className="w-8 h-8"
-      />
+      <CursorSVG className="w-8 h-8" />
     </div>
   );
 }

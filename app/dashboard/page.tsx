@@ -11,11 +11,6 @@ import { Sidebar } from "@/components/Dashboard/Sidebar";
 import { Skeleton } from "@/components/ui/skeleton";
 import type { Flow, FlowFolder } from "@/types/flow";
 
-export const metadata = {
-  title: "Dashboard",
-  description: "Your dashboard for managing flows",
-};
-
 // Update File interface in dashboard/page.tsx
 interface File {
   id: string;

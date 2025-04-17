@@ -3,14 +3,13 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Search } from "lucide-react";
+import { Search, Workflow, Clock, Folder } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { ActionCards } from "@/components/Dashboard/ActionCards";
 import { FilesTable } from "@/components/Dashboard/FilesTable";
-import { DashboardTabs } from "@/components/Dashboard/DashboardTabs";
+import { Sidebar } from "@/components/Dashboard/Sidebar";
+import { Skeleton } from "@/components/ui/skeleton";
 import type { Flow, FlowFolder } from "@/types/flow";
-import { Button } from "@/components/ui/button";
-import { signOut } from "@/lib/auth-client";
 
 // Update File interface in dashboard/page.tsx
 interface File {
@@ -159,17 +158,6 @@ export default function Dashboard() {
     }
   };
 
-  const handleLogout = async () => {
-    try {
-      await signOut();
-      toast.success("Logged out successfully");
-      router.push("/");
-    } catch (error) {
-      console.error("Error logging out:", error);
-      toast.error("Failed to log out");
-    }
-  };
-
   const handleDeleteFlow = async (id: string) => {
     try {
       const response = await fetch(`/api/flows/${id}`, {
@@ -240,58 +228,117 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="min-h-screen relative overflow-hidden bg-black text-white ">
-      <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
-        <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />
-        <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-pink-500/20 to-transparent blur-[100px]" />
-        <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-indigo-500/20 to-transparent blur-[100px]" />
-      </div>
+    <div className="flex h-screen bg-black text-white overflow-hidden">
+      {/* Pass activeTab and handleTabChange to Sidebar */}
+      <Sidebar activeTab={activeTab} onTabChange={handleTabChange} />
 
-      <div className="container mx-auto p-4 relative z-10">
-        <div className="flex items-center justify-between mb-6">
-          <DashboardTabs onTabChange={handleTabChange} />
+      {/* Main content */}
+      <div className="flex-1 relative overflow-y-auto">
+        <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
+          <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />
+          <div className="absolute top-1/3 right-0 w-[500px] h-[500px] rounded-full bg-gradient-to-bl from-pink-500/20 to-transparent blur-[100px]" />
+          <div className="absolute bottom-0 left-1/3 w-[700px] h-[700px] rounded-full bg-gradient-to-tr from-indigo-500/20 to-transparent blur-[100px]" />
+        </div>
 
-          <div className="flex items-center gap-2">
-            <Button
-              variant="default"
-              className="text-white border-zinc-700/90 bg-red-500/70 hover:bg-red-500/40 hover:text-white"
-              onClick={handleLogout}
-            >
-              Logout
-            </Button>
-            <div className="relative border border-zinc-700/50 rounded-xl">
-              <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-gray-400" />
+        <div className="container p-4 relative z-10">
+          {/* Updated search bar container - centered and full width */}
+          <div className="flex items-center justify-start mb-8 ml-6">
+            <div className="relative border border-zinc-700/50 rounded-xl w-1/2 max-w-xl">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <Input
                 ref={searchInputRef}
                 type="search"
-                placeholder="Search"
-                className="w-64 pl-8 bg-black/50 focus:outline-none focus:ring-0 focus:border-0 border-zinc-700/50 text-white rounded-xl"
+                placeholder="Search your flows..."
+                className="w-full pl-10 py-6 h-12 text-base bg-black/50 focus:outline-none focus:ring-1 focus:ring-purple-500/50 focus:border-purple-500/50 border-zinc-700/50 text-white rounded-xl"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
               />
-              <span className="absolute right-2.5 top-2.5 text-xs text-gray-400">
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-xs bg-zinc-800 px-2 py-1 rounded text-gray-400">
                 Ctrl + K
               </span>
             </div>
           </div>
-        </div>
 
-        <ActionCards onFlowCreated={fetchFlows} />
+          <ActionCards onFlowCreated={fetchFlows} />
 
-        {isLoading ? (
-          <div className="flex items-center justify-center py-12">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-cyan-500" />
-            <span className="ml-3">Loading flows...</span>
+          {/* Add a title section that shows current tab */}
+          <div className=" p-6 mt-6">
+            <div className="mb-4 flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-white flex items-center">
+                {activeTab === "all" && (
+                  <Workflow className="h-5 w-5 mr-2 text-purple-400" />
+                )}
+                {activeTab === "unorganized" && (
+                  <Clock className="h-5 w-5 mr-2 text-purple-400" />
+                )}
+                {activeTab === "folders" && (
+                  <Folder className="h-5 w-5 mr-2 text-purple-400" />
+                )}
+                {activeTab === "all" && "All Flows"}
+                {activeTab === "unorganized" && "Unorganized Flows"}
+                {activeTab === "folders" && "Folders"}
+              </h2>
+            </div>
+
+            {isLoading ? (
+              <div className="rounded-lg border border-zinc-700/90 overflow-hidden">
+                {/* Table header skeleton */}
+                <div className="bg-black/50 border-b border-zinc-800/70 p-3">
+                  <div className="flex items-center w-full">
+                    <Skeleton className="h-5 w-[50%] bg-zinc-800/80" />{" "}
+                    <Skeleton className="h-5 w-[15%] bg-zinc-800/80 mx-2" />{" "}
+                    {/* Created date */}
+                    <Skeleton className="h-5 w-[15%] bg-zinc-800/80 mx-2" />{" "}
+                    {/* Last edited */}
+                    <div className="ml-auto">
+                      <Skeleton className="h-5 w-16 bg-zinc-800/80" />{" "}
+                      {/* Actions */}
+                    </div>
+                  </div>
+                </div>
+
+                {/* Table rows skeleton */}
+                {Array(5)
+                  .fill(0)
+                  .map((_, index) => (
+                    <div
+                      key={`skeleton-${index}`}
+                      className="flex items-center w-full p-4 hover:bg-black/30 border-b border-zinc-800/50 transition-colors"
+                    >
+                      {/* Name column with icon */}
+                      <div className="flex items-center w-[50%]">
+                        <Skeleton className="h-8 w-8 rounded-full bg-zinc-800/80" />
+                        <Skeleton className="h-5 w-48 ml-3 bg-zinc-800/80" />
+                      </div>
+
+                      {/* Created date */}
+                      <div className="w-[15%]">
+                        <Skeleton className="h-4 w-24 bg-zinc-800/80" />
+                      </div>
+
+                      {/* Last edited */}
+                      <div className="w-[15%]">
+                        <Skeleton className="h-4 w-24 bg-zinc-800/80" />
+                      </div>
+
+                      {/* Actions */}
+                      <div className="ml-auto text-right">
+                        <Skeleton className="h-8 w-8 rounded-full inline-block bg-zinc-800/80" />
+                      </div>
+                    </div>
+                  ))}
+              </div>
+            ) : (
+              <FilesTable
+                files={getFilteredFiles()}
+                onRename={handleRenameFlow}
+                onDelete={handleDeleteFlow}
+                onFlowClick={handleFlowClick}
+                onMoveToFolder={handleMoveToFolder}
+              />
+            )}
           </div>
-        ) : (
-          <FilesTable
-            files={getFilteredFiles()}
-            onRename={handleRenameFlow}
-            onDelete={handleDeleteFlow}
-            onFlowClick={handleFlowClick}
-            onMoveToFolder={handleMoveToFolder}
-          />
-        )}
+        </div>
       </div>
     </div>
   );

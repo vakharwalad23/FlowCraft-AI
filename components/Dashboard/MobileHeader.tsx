@@ -10,7 +10,6 @@ interface MobileHeaderProps {
   toggleSidebar: () => void;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
-  isMac: boolean;
 }
 
 export function MobileHeader({
@@ -18,7 +17,6 @@ export function MobileHeader({
   toggleSidebar,
   searchQuery,
   setSearchQuery,
-  isMac,
 }: MobileHeaderProps) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
 
@@ -36,7 +34,7 @@ export function MobileHeader({
           <Menu className="h-5 w-5" />
         )}
       </Button>
-      
+
       <div className="flex-1 mx-3 relative">
         <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
         <Input

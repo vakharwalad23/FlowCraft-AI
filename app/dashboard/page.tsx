@@ -255,17 +255,17 @@ export default function Dashboard() {
     <div className="flex h-screen bg-black text-white overflow-hidden">
       {/* Mobile sidebar overlay */}
       {isMobile && isSidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-10" 
+        <div
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-10"
           onClick={handleOverlayClick}
           aria-hidden="true"
         />
       )}
 
       {/* Pass activeTab and handleTabChange to Sidebar */}
-      <Sidebar 
-        activeTab={activeTab} 
-        onTabChange={handleTabChange} 
+      <Sidebar
+        activeTab={activeTab}
+        onTabChange={handleTabChange}
         isOpen={isMobile ? isSidebarOpen : true}
         onClose={closeSidebar}
       />
@@ -273,12 +273,11 @@ export default function Dashboard() {
       {/* Main content */}
       <div className="flex-1 relative overflow-y-auto w-full md:w-auto">
         {/* Mobile header with burger menu and search */}
-        <MobileHeader 
+        <MobileHeader
           isSidebarOpen={isSidebarOpen}
           toggleSidebar={toggleSidebar}
           searchQuery={searchQuery}
           setSearchQuery={setSearchQuery}
-          isMac={isMac}
         />
         <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden">
           <div className="absolute top-0 left-0 w-[600px] h-[600px] rounded-full bg-gradient-to-br from-purple-500/20 to-transparent blur-[100px]" />

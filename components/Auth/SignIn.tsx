@@ -103,7 +103,7 @@ export default function SignIn({ redirectTo }: { redirectTo: string }) {
                   },
                   onSuccess: () => {
                     toast.success("Successfully signed in!");
-                    router.push("/dashboard");
+                    router.push(redirectTo);
                   },
                   onError: (ctx) => {
                     toast.error(

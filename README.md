@@ -7,37 +7,44 @@ FlowCraft AI is a powerful web application designed for UX designers to streamli
 ## 🚀 Features
 
 ### 🎙️ Voice Input for Project Briefs
+
 - Speak your project brief instead of typing
 - Makes input faster and more accessible
 - Seamless voice-to-text conversion
 
 ### 🧠 AI-Generated UX Flows
+
 - Transform text briefs into structured user flows
 - Each step includes suggested UI components
 - Intelligent flow organization based on user needs
 
 ### 🔄 Interactive Flow Diagram
+
 - Drag-and-drop node manipulation
 - Add, edit, or remove steps
 - Connect nodes to create complex flows
 - Visual flow representation
 
 ### 💡 AI-Powered Suggestions
+
 - Get real-time AI suggestions for improvements
 - Alternative steps and component
 - Context-aware recommendations
 
 ### 📤 Multiple Export Options
+
 - JSON export for developers
 - PNG export for quick sharing
 - Seamless integration into design workflows
 
 ### 💾 Save and Load Flows
+
 - Save work to database (authenticated users)
 - Organize flows with folders
 - Search and filter saved flows
 
 ### 🧩 UI Component Visualization
+
 - Visual component suggestions for each step
 - Quick component identification
 - Modern UI component recommendations
@@ -45,6 +52,7 @@ FlowCraft AI is a powerful web application designed for UX designers to streamli
 ## 🛠️ Tech Stack
 
 ### Frontend
+
 - **Next.js 15** (App Router)
 - **React 19**
 - **TypeScript**
@@ -54,27 +62,31 @@ FlowCraft AI is a powerful web application designed for UX designers to streamli
 - **Zustand** for state management
 
 ### Backend & Database
+
 - **Next.js API Routes**
 - **PostgreSQL** with **Drizzle ORM**
 - **Better Auth** for authentication
 
 ### AI Integration
+
 - **Anthropic Claude** via AI SDK
 - **Vercel AI SDK**
 
 ### Flow Visualization
-- **React Flow** for interactive diagrams
 
+- **React Flow** for interactive diagrams
 
 ## 📋 Installation
 
 1. Clone the repository:
+
 ```bash
-git clone https://github.com/yourusername/flowcraft-ai.git
+git clone https://github.com/vakharwalad23/vercel-hackathon.git
 cd flowcraft-ai
 ```
 
 2. Install dependencies:
+
 ```bash
 npm install
 # or
@@ -84,7 +96,8 @@ bun install
 ```
 
 3. Set up environment variables:
-Create a `.env` file in the root directory with the following variables:
+   Create a `.env` file in the root directory with the following variables:
+
 ```
 # Database
 DATABASE_URL="postgresql://username:password@localhost:5432/flowcraft"
@@ -98,6 +111,7 @@ ANTHROPIC_API_KEY="your-anthropic-api-key"
 ```
 
 4. Set up the database:
+
 ```bash
 # Generate migration files
 npm run db:generate
@@ -107,6 +121,7 @@ npm run db:migrate
 ```
 
 5. Run the development server:
+
 ```bash
 npm run dev
 # or
